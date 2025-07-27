@@ -1,0 +1,89 @@
+@font-face {
+    font-family: "Museo-300";
+    src: url('font/MuseoRMITVN-300.otf');   
+}
+@font-face {
+    font-family: "Museo-500";
+    src: url("font/MuseoRMITVN-500.otf");
+}
+@font-face {
+    font-family: "Museo-700";
+    src: url("font/MuseoRMITVN-700.otf");
+}
+:root {
+    --side-bar-bg-color: #000054;
+    --lesson-bg-color: white;
+    --nav-width: 25%;
+    --heading-2-size: 28px;
+}
+* {
+    margin: 0;
+}
+html, body {
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+}
+
+nav#side-menu{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: var(--nav-width) ;
+    height: 100%;
+    top: 0;
+    left:0;
+    background-color: var(--side-bar-bg-color);
+}
+nav#side-menu > a {
+    display: block;
+    font-family: "Museo-500";
+    font-size: 26px;
+    color: white;
+    text-decoration: none;   
+}
+ a:hover {
+    cursor: pointer;
+}
+main {
+    width: calc(100% - var(--nav-width));
+    height: 100%;
+    overflow-y: scroll;
+    margin-left: var(--nav-width);
+    border-left: 10px solid red;
+    padding: 20px;
+}
+h1, h2, h3, h4 {
+    font-family: "Museo-500", serif;
+    color: red;
+}
+.lesson {
+    background-color: var(--lesson-bg-color);
+    box-sizing: border-box;
+    width: 95%;
+    padding: 40px
+}
+.definition {
+    background-color: red;
+    color: white;
+    width: 80%;
+    margin: 10px  auto 10px 10px;
+    padding: 30px;
+    font-size: 24px;;
+
+}
+.code {
+    background-color: #000054;
+    margin: 6px;
+    padding: 8px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    border-radius: 8px;
+}
+.heading-2 {
+    font-family: "Museo-500";
+    font-size: var(--heading-2-size); 
+}

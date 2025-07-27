@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Grid vs Flex</title>
+        <style>
+            #grid-container {
+                display: grid;
+                grid-template-columns: auto auto auto;
+            }
+            #grid-container > div {
+                text-align: center;
+                background-color: lightgreen;
+                border: 3px solid green;
+                padding: 20px;
+            }
+            #flex-container {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;   
+            }
+            #flex-container > div {
+                    width: 29.8%;
+                    text-align: center;
+                    background-color: lightskyblue;
+                    border: 3px solid blue;
+                    padding: 20px;;
+            }
+
+        </style>
+    </head>
+    <body>
+        <h1>Grid vs Flex</h1>
+        <div id="grid-container">
+            <div>Grid 1</div>
+            <div>Grid 2</div>
+            <div>Grid 3</div>
+            <div>Grid 4</div>
+            <div>Grid 5</div>
+            <div>Grid 6</div>
+        </div>
+        <hr>
+        <div id="flex-container">
+            <div>Flex 1</div>
+            <div>Flex 2</div>
+            <div>Flex 3</div>
+            <div>Flex 4</div>
+            <div>Flex 5</div>
+            <div>Flex 6</div>
+        </div>
+    </body>
+</html>

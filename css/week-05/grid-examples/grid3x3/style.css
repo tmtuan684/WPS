@@ -1,0 +1,74 @@
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+.container { 
+  display: grid;
+  width: 90%;
+  height:90%;
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas: "left head head aside"
+                       "left art1 art2 right"
+                       "left art3 art4 right";
+  gap: 10px;
+  margin: 6px auto;
+  padding: 10px;
+
+}
+.grid-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    background-color: pink;   
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border-radius: 6px;
+    
+
+}
+.left {
+    background-color: green;
+    grid-area: left;
+}
+.head {
+    background-color: lightgreen;
+    grid-area: head;
+}
+.aside {
+    background-color: red;
+    grid-area: aside;
+}
+.right {
+    background-color: #000054;
+    grid-area: right;
+}
+.art1, .art2, .art3, .art4  {
+    background-color: gray;
+}
+.art1 {
+    grid-area: art1;
+}
+.art1 {
+    grid-area: art2;
+}
+.art1 {
+    grid-area: art3;
+}
+.art1 {
+    grid-area: art4;
+}
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .container > .grid-item {
+        width: 100%;
+    }
+};
