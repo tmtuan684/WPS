@@ -18,10 +18,18 @@ app.use(express.urlencoded({ extended: true}));
 app.use(express.static("public"));
 
 /* Routes */
-// READ - Find all posts and list them on homepage
+// READ - Find all posts and topics and list them on homepage
 app.get("/", async (req, res) => {
+    // Find all topics
+    const topics = await Topic.find({});
+    const topicsWithNumPosts = [];
+    for (let topic of topics) {
+        const numposts = await Post.countDocuments({ topic: topic._id });
+        topicsWithNumPosts.push({ ...topic.toObject(), numposts });
+    }
+    // Find all posts
     const posts = await Post.find().populate("author").populate("topic").populate("categories");
-    res.render("index", { posts });
+    res.render("index", { topics: topicsWithNumPosts, posts });
 });
 
 // ---------  CRUD operations for Topics --------- //
