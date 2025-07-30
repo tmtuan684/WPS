@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: "Add Topic" }) %>
+<body>
+    <div class="container">
+        <h1>Add Topic</h1>
+        <!-- List existing topics -->
+        <h2>Current topics</h2>
+        <ul>
+            <% topics.forEach(topic => { %>
+                <li><%= topic.name %> (<%= topic.numposts %> posts)</li>
+            <% }); %>
+        </ul>
+        <form action="/topics/add" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description (optiona)</label>
+                <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add this topic</button>
+        </form>
+    </div>
+<%- include('partials/footer') %>
