@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.bg-body-rmit-blue {
+    background-color: #000054;
+}
+
+nav.navbar a.navbar-brand {
+    color: #000;
+}
+
+nav.navbar a.navbar-brand:hover {
+    color: #0056b3;
+}
+main {
+    margin-top: 20px;
+    padding: 2rem;
+}
+.post {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);   
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
