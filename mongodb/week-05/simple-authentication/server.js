@@ -46,12 +46,16 @@ app.use(sessionMiddleware)
 app.use(express.static("public"));
 
 // Routes
-app.get('/template', (req, res) => {
-    res.render('template', { title: 'Template' });
+app.get('/', (req, res) => {
+    res.render('index', { title: 'Home' });
 });
 // ------ SIGN UP
 // GET - Show registration form
 app.get('/sign-up', (req, res) => {
+    // Check if user is already logged in
+    if (req.session.isLoggedIn) {
+        return res.redirect('/profile'); // Redirect to profile page if already logged in
+    }
     res.render('sign-up'); // Assuming you have a sign-up.ejs template
 });
 // POST - Handle registration
@@ -78,7 +82,9 @@ app.post('/sign-up', async (req, res) => {
 // ------ SIGN IN ------- //
 // GET - Show login form
 app.get('/sign-in', (req, res) => {
-    // 
+    if (req.session.isLoggedIn) {
+        return res.redirect('/profile'); // Redirect to profile if already logged in
+    }
     res.render('sign-in'); // Assuming you have a sign-in.ejs template
 
 });
@@ -109,7 +115,7 @@ app.post('/sign-in', async (req, res) => {
         });
 
         // Successful login
-        res.status(200).send(`Welcome back, ${user.username}!`);
+        res.status(302).redirect('/profile'); // Redirect to profile page after successful login    
     } catch (error) {
         console.error(error);           
         res.status(500).send('Internal server error');
@@ -120,11 +126,11 @@ app.post('/sign-in', async (req, res) => {
 app.get('/profile', async (req, res) => {
     // Assuming user is authenticated and user ID is stored in session
     if (!req.session.isLoggedIn) {
-        return res.status(401).send('You need to log in first');
+        return res.redirect('/sign-in'); // Redirect to sign-in page if not logged in
     }
     const userId = req.session.user.id; // Replace with your session management logic
     if (!userId) {
-        return res.status(401).send('You need to log in first');
+        return res.redirect('/sign-in'); // Redirect if no user ID in session   
     }
     try {
         const user = await User.findById(userId);
