@@ -69,6 +69,7 @@ app.post('/sign-up', async (req, res) => {
         }
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
+        // hashedPassword = password;
         // Create new user
         const user = new User({ username, email, password: hashedPassword });
         await user.save();
@@ -93,16 +94,16 @@ app.post('/sign-in', async (req, res) => {
     // Get user credentials from request body
     const { username, password } = req.body;
     try {
-        // Find user by email
+        // Find user by username
         const user = await User.findOne({ username: username });
         if (!user) {
-            return res.status(400).send('Invalid email or password');
+            return res.status(400).send('Invalid username or password');
         }
         // Compare password with hashed password
-
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
-            return res.status(400).send('Invalid email or password');
+            return res.status(400).send('Invalid username or password');
         }
         // Store user ID in session
         req.session.isLoggedIn = true;
@@ -113,7 +114,6 @@ app.post('/sign-in', async (req, res) => {
                 return res.status(500).send('Internal server error');
             }
         });
-
         // Successful login
         res.status(302).redirect('/profile'); // Redirect to profile page after successful login    
     } catch (error) {
