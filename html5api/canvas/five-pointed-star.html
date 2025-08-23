@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Five pointed star</title>
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            height: 80vh;
+            
+            border: 1px solid black;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Draw 4 concentric filled circles and 1 polygoned 5 point star
+        function draw5PointedStar() {
+            
+            const canvas = document.getElementById("canvas");
+            // Set actual pixel size for sharp rendering
+            const cssWidth = canvas.clientWidth;
+            const cssHeight = canvas.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = cssWidth * dpr;
+            canvas.height = cssHeight * dpr;
+            
+            if (canvas.getContext) {
+               
+                const ctx = canvas.getContext("2d");
+                // Start drawing from here
+                
+                var x = canvas.width / 2;
+                var y = canvas.height / 2;
+                var outerRadius = canvas.height / 4;
+                var innerRadius = outerRadius /2.5;
+               console.log(`outer radius = ${outerRadius}, inner radius = ${innerRadius}`); 
+                //Step 5. Draw a white five pointed star
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                for(let i=0; i < 10; i++) {
+                    // Divide a circle into 5 equal portions
+                    const radian = Math.PI/2 + Math.PI / 5 * i; // 360o = 2pi rad => rad = 180 / PI
+                    const r = i % 2 === 0 ? outerRadius : innerRadius ;
+                    const sx = x + r * Math.cos(radian);
+                    const sy = y - r * Math.sin(radian);
+                    if (i === 0) {
+                        ctx.moveTo(sx, sy);
+                        console.log(`move to (${sx}, ${sy})`);
+                    } else {
+                        ctx.lineTo(sx, sy);
+                        console.log(`line to (${sx}, ${sy})`);
+                    }
+                } 
+
+                ctx.closePath();
+                ctx.stroke();
+                ctx.fill();
+
+            } else {
+                // canvas unsupported code here
+            }
+        }
+
+        // Call function draw... when window fully loads
+        window.addEventListener("load", draw5PointedStar);
+    </script>
+    
+</body>
+</html>

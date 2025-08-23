@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Session Storage Auto-Save Example</title>
+</head>
+<body>
+    <h1>Session Storage Auto-Save Example</h1>
+    <input type="text" id="username" placeholder="Enter your username">
+    <div id="output"></div>
+
+    <script>
+        let username = document.getElementById('username');
+        username.addEventListener('input', () => {
+            sessionStorage.setItem('username', username.value);
+            localStorage.setItem("username", username.value);
+        });
+
+        window.addEventListener('load', () => {
+            const savedUsername = sessionStorage.getItem('username');
+            if (savedUsername) {
+                username.value = savedUsername;
+            }
+        });
+    </script>
+</body>
+</html> 
