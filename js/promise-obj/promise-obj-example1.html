@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Promise Object Example 1</title>
+</head>
+<body>
+    <h1>Promise Object Example 1</h1>
+    <script>
+        // Example of a Promise
+        const myPromise = new Promise((resolve, reject) => {
+            const success = true; // Simulating success or failure
+            if (success) {
+                resolve("Promise resolved successfully!");
+            } else {
+                reject("Promise rejected.");
+            }
+        });
+
+        // Handling the Promise
+        myPromise
+            .then((message) => {
+                console.log(message);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    </script>
+</body>
+</html>

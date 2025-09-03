@@ -7,11 +7,16 @@
     <script>
         let a = prompt("Enter the value for a:");
         let b = prompt("Enter the value for b:");
+        a = Number(a);
+        b = Number(b);
         alert("Before swap: a = " + a + ", b = " + b);
         // Swap values
-        let temp = a;
-        a = b;
-        b = temp;
+        // let temp = a;
+        // a = b;
+        // b = temp;
+        a = a + b; // 
+        b = a - b; // a
+        a = a - b; // (a + b) - a
         alert("After swap: a = " + a + ", b = " + b);
     </script>
 </body>

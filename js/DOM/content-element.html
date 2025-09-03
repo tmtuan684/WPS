@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>innerHTML, outerHTML, textContent, innerText, nodeValue</title>
+    </head>
+    <body>
+        <h1>Content Element Properties</h1>
+        <div id="content">
+            <p>This is a <strong>paragraph</strong> with <em>some</em> content.</p>
+        </div>
+      
+        <script>
+            const contentDiv = document.getElementById("content");
+            const explanationDiv = document.getElementById("explanation");
+            console.log("innerHTML:", contentDiv.innerHTML);
+            console.log("outerHTML:", contentDiv.outerHTML);
+            console.log("textContent:", contentDiv.textContent);
+            console.log("innerText:", contentDiv.innerText);
+            console.log("nodeValue:", contentDiv.firstChild.nodeValue);
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Fibonacci Sequence</title>
+    <script src="js-functions.js"></script>
+</head>
+<body>
+    <h1>Fibonacci Sequence</h1>
+    <div id="fibonacci-sequence"></div>
+    <script>
+        const n = parseInt(prompt("Enter the number of Fibonacci terms to generate:"));
+        for (let i = 0; i < n; i++) {
+            document.getElementById("fibonacci-sequence").innerHTML += fibonacci(i) + "<br>";
+        }
+    </script>
+</body>
+</html> 

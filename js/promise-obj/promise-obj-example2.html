@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Promise Object Example 2</title>
+</head>
+<body>
+    <h1>Promise Object Example 2</h1>
+    <script>
+        function makePromiseObject(data) {
+            return new Promise((resolve, reject) => {
+                if (!data) {
+                    reject(data => { return data });
+                }
+                resolve(data => { return data });
+            })
+        }
+        function promiseFulfilled() {
+            console.log("Promise fulfilled");
+        }
+
+        function promiseRejected() {
+            console.log("Promise rejected");
+        }
+    </script>
+</body>
+</html>

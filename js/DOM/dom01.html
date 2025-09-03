@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DOM Manipulation Example</title>
+    
+</head>
+<body>
+    <h1>DOM Manipulation Example</h1>
+    <div id="content">
+        <p>This is a paragraph.</p>
+    </div>
+    <script>
+        console.log(document);
+        console.log(document.head);
+        console.log(document.title);
+        console.log(document.body);
+        console.log("Children of the head:");
+        for(let i=0; i < document.head.children.length; i++) {
+            console.log(document.head.children[i]);
+        }
+
+        console.log("Children of the body:");
+        for(let i=0; i < document.body.children.length; i++) {
+            console.log(document.body.children[i]);
+        }
+    </script>
+</body>
+</html>

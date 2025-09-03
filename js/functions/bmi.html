@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BMI</title>
+    <script src="js-functions.js"></script>
+</head>
+<body>
+    <h1>Body Mass Index (BMI)</h1>  
+    <script>
+        let weight = parseFloat(prompt("Enter your weight in kilograms:"));
+        let height = parseFloat(prompt("Enter your height in meters:"));
+        let bmi = computeBMI(weight, height);
+        alert("Your BMI is: " + bmi.toFixed(2) + ", So you are " + explainBMI(bmi));
+    </script>
+</body>
+</html>
