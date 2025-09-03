@@ -1,0 +1,30 @@
+main {
+    padding: 20px;
+    margin-bottom: 200px; /* Space for footer */
+}
+header img {
+    width: 150px;
+    height: auto;
+}
+header a:hover {
+    transition: all 1s;
+    text-decoration: underline 4px solid red;
+    text-underline-offset: 4px;
+    
+}
+footer {
+  
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    height: 200px;
+    background-color: #000054;
+    margin-top: 40px;
+}
+
+footer img {
+    width: 150px;
+    height: auto;
+}
