@@ -36,16 +36,30 @@ Using JS to make these changes:
 //- Get h1 text and change its text value and color.
 h1.innerHTML = "My todo list this week";
 h1.style.color = "red";
+
 //- Get second list item text and change its value.
-const second_item = document.querySelectorAll("li")[1];
-second_item.innerHTML = "Take a walk";
+// const second_item = document.querySelectorAll("li")[1];
+// second_item.innerHTML = "Take a walk";
+
+
+
+
 //-- Get the image link url and change it to another link.
 banner.setAttribute("src", "https://images.pexels.com/photos/2736499/pexels-photo-2736499.jpeg");
+
+
+
+
+
+
+
+
+
 //- Change all list items to be done.
 const lis = document.querySelectorAll("li");
-// for (let li of lis) {
-//     li.classList.replace("not-done", "done");
-// }
+for (let li of lis) {
+    li.classList.replace("not-done", "done");
+}
 //- Change all list items from done to be not done and vice versa.
 for (let i = 0; i < lis.length; i++) {
     if (lis[i].classList.contains("done")) {
@@ -73,6 +87,12 @@ btnDone.addEventListener('click', () => {
         }
     }
 });
+
+
+
+
+
+
 //- Clicking on the button “Not Done All” makes all list items to be done.
 btnNotDone.addEventListener("click", () => {
     lis.forEach(function(li) {

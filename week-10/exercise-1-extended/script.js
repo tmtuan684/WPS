@@ -15,8 +15,7 @@ input.addEventListener("keydown", (e) => {
         // Add remove icon
         let removeBtn = document.createElement('span');
         removeBtn.className = "remove-btn";
-        removeBtn.title = "Remove";
-        removeBtn.innerHTML = "&#10060;";
+        removeBtn.innerHTML = "X";
         li.appendChild(removeBtn);
         ul.appendChild(li);
         input.value = "";

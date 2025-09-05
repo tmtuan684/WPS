@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XSS Example</title>
+</head>
+<body>
+   div>
+    <h1>Hello, World!</h1>
+    <p>This is a paragraph with <a href="https://example.com" onclick="alert('Hack!')">a link</a>.</p>
+    <img src="image.jpg" onerror="alert('Image error!')" />
+    <span class="highlight" style="color:red;">Important text</span>
+    <script>alert('This is a script!');</script>
+  </div>
+</body>
+</html>
