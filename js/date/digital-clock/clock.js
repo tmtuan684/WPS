@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
     
     setInterval(() => {
         let now = new Date();
-        clock.textContent =  now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();;
+        clock.textContent =  now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
     }, 1000);
 })
 
