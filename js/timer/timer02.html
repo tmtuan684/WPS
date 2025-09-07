@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>setTimeout() and clearTimeout()</title>
+</head>
+<body>
+    <h1>setTimeout() and clearTimeout() example</h1>
+    <script>
+        function funcA() {
+            console.log("Function A is called after some delay");
+            alert("Function A is called 2 seconds after page load");
+        }
+
+        const timerId = setTimeout(funcA, 2000);    // call function A after 2 seconds
+
+        // setTimeout(() => {
+        //     clearTimeout(timerId);  
+        // }, 3000);  // Cancel the timer after 3 seconds
+
+        clearTimeout(timerId);  // funcA is not called because the timer is cancelled
+        alert("The timer is cancelled before funcA is called");
+    </script>
+</body>
+</html>

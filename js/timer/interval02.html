@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>setInterval() and clearInterval() example</title>
+    <style>
+        .ball {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>setInterval() example</h1>
+    <div class="ball"></div>
+    <script>
+        const ball = document.querySelector(".ball");
+        function moveBall() {
+            let left = parseInt(ball.style.left) || 0;
+            ball.style.left = parseInt(left + 5)  + "px";
+            console.log(ball.style.left);
+        }
+        const intervalId = setInterval(moveBall, 500);
+        
+        setTimeout(() => {
+            clearInterval(intervalId);
+            alert("Ball stops moving after 5 seconds");
+        }, 5000); // Stop moving ball after 5 seconds
+    </script>
+</body>
+</html>
