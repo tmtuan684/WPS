@@ -1,0 +1,5 @@
+/* class highlight with background color and text color*/
+.highlight {
+    background-color: green;
+    color: white;
+}
