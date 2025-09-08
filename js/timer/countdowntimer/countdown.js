@@ -25,10 +25,8 @@ time.addEventListener("keydown", (e) => {
 
 // Listen to btn click to start counting down
 btn.addEventListener('click', (e) => {
-    timeElm = time.value.split(":");
-    
+    timeElm = time.value.split(":");  
     timeElm.forEach(elm => elm = parseInt(elm));
-
     var sec = toSecond(timeElm[0], timeElm[1], timeElm[2]);
     console.log(`Seconds: ${sec}`);
     const timerId = setInterval(function() {
@@ -38,20 +36,13 @@ btn.addEventListener('click', (e) => {
             alert("Time's up");
         } else {
             sec--;
-        }
-        
-        
-    }, 1000);
-    
-    
+        }      
+    }, 1000);  
 });
-
 function toSecond(hours, minutes,seconds) {
     return parseInt(hours * 3600) + parseInt(minutes * 60) + parseInt(seconds);
 }
-
 function tohhmmss(sec) {
-
     sec = parseInt(sec)
     let hr = parseInt(sec / 3600);
     sec = sec % 3600;

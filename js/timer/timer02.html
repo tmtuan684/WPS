@@ -14,12 +14,13 @@
         }
 
         const timerId = setTimeout(funcA, 2000);    // call function A after 2 seconds
-
-        // setTimeout(() => {
-        //     clearTimeout(timerId);  
-        // }, 3000);  // Cancel the timer after 3 seconds
-
-        clearTimeout(timerId);  // funcA is not called because the timer is cancelled
+        
+        setTimeout(() => {
+            clearTimeout(timerId);  
+        }, 1900);  // Cancel the timer after 3 seconds
+        
+        
+        
         alert("The timer is cancelled before funcA is called");
     </script>
 </body>
