@@ -1,0 +1,20 @@
+#layout {
+    display: grid;
+    grid-template-rows: [header-start] 100px [content-start] 400px [footer-start] 100px;
+    grid-template-columns: [ads] 200px [main] minmax(5em, 45em) [links] 200px;
+}
+#one {
+    background-color: red;
+}
+#two {
+    background-color: green;
+}
+#three {
+    background-color: brown;
+}
+#four {
+    background-color: lightblue;
+}
+#five {
+    background-color: purple;
+}

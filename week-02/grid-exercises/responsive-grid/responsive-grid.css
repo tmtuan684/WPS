@@ -1,0 +1,31 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: content-box;
+}
+#grid-container {
+
+    width: 80%;
+    
+    display: grid;
+    grid: repeat(auto-fill, 10em) / repeat(auto-fill, 10em);
+    gap: 6px;
+    margin: 20px auto;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    justify-content: center;
+    align-content: center;
+    background-color: rgba(243, 228, 207, 0.2);
+    box-shadow: 2px 4px 8px rgb(0,0,0,0.08);
+}
+li {
+    text-decoration: none;
+    list-style: none;
+   
+}
+li > img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height:auto;
+    object-fit: cover;
+}

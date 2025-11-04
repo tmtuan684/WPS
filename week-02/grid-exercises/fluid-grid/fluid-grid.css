@@ -1,0 +1,19 @@
+#grid-container {
+    width: 80%;
+    display: grid;
+    grid: repeat(2, 1fr) / repeat(4, 1fr);
+    gap: 6px;
+    margin: auto;
+    padding: 0;
+}
+li {
+    text-decoration: none;
+    list-style: none;
+   
+}
+li > img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height:auto;
+    object-fit: cover;
+}

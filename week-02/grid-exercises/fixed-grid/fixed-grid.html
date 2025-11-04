@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Centered Fixed Grid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="fixed-grid.css">
+  <!-- <style>
+    :root {
+      --tile-min: 180px;
+      --tile-pref: 22vw;
+      --tile-max: 300px;
+      --gap: 10px;
+      --radius: 8px;
+    }
+
+    body {
+      margin: 0;
+      display: grid;
+      min-height: 100vh;
+      place-items: center; /* centers grid container in viewport */
+      background: linear-gradient(135deg, #eceff1 0%, #f8f9fa 100%);
+      font-family: sans-serif;
+    }
+
+    #grid-container {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(clamp(var(--tile-min), var(--tile-pref), var(--tile-max)), 1fr)
+      );
+      gap: var(--gap);
+      justify-content: center;
+      align-content: center;
+
+      /* new styles for better readability */
+      padding: calc(var(--gap) * 2);
+      background: #ffffffd9; /* white with a little transparency */
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      width: min(1200px, 90%);
+    }
+
+    li {
+      list-style: none;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    li:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0,0,0,.15);
+    }
+
+    li > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    li:hover > img {
+      transform: scale(1.04);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style> -->
+</head>
+<body>
+  <ul id="grid-container">
+    <li><img src="https://images.pexels.com/photos/102127/pexels-photo-102127.jpeg" alt="sample photo"></li>
+    <li><img src="https://images.pexels.com/photos/1561020/pexels-photo-1561020.jpeg" alt="sample photo"></li>
+    <li><img src="https://images.pexels.com/photos/2258795/pexels-photo-2258795.jpeg" alt="sample photo"></li>
+    <li><img src="https://images.pexels.com/photos/1108532/pexels-photo-1108532.jpeg" alt="sample photo"></li>
+    <li><img src="https://images.pexels.com/photos/1518836/pexels-photo-1518836.jpeg" alt="sample photo"></li>
+    <li><img src="https://images.pexels.com/photos/3662630/pexels-photo-3662630.jpeg" alt="sample photo"></li>
+  </ul>
+</body>
+</html>
