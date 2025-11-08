@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Threaded forum</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+        <div class="container">
+            <a class="navbar-brand" href="#">Forum</a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+            <div id="nav" class="collapse navbar-collapse">
+            <form class="ms-auto d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search threads">
+                <button class="btn btn-outline-primary">Search</button>
+            </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Filters / actions -->
+  <header class="container py-3 d-flex align-items-center gap-2">
+    <!-- Trigger opens modal -->
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newThreadModal">New Thread</button>
+    <div class="ms-auto d-flex gap-2">
+      <select class="form-select form-select-sm" aria-label="Sort threads">
+        <option selected>Latest activity</option>
+        <option>Newest</option><option>Most replies</option><option>Pinned</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Modal: Create New Thread -->
+  <div class="modal fade" id="newThreadModal" tabindex="-1" aria-labelledby="newThreadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="newThreadLabel">Create a new thread</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form id="threadForm" novalidate>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="threadTitle" class="form-label">Title <span class="text-danger">*</span></label>
+              <input type="text" id="threadTitle" class="form-control" name="title" maxlength="120" required
+                     placeholder="e.g., How to optimize MongoDB indexes?">
+              <div class="form-text"><span id="titleCount">0</span>/120 characters</div>
+              <div class="invalid-feedback">Please enter a title (max 120 characters).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="threadBody" class="form-label">Body <span class="text-danger">*</span></label>
+              <textarea id="threadBody" class="form-control" name="body" rows="6" minlength="20" required
+                        placeholder="Describe your question or topic. Include examples, code, or context."></textarea>
+              <div class="form-text">Minimum 20 characters.</div>
+              <div class="invalid-feedback">Please provide more detail (at least 20 characters).</div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" type="submit">Publish thread</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <!-- Thread cards -->
+    <main class="container">
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100">
+                    <div class="card-body">
+                    <h2 class="h5"><a href="thread.html" class="link-dark text-decoration-none text-primary">How to optimize MongoDB indexes?</a></h2>
+                    <p class="text-muted small mb-2">Started by <strong>Tuan</strong> 2h ago</p>
+                    <p class="mb-0 small">We have slow queries on a collection with 2M docs…</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between small bg-primary text-light">
+                        <span>💬 14 replies  👀 1.2k views</span>
+                        <span class="text-light">Last by Tuan 5m ago</span>
+                    </div>
+                </article>
+            </div>
+            <!-- repeat cards -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100">
+                    <div class="card-body">
+                    <h2 class="h5"><a href="thread.html" class="link-dark text-decoration-none text-primary">How to distinguish between a blog and a forum?</a></h2>
+                    <p class="text-muted small mb-2">Started by <strong>Minh</strong> 1w ago</p>
+                    <p class="mb-0 small">A blog is to share opinion while a forum is to develop an idea…</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between small bg-primary text-light">
+                        <span>💬 56 replies  👀 400 views</span>
+                        <span class="text-light">Last by Minh 1h ago</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100">
+                    <div class="card-body">
+                    <h2 class="h5"><a href="thread.html" class="link-dark text-decoration-none text-primary">What does a shopping cart do in an library app?</a></h2>
+                    <p class="text-muted small mb-2">Started by <strong>Anh</strong> 1w ago</p>
+                    <p class="mb-0 small">I am not sure whether a shopping cart has any role to play in a library app…</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between small bg-primary text-light">
+                        <span>💬 56 replies  👀 400 views</span>
+                        <span class="text-light">Last by Minh 1h ago</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100">
+                    <div class="card-body">
+                    <h2 class="h5"><a href="thread.html" class="link-dark text-decoration-none text-primary">What does it mean to archive a forum post or a thread?</a></h2>
+                    <p class="text-muted small mb-2">Started by <strong>Anh</strong> 1w ago</p>
+                    <p class="mb-0 small">Archiving a forum post or thread means preserving it for reference but preventing further active participation.…</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between small bg-primary text-light">
+                        <span>💬 20 replies  👀 16 views</span>
+                        <span class="text-light">Last by Toan 3d ago</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100">
+                    <div class="card-body">
+                    <h2 class="h5"><a href="thread.html" class="link-dark text-decoration-none text-primary">What steps involve in a shopping cart?</a></h2>
+                    <p class="text-muted small mb-2">Started by <strong>Anh</strong> 1w ago</p>
+                    <p class="mb-0 small">a shopping cart is one of the most important user journeys in e-commerce. Let’s break it down clearly — from both the user experience flow and system (backend/frontend) processes..…</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between small bg-primary text-light">
+                        <span>💬 100 replies  👀 503 views</span>
+                        <span class="text-light">Last by Nhu 1m ago</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4" aria-label="Threads pagination">
+            <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            <li class="page-item active"><span class="page-link">1</span></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </main>
+    <!-- Footer -->
+        <footer class="py-4 mt-5">
+            <div class="container text-center">
+                <p class="mb-1">© 2025 Forum. All rights reserved.</p>
+            </div>
+        </footer>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+</body>
+</html>

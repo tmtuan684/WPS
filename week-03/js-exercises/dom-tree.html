@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>DOM Tree</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div>
+            <h1>Heading</h1>
+            <p>Paragraph text with a <a href="foo.html">link</a> here.</p>
+        </div>
+        <div>
+            <p>More text here.</p>
+        </div>
+        <div id="dom-tree"></div>
+        <script>
+            var DOMTree = document.getElementById("dom-tree");
+            var DOMTreeStr = "";
+        /* print the DOM tree of this webpage */
+        // Algorithm: Depth-first search
+        // step 1. print current node, dfs on current node
+        // step 2. traverse all children of the current node, and dfs at each node
+            function dfsDOMTree(currentNode=document, depth=0) {
+                if(typeof currentNode.tagName != 'undefined') {
+                    DOMTreeStr = DOMTreeStr + ' '.repeat(depth*2) + currentNode.tagName.toLowerCase() + "\n";  
+                    console.log(' '.repeat(depth*2), currentNode.tagName.toLowerCase());
+                }
+                currentNode.childNodes.forEach(node => dfsDOMTree(node, depth + 1));
+                
+            }
+
+            function showDOMTree() {
+                dfsDOMTree();
+                DOMTreeStr = '<pre>' + DOMTreeStr + '</pre>';
+                DOMTree.innerHTML = DOMTreeStr;
+            }
+            showDOMTree();
+        </script> 
+    </body>
+
+    
+</html>
