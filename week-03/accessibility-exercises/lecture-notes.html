@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessibility tools</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+     <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Fixed left side bar-->
+    <nav>
+            <a href="#accessibility">Accessibility</a>
+            <a href="#accessibity">What is accessibility?</a>
+            <a href="#accessibility-tree">Accessibility tree</a>
+            <a href="#accessibility-tool">Accessibility tools</a>
+            <a href="#accessibility-aria">ARIA</a>
+    </nav>
+    <!-- Main content -->
+    <header class="container-fluid"><h1>Accessibility</h1></header>
+    <main>    
+        <div class="container">
+       <!--------------------What is accessibility?-------------------->     
+        <h2 id="accessibity">What is accessibility?</h2>
+        <section class="lesson">
+            <p>Practices of making websites usable to various kinds of people, particularly those who have difficulty in using information technology.</p>
+            <p>Those with disabilities, specifically <span class="emphasize">seeing</span> or <span class="emphasize">hearing</span> or <span class="emphasize">touching</span> or <class="emphasize">cognitive</class> impair, are in need for support in accessing IT applications.</p>
+            
+            <p>There are <span class="emphasize">assistive technologies (AT)</span> to assist people in using IT product, particularly Web applictions.</p>
+        </section>
+        <hr>
+        <!---------------Accessibility tree-------------------------->
+        <h2 id="accessibility-tree">Accessibility tree</h2>
+        <section class="lesson">
+            <p>Description of HTML elements and pages to facilitate intuitive comprehension</p>
+            <img src="assets/html-a11y-tree.png" alt="translating of html to accessibility tree to support assistive technology">
+            <ul>
+                Examples
+                <li>Accessibility tree for an <a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/a11ytree-example01.html">image page</a></li>
+                <li>Accessibity tree for UI control (such as <a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/a11ytree-example01.html">button</a>)
+                </li>
+            </ul>
+        </section>
+        <hr>
+        <!-------------Accessbility tools------------------->
+        <h2 id="accessibility-tool">Accessibility tools</h2>
+        <h3>Checking of accessibility</h3>
+        <section class="lesson">
+            <a href="https://wave.webaim.org/">https://wave.webaim.org/</a><br>
+            <span>WAVE is suite of evalution tools to check how much a web page complies to accessibility standard</span>
+            <ul>
+                Examples
+                <li> This is a <a href="https://mdn.github.io/learning-area/accessibility/html/bad-form.html">bad form.</a>
+                </li>
+                <li>
+                    This is a good form <a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/good-form.html">good form.</a>
+                </li>
+                <li>
+                    This is a <a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/bad-semantic.html">bad semantic</a>
+                </li>
+                <li>
+                    This is a <a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/good-semantic.html">good semantic.</a>
+                </li>
+            </ul>
+        </section>
+        <hr>
+        <!--------------Accessible Rich Internet Applications (ARIA) ------------>
+        <h2 id="accessibility-aria">Accessible Rich Internet Applications (ARIA)</h2>
+        <section class="lesson">
+            Let's look at the accessibility tree of the followwing web pages
+            <ul>
+                <li><a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/a11ytree-example03-structure.html">sample article</a>. Page structure is well-reflected in the accessibility tree.</li>
+                <li><a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/a11ytree-control.html">UI controls</a>. Page structure is <span class="emphasize">NOT</span> well-reflected in the accessibility tree.</li>
+            </ul>
+            To bring semantics to HTML elements that are NOT semantic, we use ARIA.
+            ARIA defines a set of HTML attributes that add semantic to html elements.
+            <ul>
+                Examples
+                <li><a href="https://tmtuan684.github.io/COSC3060/practice/week04/session02/a11ytree-control-aria.html">UI controls with aria</a></li>
+                <li><a href="https://getbootstrap.com/">Bootstrap</a> strongly supports aria</li>
+            </ul>
+        </section>
+        </div>
+
+    </main>
+</body>
+</html>
