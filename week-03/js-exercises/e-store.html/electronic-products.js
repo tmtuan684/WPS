@@ -1,4 +1,21 @@
-/* Fetch JSON for product items */
+/* ===========================================================
+    Online Store: Product listing, filtering, and pagination
+=============================================================*/
+
+/* ---------------------------------------------------
+                  GLOBAL VARIABLES
+------------------------------------------------------*
+/* Pagination */
+const PAGE_SIZE = 10;
+currentPage = 0;
+
+/* ---------------------------------------------------
+                   DATA PREPARATION 
+------------------------------------------------------*/
+/** 
+ * Fetch JSON file for product items 
+ * @param {string} filepath 
+*/
 async function fetchJSONData(filepath) {
     try {
         const response = await fetch(filepath); // Path to your JSON file
@@ -10,10 +27,12 @@ async function fetchJSONData(filepath) {
     } catch (error) {
         console.error('Failed to fetch JSON data:', error);
     }
-    
-
 }
-/* Make a product card */
+/**
+ * Make a product card from a product object
+ * @param {object} p product object {name, photo, categorgy, price, manufacturer, salePercent }
+ * @returns a bootstrap div card for product display  
+ */
 function productCard(p) {
   return `
     <div class="col">
@@ -32,15 +51,40 @@ function productCard(p) {
       </div>
     </div>`;
 }
-/* Remove all child nodes of an element */
+/** 
+ * Remove all child nodes of an element
+ * Usage: to clear a container to add item list for displaying 
+ * @param {HTMLElement} element 
+*/
+
 function removeAllChildNodes(element) {
     // Keep removing first child until all element's children nodes is removed
     while (element.firstChild) {
             element.removeChild(element.firstChild);
     }
 }
-/* Filter products by category */
-async function filterProducts(category="") {
+/** 
+ * Render Grid  for contain product 
+ * @param {array} products 
+ * @param {HTMLDivElement} container 
+ * */
+function renderProductsGrid(products, container) {
+    removeAllChildNodes(container);
+    products.forEach(p => { // Step 2. For each product, make a product card
+
+        const productDiv = document.createElement('div');
+        productDiv.innerHTML = productCard(p);
+        container.appendChild(productDiv); // Step 3. Add product card to product list section on HTML page 
+    });
+}
+
+/*---------------------------------------------------
+                FILTERING
+----------------------------------------------------*/
+/** 
+ * Filter products by category 
+ */
+async function filterProducts() {
     
     let opt = filterOpt.options[filterOpt.selectedIndex]?.text;
     let val = filterVal.value;
@@ -53,20 +97,32 @@ async function filterProducts(category="") {
     renderProductsGrid(products, productList);
 }
 
-/* Pagination */
-const PAGE_SIZE = 10;
-currentPage = 0;
-
-/** Compute number of pages to hold all products */
+/*----------------------------------------------
+                PAGINATION
+------------------------------------------------*/
+/** 
+ * Compute number of pages to hold all products
+ * @param {array} products 
+ * */
 function totalPages(products) {
   return Math.max(1, Math.ceil(products.length / PAGE_SIZE));
 }
-/** Determine which products are listed on which page */
+/** 
+ * Determine which products are listed on currentPage 
+ * @param {array} products 
+ * @param {int} currentPage 
+ * @param {size} PAGE_SIZE
+ * */
 function getPageItems(products, currentPage, size) {
   const start = (currentPage - 1) * size;
   return products.slice(start, start + size);
 }
-/** Render pagination */
+/** 
+ * Render pagination
+ * @param {array} products
+ * @param {int} currentPage to set the currentPage active
+ * @param {HTMLDivElement} paginationNav    
+ * */
 function renderPagination(products, currentPage, paginationNav) {
     const pages = totalPages(products);
     let pageNav = `<li class="page-item"><a class="page-link" href="#">Previous</a></li>`;
@@ -76,35 +132,27 @@ function renderPagination(products, currentPage, paginationNav) {
     pageNav += `<li class="page-item"><a class="page-link" href="#">Next</a></li>`
     paginationNav.innerHTML = pageNav;
 }
-/** Render Grid to contain products on one page*/
-function renderProductsGrid(products, container) {
-    removeAllChildNodes(container);
-    products.forEach(p => { // Step 2. For each product, make a product card
 
-        const productDiv = document.createElement('div');
-        productDiv.innerHTML = productCard(p);
-        container.appendChild(productDiv); // Step 3. Add product card to product list section on HTML page 
-    });
-}
-
-/** Show products on current page */
+/** 
+ * Show products on current page 
+ * @param {object} e event 
+ * */
 function showItemsOnCurentPage(e) {
-    // Check which page is selected
-
-    const link = e.target.closest('a.page-link');
     
-    e.preventDefault();
     const page = e.target.text;
+    const npages = totalPages(products);
+    e.preventDefault();
+
     if (page === "Previous") {
         if (currentPage > 0) { 
-        currentPage--;
+            currentPage--;
         }
         else {
-            currentPage = totalPages(products);
+            currentPage = npages;
         }
     }
     else if (page === "Next") {
-        if (currentPage < totalPages(products)) { 
+        if (currentPage < npages) { 
             currentPage++;
         }
         else {
@@ -115,10 +163,12 @@ function showItemsOnCurentPage(e) {
         currentPage = parseInt(e.target.text);
     }
     renderPagination(products, currentPage, pagination);
-    const list = getPageItems(products, currentPage, totalPages(products));
+    const list = getPageItems(products, currentPage, npages);
     renderProductsGrid(list, productList); 
 }
-
+/*-------------------------------------------------------
+                    LOADING DOM
+ -------------------------------------------------------*/
 document.addEventListener("DOMContentLoaded", async () => {
     productList = document.getElementById('product-list');
     pagination = document.querySelector('#pagination > ul');
