@@ -19,7 +19,6 @@ function shuffle() {
     } while (!isSolvable(a) || isWin(a)); // repeat if unsolvable or already solved
   return a;
 }
-
 /** Check if the board arrangement is solvable 
      Knowledge: An inversion is a pair of tiles (a,b) that are in the wrong order when you look at the board as a flat 1D array.
     For an odd-sized board, a board with an odd number of inversion is unsolvable
@@ -41,7 +40,6 @@ function isWin(a) {
     }
     return isWin;
 } 
-
 /** Move a numeric cell to empty space */
 function move(e) {
     
@@ -76,7 +74,6 @@ function congratulate() {
       result.textContent = "YOU WIN!";
       result.classList.toggle("d-none");
     }
-
 /** Swap 2 items at index i and j in an array */ 
 function swap(array, i, j) {
     let temp = array[i];
@@ -84,7 +81,6 @@ function swap(array, i, j) {
     array[j] = temp;
 
 }
-
 /**
  * Prepare game board cells and display them on screen
  */
@@ -112,7 +108,6 @@ function renderGameBoard() {
                         <h1 class="h5 m-0">Puzzle Board (3×3)</h1> </div>`;
     board.appendChild(grid);
 }
-
 document.addEventListener("DOMContentLoaded", renderGameBoard);
 
 
