@@ -4,8 +4,7 @@
 function cardItem(item, subtotal) {
     return `<tr class="align-middle">
                 <td class="text-center">
-                    <img src="${item.photo}" 
-                         alt="${item.name}" 
+                    <img src="${item.photo}" alt="${item.name}" 
                          style="width:70px;height:70px;object-fit:cover;border-radius:8px;">
                 </td>
 
@@ -19,9 +18,8 @@ function cardItem(item, subtotal) {
                         <span class="input-group-text">Qty</span>
                         <input type="number" 
                                min="1" 
-                               value="${item.qty}" 
-                               class="form-control cart-qty-input"
-                               data-name="${item.name}">
+                               value="${item.qty}" data-name="${item.name}" 
+                               class="form-control cart-qty-input">
                     </div>
                 </td>
 
@@ -30,8 +28,7 @@ function cardItem(item, subtotal) {
                 </td>
 
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-danger remove-item-btn" 
-                            data-name="${item.name}">
+                    <button class="btn btn-sm btn-outline-danger remove-item-btn" data-name="${item.name}">
                         Remove
                     </button>
                 </td>
@@ -50,7 +47,6 @@ function cardItem(item, subtotal) {
 function renderCart(containerDiv, cartCountBadge) {
     const cart = getCart();   // [{ name, price, qty, photo }, ...]
 
-
     if (cart.length === 0) {
         containerDiv.innerHTML = `
             <div class="text-center py-5">
@@ -62,18 +58,20 @@ function renderCart(containerDiv, cartCountBadge) {
 
     let rowsHTML = '';
 
-    let total = 0;
+    let totalItemNumber = 0;
+    let totalPrice = 0;
 
     cart.forEach(item => {
+        totalItemNumber += item.qty;
         const subtotal = item.price * item.qty;
-        total += item.qty;
+        totalPrice += subtotal;
         rowsHTML += cardItem(item, subtotal);
     });
 
-    // Render to Cart Count Badge
+    // Render Cart Count Badge
+    cartCountBadge.textContent = totalItemNumber;
 
-    cartCountBadge.textContent = total;
-    // Render to shopping
+    // Render Shopping Cart Details 
     containerDiv.innerHTML = `
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -93,15 +91,13 @@ function renderCart(containerDiv, cartCountBadge) {
         </div>
 
         <div class="text-end mt-3">
-            <h4>Total: $${total.toFixed(2)}</h4>
+            <h4>Total: $${new Intl.NumberFormat().format(totalPrice)}</h4>
         </div>
     `;
 }
-
-function totalItemNumber() {
-
-}
-
+/**
+ * Run when cart.html is loaded
+ */
 document.addEventListener('DOMContentLoaded', () => {
     
     const cartCountBadge = document.getElementById("cart-count");

@@ -118,7 +118,6 @@ function renderPagination(products, currentPage, paginationNav) {
     pageNav += `<li class="page-item"><a class="page-link" href="#">Next</a></li>`
     paginationNav.innerHTML = pageNav;
 }
-
 /** 
  * Show products on current page 
  * @param {object} e event 

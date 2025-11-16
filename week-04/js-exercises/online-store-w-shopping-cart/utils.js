@@ -25,7 +25,7 @@ async function fetchJSONData(filepath) {
                     SHOPPING CART
 -----------------------------------------------------------*/
 /**
- * Add product to shopping cart
+ * Add product to cart in localStorage
  * @param {*} e 
  */
 function addToCart(e) {
@@ -49,8 +49,7 @@ function saveCart(cart) {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 /**
- * Get Cart variable if exists or create one if not existed in localStorage
- * 
+ * Get Cart variable in localSotrage if exists or create one if not existed in localStorage
  */
 function getCart() {
   return JSON.parse(localStorage.getItem('cart')) || [];
