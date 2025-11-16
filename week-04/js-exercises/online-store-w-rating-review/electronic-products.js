@@ -50,10 +50,9 @@ function productCard(p) {
           <div class="mt-auto">
             <span class="fw-semibold text-primary">$ ${p.price}</span>
             <button class="btn btn-sm btn-outline-primary w-100 mt-2">Add to Cart</button>
-            <button
-              class="btn btn-outline-secondary btn-sm review-btn"
+            <button class="btn btn-sm btn-outline-success w-100 mt-2"
               data-id="${p.name}"
-              data-bs-toggle="modal"
+              data-bs-toggle="modal" 
               data-bs-target="#reviewModal">
               <i class="bi bi-chat-left-text me-1"></i>Reviews
             </button>
