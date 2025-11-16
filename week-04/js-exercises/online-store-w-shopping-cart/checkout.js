@@ -9,7 +9,4 @@ function renderOrderSummary() {
 
 document.addEventListener('DOMContentLoaded', async function () {
   renderOrderSummary();
-  updateCartBadge();
-  setupPaymentToggle();
-  setupCheckoutForm();
 });
