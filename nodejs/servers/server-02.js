@@ -16,7 +16,7 @@ const port = 8080;
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
-  res.end('Welcome, this is COSC3060 Server\n');
+  res.end('Welcome, this is COSC3060 Server');
 });
 
 // Start the server and listen on the specified hostname and port for incoming requests
