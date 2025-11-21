@@ -5,4 +5,4 @@ let content = `
 `;
 
 fs.writeFileSync('myfile.txt', content.trim());
-
+console.log("file created");
