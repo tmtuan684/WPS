@@ -1,3 +1,0 @@
-/**
- * Examples of standard io
- */
