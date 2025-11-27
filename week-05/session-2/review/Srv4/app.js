@@ -62,6 +62,7 @@ app.get('/', (req, res) => {
     
     res.render('index', { products });
 });
+
 app.get('/products', (req, res) => {
     const products = fs.readFileSync(path.join(__dirname,"data/products.json"), 'UTF-8');
     

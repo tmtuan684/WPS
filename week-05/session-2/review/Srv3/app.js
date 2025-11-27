@@ -1,6 +1,4 @@
 const express = require('express'); 
-const fs = require('fs');
-const path = require('path');
 const app = express(); 
 const hostname = '127.0.0.1';
 const port = 3000;
@@ -62,11 +60,6 @@ app.get('/', (req, res) => {
     
     res.render('index', { products });
 });
-app.get('/products', (req, res) => {
-    const products = fs.readFileSync(path.join(__dirname,"data/products.json"), 'UTF-8');
-    
-    res.render('index', { products: JSON.parse(products) });
-})
 
 // Use middleware to handle non-existent pages
 app.use((req, res) => {
