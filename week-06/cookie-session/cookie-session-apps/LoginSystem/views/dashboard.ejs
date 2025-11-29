@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title><%= user %>'s Dashboard</title>
+    </head>
+    <body>
+        <h1>Dashboard</h1>
+        <p>Welcome <%= user %></p>
+
+        <form method="POST" action="/logout">
+            <input type="submit" value="Logout">
+        </form>
+    </body>
+</html>
