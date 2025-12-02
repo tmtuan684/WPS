@@ -8,8 +8,7 @@ require('dotenv').config();
 const app = express();
 cart = [];
 // Configuration
-const host = process.env.HOST;
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
@@ -112,6 +111,6 @@ app.get('/checkout', (req, res) => {
     res.render('checkout', { cart: cart});
 })
 
-app.listen(port, host, () => {
-    console.log(`Server is listening at http://${host}:${port}`);
+app.listen(port, () => {
+    console.log(`Server is listening at ${port}`);
 })
