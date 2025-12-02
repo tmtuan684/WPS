@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
@@ -23,7 +22,7 @@ const getCart = (req, res) => {
     if (cart.length > 0) 
         return cart;
 
-    const cartCookie = req.cookies.cart;
+    const cartCookie = req.cookies.cart || '[]';
     return JSON.parse(decodeURIComponent(cartCookie));
 }
 
@@ -111,6 +110,6 @@ app.get('/checkout', (req, res) => {
     res.render('checkout', { cart: cart});
 })
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Server is listening at ${port}`);
 })
