@@ -8,7 +8,7 @@ require('dotenv').config();
 const app = express();
 cart = [];
 // Configuration
-const host = '0.0.0.0'; //process.env.HOST;
+const host = process.env.HOST;
 const port = process.env.PORT;
 app.use(cookieParser());
 app.set('view engine', 'ejs');
