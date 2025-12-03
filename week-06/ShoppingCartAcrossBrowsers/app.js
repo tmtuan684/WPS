@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 // Utility function
 const getCart = (req, res) => {
-    console.log(`Current Cart: ${cart}`)
+    
     if (cart.length > 0) 
         return cart;
 
