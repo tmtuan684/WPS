@@ -1,0 +1,142 @@
+[
+  {
+    "firstName": "Minh",
+    "lastName": "Tran",
+    "email": "minh.tran@rmit.edu.vn",
+    "age": 21,
+    "major": "Information Technology"
+  },
+  {
+    "firstName": "Anh",
+    "lastName": "Nguyen",
+    "email": "anh.nguyen@rmit.edu.vn",
+    "age": 20,
+    "major": "Software Engineering"
+  },
+  {
+    "firstName": "Khoa",
+    "lastName": "Le",
+    "email": "khoa.le@rmit.edu.vn",
+    "age": 22,
+    "major": "Artificial Intelligence"
+  },
+  {
+    "firstName": "Trang",
+    "lastName": "Pham",
+    "email": "trang.pham@rmit.edu.vn",
+    "age": 19,
+    "major": "Business Information Systems"
+  },
+  {
+    "firstName": "Tuan",
+    "lastName": "Vo",
+    "email": "tuan.vo@rmit.edu.vn",
+    "age": 23,
+    "major": "Data Science"
+  },
+  {
+    "firstName": "Mai",
+    "lastName": "Hoang",
+    "email": "mai.hoang@rmit.edu.vn",
+    "age": 20,
+    "major": "Information Technology"
+  },
+  {
+    "firstName": "Long",
+    "lastName": "Bui",
+    "email": "long.bui@rmit.edu.vn",
+    "age": 21,
+    "major": "Software Engineering"
+  },
+  {
+    "firstName": "Thao",
+    "lastName": "Dang",
+    "email": "thao.dang@rmit.edu.vn",
+    "age": 22,
+    "major": "Artificial Intelligence"
+  },
+  {
+    "firstName": "Huy",
+    "lastName": "Pham",
+    "email": "huy.pham@rmit.edu.vn",
+    "age": 20,
+    "major": "Information Technology"
+  },
+  {
+    "firstName": "Lan",
+    "lastName": "Nguyen",
+    "email": "lan.nguyen@rmit.edu.vn",
+    "age": 19,
+    "major": "Design Studies"
+  },
+  {
+    "firstName": "Quang",
+    "lastName": "Tran",
+    "email": "quang.tran@rmit.edu.vn",
+    "age": 23,
+    "major": "Software Engineering"
+  },
+  {
+    "firstName": "Vy",
+    "lastName": "Ho",
+    "email": "vy.ho@rmit.edu.vn",
+    "age": 21,
+    "major": "Digital Marketing"
+  },
+  {
+    "firstName": "Son",
+    "lastName": "Le",
+    "email": "son.le@rmit.edu.vn",
+    "age": 22,
+    "major": "Information Technology"
+  },
+  {
+    "firstName": "Chi",
+    "lastName": "Vo",
+    "email": "chi.vo@rmit.edu.vn",
+    "age": 20,
+    "major": "Business Information Systems"
+  },
+  {
+    "firstName": "Bao",
+    "lastName": "Phan",
+    "email": "bao.phan@rmit.edu.vn",
+    "age": 21,
+    "major": "Cyber Security"
+  },
+  {
+    "firstName": "Hanh",
+    "lastName": "Nguyen",
+    "email": "hanh.nguyen@rmit.edu.vn",
+    "age": 19,
+    "major": "Software Engineering"
+  },
+  {
+    "firstName": "Phuc",
+    "lastName": "Ho",
+    "email": "phuc.ho@rmit.edu.vn",
+    "age": 22,
+    "major": "Information Technology"
+  },
+  {
+    "firstName": "My",
+    "lastName": "Le",
+    "email": "my.le@rmit.edu.vn",
+    "age": 20,
+    "major": "Communication"
+  },
+  {
+    "firstName": "Duc",
+    "lastName": "Tran",
+    "email": "duc.tran@rmit.edu.vn",
+    "age": 23,
+    "major": "Data Science"
+  },
+  {
+    "firstName": "Yen",
+    "lastName": "Pham",
+    "email": "yen.pham@rmit.edu.vn",
+    "age": 21,
+    "major": "Software Engineering"
+  }
+]
