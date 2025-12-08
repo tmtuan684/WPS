@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add New Student</title>
+</head>
+<body>
+  <h1>Add New Student</h1>
+
+  <form action="/students" method="POST">
+    <div>
+      <label for="firstName">First name:</label>
+      <input type="text" id="firstName" name="firstName" required>
+    </div>
+
+    <div>
+      <label for="lastName">Last name:</label>
+      <input type="text" id="lastName" name="lastName" required>
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+
+    <div>
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age" min="0">
+    </div>
+
+    <div>
+      <label for="major">Major:</label>
+      <input type="text" id="major" name="major">
+    </div>
+
+    <div>
+      <button type="submit">Save</button>
+      <a href="/students">Cancel</a>
+    </div>
+  </form>
+</body>
+</html>

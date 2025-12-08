@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Students</title>
+  <style>
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; }
+    th, td { padding: 8px; }
+    input[type="text"] { padding: 4px; width: 250px; }
+    .actions button, .actions a { margin-right: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Students</h1>
+
+  <p>
+    <a href="/students/new">Add New Student</a>
+  </p>
+
+  <!-- Search box (client-side filter by first name / last name / email) -->
+  <label for="search">Search students:</label>
+  <input type="text" id="search" placeholder="Search by name or email...">
+
+  <table id="studentsTable">
+    <thead>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Age</th>
+        <th>Major</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 
+        Render one <tr> per student from the database.
+        Example with placeholders:
+
+        Replace with your template syntax (EJS, etc.).
+      -->
+
+      <!-- Example static rows (for reference/testing) -->
+      <!-- Remove these in production and generate from DB -->
+      <tr data-id="SAMPLE_ID_1">
+        <td>Minh</td>
+        <td>Tran</td>
+        <td>minh.tran@rmit.edu.vn</td>
+        <td>21</td>
+        <td>Information Technology</td>
+        <td class="actions">
+          <a href="/students/SAMPLE_ID_1/edit">Edit</a>
+          <form action="/students/SAMPLE_ID_1/delete" method="POST" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+
+      <tr data-id="SAMPLE_ID_2">
+        <td>Anh</td>
+        <td>Nguyen</td>
+        <td>anh.nguyen@rmit.edu.vn</td>
+        <td>20</td>
+        <td>Software Engineering</td>
+        <td class="actions">
+          <a href="/students/SAMPLE_ID_2/edit">Edit</a>
+          <form action="/students/SAMPLE_ID_2/delete" method="POST" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <!-- end example static rows -->
+
+      <% students.forEach(s => {%> 
+        <tr data-id="<%=s._id%>">
+        <td><%=s.firstName%></td>
+        <td><%=s.lastName%></td>
+        <td><%=s.email%></td>
+        <td><%=s.age%></td>
+        <td><%=s.major%></td>
+        <td class="actions">
+          <a href="/students/<%=s._id%>/edit">Edit</a>
+          <form action="/students/<%=s._id%>/delete" method="POST" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <%})%>
+
+    </tbody>
+  </table>
+
+  <script>
+    // Simple client-side search filter
+    const searchInput = document.getElementById('search');
+    const table = document.getElementById('studentsTable');
+    const tbody = table.querySelector('tbody');
+
+    searchInput.addEventListener('input', function () {
+      const keyword = this.value.toLowerCase();
+
+      Array.from(tbody.rows).forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(keyword) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
