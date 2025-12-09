@@ -15,14 +15,14 @@ app.use(express.urlencoded({extended: true}));
     // 2. Define routes AFTER connection
 
     // Endpoint GET /
-    app.get('/', async (req, res) => {
+    app.get(['/', '/students'], async (req, res) => {
         const students = await Student.find({});
         console.log("Found students:", students.length);
 
         res.render('students', { students });
     });
 
-    app.get('/new-student', (req, res) => {
+    app.get('/students/new', (req, res) => {
         res.render('new-student');
     });
 

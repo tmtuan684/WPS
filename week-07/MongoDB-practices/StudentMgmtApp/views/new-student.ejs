@@ -1,42 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Add New Student</title>
+  <meta charset="UTF-8" />
+  <title>Add Student</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body { padding-top: 1.5rem; padding-bottom: 2rem; }
+    .form-card { max-width: 820px; margin: 0 auto; }
+  </style>
 </head>
 <body>
-  <h1>Add New Student</h1>
+  <div class="container">
+    <header class="d-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0">Add New Student</h1>
+      <a href="/" class="btn btn-outline-secondary">Back to List</a>
+    </header>
 
-  <form action="/new-student" method="POST">
-    <div>
-      <label for="firstName">First name:</label>
-      <input type="text" id="firstName" name="firstName" required>
-    </div>
+    <div class="card form-card shadow-sm">
+      <div class="card-body">
+        <form action="/students" method="POST" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="firstName" class="form-label">First name</label>
+              <input required type="text" class="form-control" id="firstName" name="firstName" placeholder="Minh">
+            </div>
 
-    <div>
-      <label for="lastName">Last name:</label>
-      <input type="text" id="lastName" name="lastName" required>
-    </div>
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">Last name</label>
+              <input required type="text" class="form-control" id="lastName" name="lastName" placeholder="Tran">
+            </div>
 
-    <div>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-    </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email</label>
+              <input required type="email" class="form-control" id="email" name="email" placeholder="minh.tran@rmit.edu.vn">
+            </div>
 
-    <div>
-      <label for="age">Age:</label>
-      <input type="number" id="age" name="age" min="0">
-    </div>
+            <div class="col-md-2">
+              <label for="age" class="form-label">Age</label>
+              <input type="number" class="form-control" id="age" name="age" min="0" placeholder="21">
+            </div>
 
-    <div>
-      <label for="major">Major:</label>
-      <input type="text" id="major" name="major">
-    </div>
+            <div class="col-md-4">
+              <label for="major" class="form-label">Major</label>
+              <input type="text" class="form-control" id="major" name="major" placeholder="Information Technology">
+            </div>
+          </div>
 
-    <div>
-      <button type="submit">Save</button>
-      <a href="/students">Cancel</a>
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-success">Save Student</button>
+            <a href="/" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
     </div>
-  </form>
+  </div>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
