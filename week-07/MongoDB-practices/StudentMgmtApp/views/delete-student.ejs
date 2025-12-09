@@ -11,7 +11,7 @@
     Replace STUDENT_ID and value="..." with actual data from DB.
     Example template-style comments are included.
   -->
-  <form action="/students/<%= student._id%>/edit" method="POST">
+  <form action="/students/<%= student._id%>/delete" method="POST">
     <!-- If you use method-override, include this hidden input:
     <input type="hidden" name="_method" value="PUT">
     -->
@@ -42,8 +42,8 @@
     </div>
 
     <div>
-      <button type="submit">Update</button>
-      <a href="/students">Cancel</a>
+      <button type="submit">Delete</button>
+      <a href="/">Cancel</a>
     </div>
   </form>
 </body>

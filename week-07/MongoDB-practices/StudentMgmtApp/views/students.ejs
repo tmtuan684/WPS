@@ -80,9 +80,7 @@
         <td><%=s.major%></td>
         <td class="actions">
           <a href="/students/<%=s._id%>/edit">Edit</a>
-          <form action="/students/<%=s._id%>/delete" method="POST" style="display:inline;">
-            <button type="submit">Delete</button>
-          </form>
+          <a href="/students/<%=s._id%>/delete">Delete</a>
         </td>
       </tr>
     <%})%>
