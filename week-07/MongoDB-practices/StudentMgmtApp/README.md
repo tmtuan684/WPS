@@ -29,6 +29,11 @@ It demonstrates how to implement complete CRUD (Create, Read, Update, Delete) fu
    - A confirmation step prevents accidental removal.
    - The student record is removed from MongoDB.
 
+6. Search Student
+   - Student information is searchable by querystring
+   - User can search students via the URL /students/search?firstname=…&lastname=…&major=… to search students by firstname or lastname or major
+   
+
 # II. Technology Stack
 |Layer|	Tools|
 |-----|------|
@@ -44,6 +49,7 @@ project/
 │
 ├── model/
 │   ├── dbconnect.js
+│   ├── insertStudents.js
 │   └── studentModel.js
 │
 ├── data/

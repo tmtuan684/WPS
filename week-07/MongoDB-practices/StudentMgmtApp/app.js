@@ -86,6 +86,16 @@ app.use(express.urlencoded({extended: true}));
                 .catch((error) => {console.log(error.message)});
     })
 
+    //Endpoint GET /students/search?
+    app.get('/students/search', async (req, res) => {
+        const firstname = req.query.firstname || '';
+        const lastname = req.query.lastname || '';
+        const major = req.query.major || '';
+
+        results = await Student.find({$or: [{firstName: firstname}, {lastName: lastname}, {major: major} ]})
+        console.log(`Results found ${results}`)
+        res.render('students', { students : results })
+    })
     const host = process.env.HOST;
     const port = process.env.PORT || 3000;
     app.listen(port, host, () => {
