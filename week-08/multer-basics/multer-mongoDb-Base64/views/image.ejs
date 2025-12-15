@@ -9,8 +9,7 @@
 <body>
   <h1>Image Preview</h1>
   <h2>Name: <%= image.name %></h2>
-  <!-- <img src="/image/data/<%= image._id %>" alt="<%= image.name %>" style="max-width: 100%; height: auto;"> -->
-   <img src='data: image; base64, <%= base64Image %>' alt='' width=600>
+  <img src='data: image; base64, <%= base64Image %>' alt='' width=600>
   <p>Content Type: <%= image.contentType %></p>
   <h3>Base64 Representation</h3>
   <textarea rows="10" cols="80"><%= base64Image %></textarea>
