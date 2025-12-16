@@ -51,7 +51,7 @@ app.post('/upload', upload.single('myfile'), async (req, res) => {
     await img.save();
     res.redirect('/gallery');
 })
-app.get('/gallery', async (req, res) => {
+app.get(['/','/gallery'], async (req, res) => {
     let imgs = await Image.find();
     res.render('gallery', { imgs })
 })
