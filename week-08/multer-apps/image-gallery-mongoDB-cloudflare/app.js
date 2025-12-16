@@ -3,6 +3,7 @@ const multer = require('multer');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(express.static('public'));
@@ -24,9 +25,15 @@ const imageSchema = new mongoose.Schema({
 const Image = mongoose.model('Image', imageSchema);
 
 //Configure storage for files uploaded with multer
+const uploadDir = path.join(process.cwd(), 'public/uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null,'public/uploads/');
+        cb(null,'uploadDir');
     },
     filename: function(req, file, cb) {
         cb(null, Date.now().toString() + '-' + file.originalname);
