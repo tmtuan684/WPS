@@ -101,4 +101,4 @@ app.use(express.urlencoded({extended: true}));
     app.listen(port, host, () => {
         console.log(`Server is listening at http://${host}:${port}`);
     });
-})();
+});
