@@ -1,2 +1,2 @@
-client ID: 28185231767-8beujufejps4op49rv90otsq26s4kuf0.apps.googleusercontent.com
-client secret: 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
+client ID: YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com
+client secret: YOUR_GOOGLE_CLIENT_SECRET

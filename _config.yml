@@ -1,0 +1,4 @@
+exclude:
+  - "**/client_secret_*.json"
+  - "week-09/google-auth/.env"
+  - "week-09/google-auth-with-mongoose/.env"
