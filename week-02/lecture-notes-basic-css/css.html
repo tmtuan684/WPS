@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charet="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSC3058 - Cascading Style Sheet 1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Basic CSS Selectors</h1>
+    <h2>Element, Class, Id</h2>
+    <section>
+        <p>Element is of HTML element, e.g., h1, h2, p, div, span, body</p>
+        <p>Class gathers a collection of elements which have things in common</p>
+        <p>Id is a unique identifier for an element, distinguishing an element from others semantically</p>
+ <pre><code>
+<span class="comment">/* Element Selector */</span>
+element {
+    attribute_1: value;
+    attribute_2: value;
+    ...
+    attribute_n: value;
+}</code></pre>
+<pre><code>
+<span class="comment">/* Class Selector */</span>
+.class_name {
+    attribute_1: value;
+    attribute_2: value;
+    ...
+    attribute_n: value
+}</code></pre>
+<pre><code>
+<span class="comment">/* Id Selector */</span>
+#id_name {
+    attribute_1: value;
+    attribute_2: value;
+    ...
+    attribute_n: value
+}
+</code></pre>
+<a href="ex-element-class-id.html">Example: Element, Class, Id CSS selector</a>
+    </section>
+        
+    <h2>Hierarchy</h2>
+    <h3>Parent</h3>
+<pre><code>
+<span class="comment">/* Descendant Selector: element that is contained in another element regardless how deep in level it is   */</span>
+parent_element <span style="color:red">child_element</span> {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* Child Selector: element that is a direct child of another element */</span>
+parent_element > <span style="color:red">child_element</span> {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<a href="ex-hierarchy.html">Example: Hierarchy CSS selector</a>
+
+    <h3>Sibling (Brothers and Sisters)</h3>
+<pre><code>
+<span class="comment">/* Sibling Selector: element at the same level of a specific element */</span>
+A ~ <span style="color:red">B</span> {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* Adjacent Sibling Selector: element right next to a specific element of the same level */</span>
+A + <span style="color:red">B</span> {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<a href="ex-sibling.html">Example: Sibling CSS selector</a>
+    <h2>Pseudo</h2>
+    <h3>Pseudo&dash;class</h3>
+<pre><code>
+<span class="comment">/* Pseudo-class selector: element at a specific state */</span>
+element:[pseudo-class] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+    <h3>Pseudo&dash;element</h3>
+<pre><code>
+<span class="comment">/* Pseudo-element selector: element in a specific relationship to other element of same type */</span>
+A::[pseudo-element] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<a href="ex-pseudo.html">Example: Pseudo-class and Pseudo-element CSS selector</a>
+<h2>Attribute selectors</h2>
+<pre><code>
+<span class="comment">/* select element having [attribute] */</span>
+element[attribute] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* select elements whose attribute has exact value */</span>
+element[attribute="value"] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* select elements whose attribute contains the "word" in separation from other words  */</span>
+element[attribute~="word"] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* select elements whose attribute contains the "value" within a string  */</span>
+element[attribute*="value"] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* select elements whose attribute begins with the value  */</span>
+element[attribute^="value"] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+<pre><code>
+<span class="comment">/* select elements whose attribute ends with the value  */</span>
+element[attribute$="value"] {
+   attribute_1: value;
+   attribute_2: value;
+   ...
+   attribute_n: value;
+}
+</code></pre>
+</body>
+</html>

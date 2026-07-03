@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Examples: pseudo-class and pseudo-element selectors</title>
+        <style>
+            button {
+                background-color: lightblue;
+                border: none;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            button:hover {
+                background-color: red;
+                color: white;
+                cursor: pointer;
+            }
+            #example {
+                display: block;
+                margin: 20px 0;
+               
+            }
+            #example:hover {
+                font-size: 20px;
+                color: red;
+                cursor: pointer;
+            }
+
+            table, tr, th, td {
+
+                border: 1px solid black;
+                border-collapse: collapse;
+                padding: 10px; 
+            }
+            table tr:first-child {
+                background-color: green;
+                color: white;
+            }
+            table tr:nth-child(2) {
+                background-color: red;
+                color: white;
+            }
+            p::first-line {
+                font-weight: bold;
+                color: blue;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Examples for pseudo-class and pseudo-element selectors</h1>
+        <h2>Pseudo-class selector</h2>
+        <!-- button with pseudo-class :hover-->
+        <button>Hover over me</button>
+        
+        <!-- paragraph with pseudo-class :hover-->
+        <span id="example">This paragraph changes font size and color when hovered.</span>
+        
+        <!-- table with pseudo-class applied to first and second rows-->
+        <table>
+            <tr>
+                <th>Selector</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>:hover</td>
+                <td>Applies styles when the user hovers over an element.</td>
+            </tr>
+            <tr>
+                <td>:focus</td>
+                <td>Applies styles when an element is focused (e.g., input fields).</td>
+            </tr>
+            <tr>
+                <td>:active</td>
+                <td>Applies styles when an element is being activated (e.g., button click).</td>
+            </tr>
+        </table>
+        <h2>Pseudo-element selector</h2>
+        <p>First line of this paragraph and the following has pseudo-element applied to it. </p>
+        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
+        
+</body>
+</html>

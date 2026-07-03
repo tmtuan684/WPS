@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples: Hierarch CSS selector</title>
+    <style>
+        p {
+            color: purple;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: medium;
+        }
+        ul p {
+            color: red;
+            background-color: yellow;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: large;
+        }
+        ul li {
+            color: blue;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: medium;
+        }
+        ul ol {
+            color: red;
+            font-size: xx-large;
+        }
+        .child-example > li {
+            color: green;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: medium;
+          
+        }   
+    </style>
+</head>
+<body>
+    <h1>Examples for Descendant selectors and Child selectors</h1>
+    
+    <h2>Descendant selector</h2>
+    <p>This paragraph has a style.</p>
+    <ul>
+        <!-- <p> is contained in <ul> at child level of <ul> -->
+        <p>This paragraph is contained in a unordered list</p>
+        <!-- <li> is contained in <ul> at child level of <ul> -->
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>
+            This is a nested list:
+            <ol>
+                <!-- <li> is contained in <ul> at grand-grand child level of <ul> -->
+                <li>Nested Item 1</li>
+                <li>Nested Item 2</li>
+                <li>Nested Item 3</li>
+            </ol>                
+        </li>
+    </ul>
+
+    <h2>Child selector</h2>
+    <ul class="child-example">
+        The following are direct children of this &lt;ul&gt;
+        <li">Direct Child 1</li>
+        <li>Direct Child 2</li>
+        <li>Direct Child 3</li>
+        <li>The following items are not direct children of this &lt;ul&gt;:
+            <ol>
+                <li>Descendant Child 1</li>
+                <li>Descendant Child 2</li>
+                <li>Descendant Child 3</li>
+            </ol>
+        </li>
+    </ul>
+</body>
+</html>

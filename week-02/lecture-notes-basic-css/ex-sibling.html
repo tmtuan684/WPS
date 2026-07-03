@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Examples: Sibling CSS Selector</title>
+        <style>
+            h1 {
+                color: red;
+            }
+
+            /* Sibling selector */
+            h1 ~ h2 {
+                color: blue;
+            }
+            /* Adjacent sibling selector */
+            h1 + h2 {
+                color: green;
+            }
+            /* Sibling selector */
+            h2 + h3 {
+                color: yellow;
+                background-color: red;
+            }
+            h3 {
+                color: purple;
+                
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Examples for Sibling selectors (h1) </h1>
+        <h2>This heading is a sibling of the previous heading (h2)</h2>
+        <h2>Adjacent sibling selector (h2) </h2>
+        <h3>This heading is a sibling of the third heading (h3)</h3>
+        <h3>This is another heading (h3)</h3>
+
+    </body>
+    </html>

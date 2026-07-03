@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Examples: Attribute selectors</title>
+        <style>
+            a {
+                display: block;
+                margin: 20px 0;
+            }
+            a[target] {
+                color: red;
+                text-decoration: none;
+            }
+            a[href*="Attribute"] {
+                color: blue;
+                background-color: yellow;
+                font-weight: bold;
+            }
+            a[custom-data] {
+                color: green;
+                font-style: italic;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Examples for Attribute selectors</h1>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements" custom-data="my style selector">Learning materials for Pseudo-element selectors</a>    
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes" target="_blank">Learning materials for Pseudo-class selectors</a>    
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors">Learning materials for attribute selectors</a>    
+    </body>
+</html>

@@ -1,0 +1,38 @@
+/* h2 is indended 1 cm from h1 */
+h2 {
+    text-indent: 1cm;
+}
+/* h3 is indended 2 cm from h1 */
+h3 {
+    text-indent: 2cm;
+}
+/* For showing CSS Syntax */
+/* .syntax {
+    font-family: monospace;
+    font-size: 1.2em;
+    color: blue;
+    background-color: lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    overflow-x: auto;
+} */
+code {
+    display:inline-block;
+    width: 800px;
+    text-align: left;
+    font-family: monospace;
+    font-size: 1.2em;
+    color: blue;
+    background-color: lightgray;
+    padding: 5px 20px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+section {
+    margin: 20px 20px;
+
+}
+.comment {
+    color: green;
+    font-style: italic;
+}
