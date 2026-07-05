@@ -1,0 +1,18 @@
+/* YOUR STYLE GOES IN HERE */
+.card {
+    width: 250px;
+    border: 3px solid #FFBFA9;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+img {
+    width: 200px;
+    border: 6px solid #FBFFB1;
+    border-top-left-radius: 60px;
+    border-bottom-right-radius: 60px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background-color: #FFACAC;
+}
+

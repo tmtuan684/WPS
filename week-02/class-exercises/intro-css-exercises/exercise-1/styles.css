@@ -1,0 +1,19 @@
+/* YOUR STYLE GOES IN HERE */
+
+/*
+The following CSS selectors are element selectors. 
+*/
+h1 {
+    color: green;
+}
+h2 {
+    color: magenta;
+}
+p {
+    color: white;
+    background-color: black;
+}
+button {
+    color: red;
+    background-color: pink;
+}

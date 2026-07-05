@@ -1,0 +1,25 @@
+/* YOUR STYLE GOES IN HERE */
+.card {
+    width: 250px;
+    border: 3px solid #FFBFA9;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+img {
+    width: 200px;
+    border: 6px solid #FBFFB1;
+    border-top-left-radius: 50% 20%;
+    border-bottom-right-radius: 50% 20%;
+    border-top-right-radius: 10% 40%;
+    border-bottom-left-radius: 10% 40%;
+    background-color: #FFACAC;
+}
+
+/* img {
+    width: 200px;
+    border: 6px solid #FBFFB1;
+    border-radius: 50% 20% / 10% 40%;
+    background-color: #FFACAC;
+} */
