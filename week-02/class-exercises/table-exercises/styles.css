@@ -1,0 +1,11 @@
+/*
+Styles for all html files in this folder
+*/
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+td {
+    width: 100px;
+    text-align: center;
+}
