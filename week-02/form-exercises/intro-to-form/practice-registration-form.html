@@ -1,0 +1,36 @@
+ <!DOCTYPE html>
+ <html>
+    <head>
+        <title>Registration form for information about RMIT program</title>
+        <link rel="icon" href="../../assets/RMIT_pixel.png" type="image/png">
+    </head>
+    <body>
+        <header>
+            <h1>Registration form for information about RMIT program</h1>
+        </header>
+        <main>
+            <form action="practice-registration-confirm.html" method="POST">
+                <label for="name">Name (required):</label>
+                <input type="text" id="name" name="name" required><br>
+
+                <label for="email">Email (required :</label>
+                <input type="email" id="email" name="email" required><br>
+
+                <label for="occupation">You are:</label><br>
+                <input type="radio" name="occupation" value="highschool">Highschool student<br>
+                <input type="radio" name="occupation" value="secondaryschool">Secondary-school student<br>
+                <input type="radio" name="occupation" value="parent">Parents<br>
+                
+                <label for="program">How did you know about RMIT University Vietnam?</label><br>
+                <input type="checkbox" name="program" value="internet">Social media<br>
+                <input type="checkbox" name="program" value="friends">Friends<br>
+                <input type="checkbox" name="program" value="friends">Colleagues<br>
+                <input type="checkbox" name="program" value="family">Family<br>
+                <input type="checkbox" name="program" value="others">Others<br>
+
+                <input type="submit" value="Register">
+            </form>
+        </main>
+    </body>
+
+ </html>
