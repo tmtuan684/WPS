@@ -1,16 +1,16 @@
 /* YOUR STYLE GOES IN HERE */
 
-/* Element selector li */
 li {
     color: blue;
 }
 
-/* Class selector .done */
 .done {
     color: grey;
 }
-
-/* ID selector #clear */
+button#clear {
+    color: white;
+    background-color: red;
+}
 #clear {
     color: white;
     background-color: red;

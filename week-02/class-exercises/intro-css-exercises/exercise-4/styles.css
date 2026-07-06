@@ -3,13 +3,13 @@
     width: 250px;
     border: 3px solid #FFBFA9;
     border-radius: 10px;
-    text-align: center;
+    text-align:center;
     padding: 10px;
 }
+
 img {
     width: 200px;
     border: 6px solid #FBFFB1;
     border-radius: 50%;
-    background-color: #FFACAC;;
+    background-color: #FFACAC;
 }
-
