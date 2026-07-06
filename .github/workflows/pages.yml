@@ -1,6 +1,7 @@
+---
 name: Deploy static content to Pages
 
-on:
+"on":
   push:
     branches:
       - main
@@ -51,5 +52,7 @@ jobs:
         if: steps.deploy_first_try.outcome == 'failure'
         uses: actions/deploy-pages@v5
       - name: Fail when deployment did not succeed
-        if: steps.deploy_first_try.outcome == 'failure' && steps.deploy_retry.outcome == 'failure'
+        if: >-
+          steps.deploy_first_try.outcome == 'failure' &&
+          steps.deploy_retry.outcome == 'failure'
         run: exit 1
