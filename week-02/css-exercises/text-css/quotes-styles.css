@@ -42,7 +42,7 @@ blockquote {
     font-style: italic;
 }
 blockquote > p::before {
-    content: '❝';
+    content: '☆';
     font-family: "Cinzel", serif;
     font-size: 30px;
     color:rgba(56, 4, 4, 0.2);
