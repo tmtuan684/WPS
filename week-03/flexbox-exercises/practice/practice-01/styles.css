@@ -1,0 +1,27 @@
+body {
+    font: 1.2em / 1.5 sans-serif;
+}
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+nav a {
+    text-decoration: none;
+}
+nav a:link,
+nav a:visited {
+    background-color: rgb(40, 139, 239);
+    color: white;
+    padding: 0.5em;
+    border: 2px solid rgb(0, 128, 255);
+    border-radius: 0.5em; /* em is a relative unit, inherited font size of the parent element */
+    display: inline-block;
+}
+
+/* Apply flexbox display here */
+nav ul {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
