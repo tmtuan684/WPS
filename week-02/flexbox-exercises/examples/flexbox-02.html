@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Flexbox demonstration 2</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            width: 90%;
+            max-width: 960px;
+            margin: 10px auto;
+            
+        }
+        div {
+            height: 100px;
+            border: 1px solid gray;
+            display: flex;
+            align-items: center; /* align items along cross axis; default value is normal which stretch item to fill the main axis */
+            justify-content: space-around; /* arrange items along main axis*/
+        }
+        button {
+            font-size: 18px;
+            line-height: 1.5;
+            width: 15%;
+        }
+       
+    </style>
+</head>
+<body>
+    <div>
+        <button>Smile</button>
+        <button>Laugh</button>
+        <button>Wink</button>
+        <button>Shrug</button>
+        <button>Blush</button>
+    </div>
+</body>
+</html>
