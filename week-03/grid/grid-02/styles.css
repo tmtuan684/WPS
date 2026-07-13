@@ -1,0 +1,28 @@
+body {
+  font-family: sans-serif;
+}
+.container > div {
+  border-radius: 5px;
+  padding: 10px;
+  background-color: rgb(207 232 220);
+  border: 2px solid rgb(79 185 227);
+}
+.container {
+    display:grid;
+    /* grid with fixed track */
+    /* grid-template-columns: 200px 200px 200px; */
+
+    /* grid with flexible track */
+    /* grid-template-columns: 2fr 1fr 1fr;  */
+    
+    /* gap between rows and between columns in a grid*/
+    gap: 20px; 
+
+    /* repeat column */
+    grid-template-columns: repeat(3, 1fr);
+
+    grid-auto-rows: 50px;
+
+    /* Rows are 50px high by default and can expand height to cover content */
+    grid-auto-rows: minmax(50px, auto);
+}
