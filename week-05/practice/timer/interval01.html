@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>setInterval() example</title>
+    <style>
+        .ball {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>setInterval() example</h1>
+    <div class="ball"></div>
+    <script>
+        const ball = document.querySelector(".ball");
+        function moveBall() {
+            let left = parseInt(ball.style.left) || 0;
+            ball.style.left = parseInt(left + 5)  + "px";
+            console.log(ball.style.left);
+        }
+        setInterval(moveBall, 500);
+    </script>
+</body>
+</html>

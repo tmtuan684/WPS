@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Date Example</title>
+</head>
+<body>
+    <h1>Date example</h1>
+    <script>
+        let now = new Date();
+        console.log(now);
+
+        // Get date
+        const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let date = day[now.getDay()] + ", " + now.getDate() + '/' + month[now.getMonth()] + "/" + now.getFullYear();
+        console.log("Date: " + date);
+
+        // Get time
+        let time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        console.log("Time: " + time);
+        console.log("getTime(): " + now.getTime()); // Gets the number of milliseconds since Jan 1, 1970, 00:00:00 UTC
+
+        // Create a new date object 
+        let certainDate = new Date('2025-9-7'); // 2025, Sep 7th
+        console.log("Today: " + certainDate);
+        certainDate = new Date(2025, 8, 7);
+        console.log("Today: " + certainDate);
+    </script>
+</body>
+</html>

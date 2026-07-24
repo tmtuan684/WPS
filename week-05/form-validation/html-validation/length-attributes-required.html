@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width">
+    <title>Validation using length attributes</title>
+</head>
+<body>
+    <form method="post">
+        <label for="course">How many courses have you studied at RMIT so far?</label>
+        <!-- Valid input is an integer from 0 to 22 -->
+        <input type="number" name="coursenumber" id="course" min="0" max="22" required>
+        <button>Submit</button>
+    </form>
+</body>
+</html>

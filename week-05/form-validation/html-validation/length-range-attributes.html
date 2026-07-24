@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width">
+    <title>Validation using length attributes</title>
+</head>
+<body>
+    <form method="post">
+        <label for="studentID">What's your student ID?</label>
+        <!-- Valid text has exact 7 character -->
+        <input type="text" id="studentID" minlength="8" maxlength="8" placeholder="s4101234">
+        <br>
+        <label for="course">How many courses have you studied at RMIT so far?</label>
+        <!-- Valid input is an integer from 0 to 22 -->
+        <input type="number" id="course" name="coursenumber" min="0" max="22" placeholder="0--22">
+        <br>
+        <button>Submit</button>
+    </form>
+</body>
+</html>

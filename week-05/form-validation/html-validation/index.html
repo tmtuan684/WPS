@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Account Sign up</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            form  {
+                font-size: 16px;
+                background: #f9f9f9;
+                font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+                width: 300px;
+                margin: 50px auto;
+                border: 2px solid rgba(0,0,0, 0.2);
+                border-radius: 6px;
+                padding: 15px 40px 40px;
+            }
+            .row {
+                padding-bottom: 10px;
+            }
+            label, input, button {
+                width: 100%;
+                display: block;
+                
+            }
+            label {
+                margin-bottom: 5px;
+            }
+            input, button {
+                box-sizing: border-box;
+                padding: 10px;
+            }
+            button {
+                font-size: 120%;
+                font-weight: 100;
+                background: #006dcc;
+                color:white;
+                border-color: #016BC1;
+                
+            }
+            button:hover {
+                background-color: #0165b6;
+                cursor: pointer;
+            }
+            input:invalid {
+                border: 2px solid red;
+            }
+            
+            input:valid {
+                border: 2px solid black;
+            }
+        </style>
+        
+    </head>
+    <body>
+        
+        <form>
+            <h1>Sign up for an account</h1>
+            <div class="row">
+                <label for="fullname">What's your name?</label>
+                <input id="fullname" name="full_name" required />
+            </div>
+            <div class="row">
+                <label for="email">Your email</label>
+                <input id="email" name="email" required/>
+            </div>
+            <div class="row">
+                <button>Sign up</button>
+            </div>
+        </form>
+    </body>
+    
+</html>
