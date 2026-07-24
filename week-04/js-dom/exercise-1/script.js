@@ -13,7 +13,8 @@ Use querySelector or querySelectorAll to select:
 - Not-done button.
 */
 // Add your js code below here!
-
+bannerImg = document.querySelector(".banner");
+h1 = document.getElementsByTagName("h1")[0];
 
 
 
@@ -38,5 +39,14 @@ Using addEventListener() to handle these events:
 - Clicking on any item list will make the item toggle from done to not done or vice versa.
 */
 // Add your js code below here!
+doneButton = document.getElementById("done-all-btn");
 
-
+doneButton.addEventListener('click', () => {
+    
+    listItems = document.querySelectorAll("ul li");
+    
+    listItems.forEach(item => {
+        item.classList.remove("not-done");
+        item.classList.add("done");
+    });
+})
