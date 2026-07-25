@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form validation with javascript</title>
+</head>
+<body>
+    <form>
+        <p>
+            <label for="mail">
+            Email address (@rmit.edu.vn only): 
+            <input type="email" id="mail" name="mail" required/>
+            <span class="error" aria-live="polite"></span>
+            </label>
+        </p>
+        <button>Submit</button>
+    </form>
+
+    <script>
+        const email = document.getElementById("mail");
+
+        email.addEventListener("input", validateEmail);
+        
+        function validateEmail() {
+            email.setCustomValidity("");
+            // if email address does not have email format
+            if (!email.validity.valid) {
+                return; // Inform the invalid with built-in error message
+            }
+          
+            // If email address follows email format but not suffix @rmit.edu.vn
+            if (!email.value.endsWith("@rmit.edu.vn")) {
+                email.setCustomValidity("Please enter an email address of @rmit.edu.vn");
+            }
+        }
+    </script>
+</body>
+</html>

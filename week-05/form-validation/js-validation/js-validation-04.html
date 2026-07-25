@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form validation with javascript</title>
+    <style>
+        body {
+            font: 1em sans-serif;
+            width: 200px;
+            padding: 0;
+            margin: 0 auto;
+        }
+
+        form {
+            max-width: 200px;
+        }
+
+        p * {
+            display: block;
+        }
+
+        input {
+        appearance: none;
+        width: 100%;
+        border: 1px solid #333333;
+        margin: 0;
+
+        font-family: inherit;
+        font-size: 90%;
+
+        box-sizing: border-box;
+        }
+
+        /* invalid fields */
+        input.invalid {
+        border: 2px solid #990000;
+        background-color: #ffdddd;
+        }
+
+        input:focus.invalid {
+        outline: none;
+        /* make sure keyboard-only users see a change when focusing */
+        border-style: dashed;
+        }
+
+        /* error messages */
+        #error {
+        width: 100%;
+        font-size: 80%;
+        color: white;
+        background-color: #990000;
+        border-radius: 0 0 5px 5px;
+        box-sizing: border-box;
+        }
+
+        .active {
+        padding: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <form>
+        <p>
+            <label for="mail">
+            <span>Please enter an email address:</span>
+            </label>
+            <input type="text" id="mail" name="mail" />
+            <span id="error"></span>
+        </p>
+        <button>Submit</button>
+    </form>
+
+    <script>
+        const form = document.querySelector("form");
+        const email = document.getElementById("mail");
+        const error = document.getElementById("error");
+
+        // Regular expression for email validation as per HTML specification
+        const emailRegExp = /^[\w.!#$%&'*+/=?^`{|}~-]+@[a-z\d-]+(?:\.[a-z\d-]+)*$/i;
+
+        // Check if the email is valid
+        function isValidEmail() {
+            const validity = email.value.length !== 0 && emailRegExp.test(email.value);
+            return validity;
+        };
+
+        // Update email input class based on validity
+        function setEmailClass(isValid) {
+            email.className = isValid ? "valid" : "invalid";
+        };
+
+        // Update error message and visibility
+        function updateError(isValid) {
+            if (isValid) {
+                error.textContent = "";
+                error.removeAttribute("class");
+            } else {
+                error.textContent = "I expect an email, darling!";
+                error.setAttribute("class", "active");
+            }
+        };
+
+        // Handle input event to update email validity
+        function handleInput() {
+            const validity = isValidEmail();
+            setEmailClass(validity);
+            updateError(validity);
+        };
+
+        // Handle form submission to show error if email is invalid
+        function handleSubmit(event) {
+            event.preventDefault();
+            const validity = isValidEmail();
+            setEmailClass(validity);
+            updateError(validity);
+        };
+
+        // Now we can rebuild our validation constraint
+        // Because we do not rely on CSS pseudo-class, we have to
+        // explicitly set the valid/invalid class on our email field
+        const validity = isValidEmail();
+        setEmailClass(validity);
+        // This defines what happens when the user types in the field
+        email.addEventListener("input", handleInput);
+        // This defines what happens when the user tries to submit the data
+        form.addEventListener("submit", handleSubmit);
+    </script>
+</body>
+</html>
