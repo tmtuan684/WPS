@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regular Expression - Matching text</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #222;
+            line-height: 1.5;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        mark { /* Highlight matching text */
+            background-color: #fff3a3; /* Subtle yellow background */
+            color: #1b2430;
+            padding: 0.1em 0.3em; /* Add a bit of space around the text inside the mark */
+            border: none; /* Remove default border */
+            border-radius: 3px;
+            font-weight: 600; /* Make matches stand out slightly */
+        }
+        /* Container for the inputs */
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6em;
+            margin-bottom: 12px;
+        }
+        /* Style the input field */
+        input[type="text"] {
+            padding: 0.5em 0.7em; /* Add padding to the input field */
+            border: 1px solid #ccc; /* Light gray border */
+            border-radius: 4px; /* Rounded corners for the input */
+            font-size: 1em;
+            flex: 1;
+            min-width: 200px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6a5fd6;
+        }
+        /* Style the select dropdown */
+        select {
+            padding: 0.5em 0.7em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            background: #fff;
+        }
+        /* Style the textarea */
+        textarea {
+            width: 100%; /* Make the textarea fill the width of its container */
+            height: 150px; /* Set a fixed height for the textarea */
+            padding: 0.6em; /* Add padding to the textarea content */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical; /* Allow resizing vertically only */
+            font-size: 1em;
+            font-family: inherit;
+            margin-top: 4px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #6a5fd6;
+        }
+        /* Style the result area */
+        #result {
+            padding: 14px; /* Add padding around the matched text */
+            font-size: 0.95em; /* Smaller font size for better readability */
+            line-height: 1.7;
+            border: 1px solid #ddd; /* Light gray border around the result */
+            border-radius: 4px;
+            margin-top: 16px;
+            background: #fafafa;
+            word-break: break-word;
+        }
+        /* Style the matches counter */
+        #matches {
+            margin-top: 10px; /* Add some spacing above the count */
+            font-size: 0.85em; /* Smaller font size for the count */
+            color: #555;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <h1>Regular Expression - Matching Text</h1>
+    <div id="container">
+        <input type="text" id="re" placeholder="Enter regex pattern" value="cat" >
+        <select id="flags">
+            <option value="g" selected>Global</option>
+            <option value="gi">Case-insensitive</option>
+        </select>
+        <textarea id="string" placeholder="Enter text to match against">The cat sits on the mat</textarea>
+    </div>
+    <div id="result"></div>
+    <div id="matches">Number of matches: 0</div>
+
+    <script>
+        const reInput = document.getElementById("re");
+        const stringInput = document.getElementById('string');
+        const result = document.getElementById("result");
+        const matches = document.getElementById("matches")
+        const flags = document.getElementById("flags")
+
+        reInput.addEventListener("input", match);
+        stringInput.addEventListener("input", match);
+        flags.addEventListener("change", match);
+        function match() {
+            const re = new RegExp(reInput.value, "gi");
+            const text = stringInput.value;
+            result.innerText = text;
+
+            // Matching
+            let html =  '';
+            let lastIndex = 0;
+            let m;
+            let n = 0; // number of matches
+            re.lastIndex = 0;
+            while(( m = re.exec(text)) !== null) {
+                n++;
+                html += text.slice(lastIndex, m.index); // text from the lastIndex to matched index
+                html += '<mark>' + m[0] + '</mark>'; //embrace matched text by mark element
+                lastIndex = m.index + (m[0].length || 1);
+                re.lastIndex = lastIndex;
+
+            }
+            html += text.slice(lastIndex);  //concatnate the rest of the text to the result
+            result.innerHTML = html;
+            matches.innerText = `${n} match${n>1?'es':''}`;
+        }
+
+        match();
+    </script>
+
+
+</body>
+</html>
