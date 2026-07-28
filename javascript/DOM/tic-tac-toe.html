@@ -78,10 +78,8 @@
             if (board[clickedIndex] !== '' || !gameActive) {
                 return;
             }
-
             board[clickedIndex] = currentPlayer;
             clickedCell.textContent = currentPlayer;
-
             checkResult();
             changePlayer();
         }
