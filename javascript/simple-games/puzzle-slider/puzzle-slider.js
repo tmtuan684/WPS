@@ -47,10 +47,6 @@ function move(e) {
     if(isAdjacent(num, i, emptycellIndex)) {
         console.log(`Check (${i}, ${emptycellIndex}); move ${e.target.textContent}`);
         swap(num, i, emptycellIndex)
-        // let temp = num[i];
-        // num[i] = num[emptycellIndex];
-        // num[emptycellIndex] = temp;
-        // emptycellIndex = i;
         renderGameBoard();
         if (isWin(num)) {
             congratulate();
@@ -59,12 +55,16 @@ function move(e) {
         console.log(`Check (${i}, ${emptycellIndex}); Cannot move ${e.target.textContent}`);
     }
 }
-/** Check if board[i] and [j] are adjcent
- * [i] is adjacent to [j] when: abs(i - j) == n, n is sqrt(board.length)
-*/
+/**
+ * i and j are adjacent if either:
+ *   - they're in the same row and one column apart: abs(i-j) === 1 && Math.floor(i/n) === Math.floor(j/n)
+ *   - they're in the same column and one row apart: abs(i-j) === n
+ */
 function isAdjacent(board, i,j) {
+    i = parseInt(i);
+    j = parseInt(j);
     const n = Math.floor(Math.sqrt(board.length));
-    return ((Math.abs(i-j) === n) || Math.abs(i-j) === 1) ? true : false;
+    return ((Math.abs(i-j) === n)  || (Math.abs(i-j) === 1 && Math.floor(i/n) == Math.floor(j/n)));
 }
 /**
  * Show congratulation pane the winner
@@ -72,7 +72,7 @@ function isAdjacent(board, i,j) {
 function congratulate() {
     result.textContent = "YOU WIN!";
     result.classList.toggle("win");
-    }
+}
 /** Swap 2 items at index i and j in an array */ 
 function swap(array, i, j) {
     let temp = array[i];
