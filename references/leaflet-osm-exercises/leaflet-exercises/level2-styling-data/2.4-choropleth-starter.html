@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>2.4 Choropleth Map (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    .legend { background: white; padding: 8px 10px; line-height: 18px; border-radius: 4px;
+               box-shadow: 0 0 6px rgba(0,0,0,0.3); }
+    .legend i { width: 16px; height: 16px; float: left; margin-right: 6px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.78, 106.70], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Fictional "districts" with a made-up population-density value, for practice purposes.
+  const districts = {
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', properties: { name: 'District A', density: 12 },
+        geometry: { type: 'Polygon', coordinates: [[[106.68,10.79],[106.70,10.79],[106.70,10.77],[106.68,10.77],[106.68,10.79]]] } },
+      { type: 'Feature', properties: { name: 'District B', density: 45 },
+        geometry: { type: 'Polygon', coordinates: [[[106.70,10.79],[106.72,10.79],[106.72,10.77],[106.70,10.77],[106.70,10.79]]] } },
+      { type: 'Feature', properties: { name: 'District C', density: 78 },
+        geometry: { type: 'Polygon', coordinates: [[[106.68,10.77],[106.70,10.77],[106.70,10.75],[106.68,10.75],[106.68,10.77]]] } },
+      { type: 'Feature', properties: { name: 'District D', density: 95 },
+        geometry: { type: 'Polygon', coordinates: [[[106.70,10.77],[106.72,10.77],[106.72,10.75],[106.70,10.75],[106.70,10.77]]] } }
+    ]
+  };
+
+  // TODO 1: write a `getColor(density)` function that returns a color string based on
+  // thresholds, e.g.:
+  // function getColor(d) {
+  //   return d > 90 ? '#800026' :
+  //          d > 70 ? '#bd0026' :
+  //          d > 50 ? '#e31a1c' :
+  //          d > 30 ? '#fc4e2a' :
+  //          d > 10 ? '#fd8d3c' : '#ffeda0';
+  // }
+
+  // TODO 2: render `districts` with L.geoJSON(), using a `style` function that reads
+  // feature.properties.density and returns { fillColor: getColor(density), weight: 1,
+  // color: 'white', fillOpacity: 0.7 }
+
+  // TODO 3 (bonus): add a legend control in the bottom-right showing the color scale.
+  // See Leaflet docs for L.control custom controls, or check the solution file.
+</script>
+</body>
+</html>

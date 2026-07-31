@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas API Showcase — Intermediate to Advanced Demos</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-2: #1f2330;
+    --text: #e7e9ee;
+    --muted: #9098ab;
+    --accent: #5eb5ff;
+    --accent-2: #ff6b81;
+    --border: #2a2f3d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 24px 24px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 4px; font-size: 22px; }
+  header p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 16px;
+  }
+  nav button {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .15s, border-color .15s;
+  }
+  nav button:hover { background: var(--panel-2); }
+  nav button.active { border-color: var(--accent); color: var(--accent); background: var(--panel-2); }
+
+  main { padding: 20px 24px 40px; }
+  .demo { display: none; }
+  .demo.active { display: block; }
+
+  .layout {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  canvas {
+    display: block;
+    background: #05070c;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+  .controls {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    min-width: 240px;
+    flex: 1;
+  }
+  .controls h3 { margin-top: 0; font-size: 15px; }
+  .controls p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .row label { color: var(--muted); }
+  .row input[type="range"] { flex: 1; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-row button, .swatch {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-row button:hover { border-color: var(--accent); }
+  code {
+    background: #05070c;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--accent-2);
+    border: 1px solid var(--accent-2);
+    padding: 1px 8px;
+    border-radius: 999px;
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Canvas API Showcase</h1>
+  <p>Five self-contained demos, intermediate → advanced: particle systems, rigid-body-ish collision, pixel-level image processing, a pressure-aware drawing app, and a noise-driven flow field. Open the browser console for zero errors, then poke at the controls.</p>
+  <nav id="nav"></nav>
+</header>
+
+<main id="main"></main>
+
+<script>
+(() => {
+  const demos = [];
+  const nav = document.getElementById('nav');
+  const main = document.getElementById('main');
+
+  function registerDemo(id, label, badge, build) {
+    const section = document.createElement('section');
+    section.className = 'demo';
+    section.id = 'demo-' + id;
+    main.appendChild(section);
+
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    if (badge) {
+      const b = document.createElement('span');
+      b.className = 'badge';
+      b.textContent = badge;
+      btn.appendChild(b);
+    }
+    btn.addEventListener('click', () => activate(id));
+    nav.appendChild(btn);
+
+    demos.push({ id, section, btn, build, instance: null });
+  }
+
+  function activate(id) {
+    demos.forEach(d => {
+      const isActive = d.id === id;
+      d.section.classList.toggle('active', isActive);
+      d.btn.classList.toggle('active', isActive);
+      if (isActive && !d.instance) {
+        d.instance = d.build(d.section);
+      }
+      if (d.instance) {
+        isActive ? d.instance.start && d.instance.start() : d.instance.stop && d.instance.stop();
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // DEMO 1: Particle fireworks — additive blending, gravity, easing
+  // ---------------------------------------------------------------------
+  registerDemo('particles', 'Particle Fireworks', 'compositing', (section) => {
+    section.innerHTML = `
+      <div class="layout">
+        <div class="stage"><canvas id="particlesCanvas" width="640" height="440"></canvas></div>
+        <div class="controls">
+          <h3>Particle system</h3>
+          <p>Click anywhere on the canvas to launch a firework. Particles fade via alpha decay and blend with
+          <code>globalCompositeOperation = 'lighter'</code> so overlapping sparks brighten instead of darkening.
+          Gravity is a simple constant added to vertical velocity each frame.</p>
+          <div class="row"><label>Auto-launch</label><input type="checkbox" id="autoLaunch" checked></div>
+          <div class="row"><label>Particles / burst</label><input type="range" id="pCount" min="20" max="200" value="80"></div>
+          <div class="btn-row"><button id="pClear">Clear</button></div>
+        </div>
+      </div>`;
+
+    const canvas = section.querySelector('#particlesCanvas');
+    const ctx = canvas.getContext('2d');
+    const autoLaunch = section.querySelector('#autoLaunch');
+    const pCountEl = section.querySelector('#pCount');
+    section.querySelector('#pClear').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    let particles = [];
+    let raf = null;
+    let autoTimer = null;
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function hsl(h, s, l) { return `hsl(${h}, ${s}%, ${l}%)`; }
+
+    function burst(x, y) {
+      const hue = rand(0, 360);
+      const count = parseInt(pCountEl.value, 10);
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + rand(-0.05, 0.05);
+        const speed = rand(1.5, 6);
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          decay: rand(0.008, 0.02),
+          hue: hue + rand(-20, 20),
+          size: rand(1.5, 3.2),
+        });
+      }
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      burst(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    function step() {
+      // translucent fill instead of clearRect => motion-trail effect
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(5, 7, 12, 0.25)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalCompositeOperation = 'lighter';
+      particles = particles.filter(p => p.life > 0);
+      for (const p of particles) {
+        p.vy += 0.045; // gravity
+        p.vx *= 0.99;  // air drag
+        p.vy *= 0.99;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = hsl(p.hue, 90, 60);
+        ctx.globalAlpha = Math.max(p.life, 0);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(step);
+    }
+
+    return {
+      start() {
+        if (raf) return;
+        step();
+        autoTimer = setInterval(() => {
+          if (autoLaunch.checked) {
+            burst(rand(80, canvas.width - 80), rand(60, canvas.height / 2));
+          }
+        }, 900);
+      },
+      stop() {
+        cancelAnimationFrame(raf);
+        clearInterval(autoTimer);
+        raf = null;
+      }
+    };
+  });
+
+  // ---------------------------------------------------------------------
+  // DEMO 2: Physics collision — elastic circle-circle collision + gravity
+  // ---------------------------------------------------------------------
+  registerDemo('physics', 'Collision Physics', 'vectors', (section) => {
+    section.innerHTML = `
+      <div class="layout">
+        <div class="stage"><canvas id="physicsCanvas" width="640" height="440"></canvas></div>
+        <div class="controls">
+          <h3>Elastic collisions</h3>
+          <p>Balls resolve overlap along the collision normal and exchange momentum using an elastic-collision
+          impulse formula (mass-weighted). Drag a ball with the mouse and release to fling it — velocity is
+          derived from pointer movement between frames.</p>
+          <div class="row"><label>Gravity</label><input type="checkbox" id="gravityToggle"></div>
+          <div class="row"><label>Ball count</label><input type="range" id="ballCount" min="4" max="24" value="10"></div>
+          <div class="btn-row"><button id="physicsReset">Reset</button></div>
+        </div>
+      </div>`;
+
+    const canvas = section.querySelector('#physicsCanvas');
+    const ctx = canvas.getContext('2d');
+    const gravityToggle = section.querySelector('#gravityToggle');
+    const ballCountEl = section.querySelector('#ballCount');
+
+    let balls = [];
+    let raf = null;
+    let dragging = null;
+    let lastPointer = null;
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function makeBalls(n) {
+      balls = [];
+      for (let i = 0; i < n; i++) {
+        const r = rand(14, 26);
+        balls.push({
+          x: rand(r, canvas.width - r),
+          y: rand(r, canvas.height - r),
+          vx: rand(-3, 3),
+          vy: rand(-3, 3),
+          r,
+          mass: r * r,
+          hue: rand(0, 360),
+        });
+      }
+    }
+    makeBalls(parseInt(ballCountEl.value, 10));
+    section.querySelector('#physicsReset').addEventListener('click', () => makeBalls(parseInt(ballCountEl.value, 10)));
+    ballCountEl.addEventListener('change', () => makeBalls(parseInt(ballCountEl.value, 10)));
+
+    function pointerPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      const p = pointerPos(e);
+      dragging = balls.find(b => Math.hypot(b.x - p.x, b.y - p.y) < b.r);
+      if (dragging) { dragging.vx = 0; dragging.vy = 0; lastPointer = p; }
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const p = pointerPos(e);
+      dragging.vx = p.x - lastPointer.x;
+      dragging.vy = p.y - lastPointer.y;
+      dragging.x = p.x;
+      dragging.y = p.y;
+      lastPointer = p;
+    });
+    window.addEventListener('pointerup', () => { dragging = null; });
+
+    function resolveCollision(a, b) {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 0.001;
+      const minDist = a.r + b.r;
+      if (dist >= minDist) return;
+
+      const nx = dx / dist, ny = dy / dist;
+      // separate overlapping circles
+      const overlap = (minDist - dist) / 2;
+      a.x -= nx * overlap; a.y -= ny * overlap;
+      b.x += nx * overlap; b.y += ny * overlap;
+
+      const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+      const velAlongNormal = rvx * nx + rvy * ny;
+      if (velAlongNormal > 0) return; // separating already
+
+      const restitution = 0.95;
+      const invMassA = 1 / a.mass, invMassB = 1 / b.mass;
+      const j = -(1 + restitution) * velAlongNormal / (invMassA + invMassB);
+      const ix = j * nx, iy = j * ny;
+      a.vx -= ix * invMassA; a.vy -= iy * invMassA;
+      b.vx += ix * invMassB; b.vy += iy * invMassB;
+    }
+
+    function step() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const b of balls) {
+        if (b === dragging) continue;
+        if (gravityToggle.checked) b.vy += 0.15;
+        b.x += b.vx;
+        b.y += b.vy;
+
+        if (b.x - b.r < 0) { b.x = b.r; b.vx *= -0.9; }
+        if (b.x + b.r > canvas.width) { b.x = canvas.width - b.r; b.vx *= -0.9; }
+        if (b.y - b.r < 0) { b.y = b.r; b.vy *= -0.9; }
+        if (b.y + b.r > canvas.height) { b.y = canvas.height - b.r; b.vy *= -0.9; }
+      }
+      for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) resolveCollision(balls[i], balls[j]);
+      }
+      for (const b of balls) {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${b.hue}, 75%, 60%)`;
+        ctx.fill();
+        if (b === dragging) {
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#fff';
+          ctx.stroke();
+        }
+      }
+      raf = requestAnimationFrame(step);
+    }
+
+    return {
+      start() { if (!raf) step(); },
+      stop() { cancelAnimationFrame(raf); raf = null; }
+    };
+  });
+
+  // ---------------------------------------------------------------------
+  // DEMO 3: Pixel manipulation — ImageData, convolution kernels
+  // ---------------------------------------------------------------------
+  registerDemo('pixels', 'Pixel Filters', 'ImageData', (section) => {
+    section.innerHTML = `
+      <div class="layout">
+        <div class="stage"><canvas id="pixelCanvas" width="480" height="360"></canvas></div>
+        <div class="controls">
+          <h3>Per-pixel & convolution filters</h3>
+          <p>The source image is procedurally drawn (gradient + shapes), then read back with
+          <code>getImageData</code>. Simple filters loop over RGBA values directly; blur and edge-detect
+          apply a 3×3 convolution kernel to each pixel's neighborhood.</p>
+          <div class="btn-row">
+            <button data-filter="reset">Original</button>
+            <button data-filter="grayscale">Grayscale</button>
+            <button data-filter="invert">Invert</button>
+            <button data-filter="sepia">Sepia</button>
+            <button data-filter="pixelate">Pixelate</button>
+            <button data-filter="blur">Box blur</button>
+            <button data-filter="edge">Edge detect</button>
+          </div>
+        </div>
+      </div>`;
+
+    const canvas = section.querySelector('#pixelCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    let sourceData = null;
+
+    function drawSourceImage() {
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, '#ff8a65');
+      grad.addColorStop(0.5, '#5eb5ff');
+      grad.addColorStop(1, '#7e57c2');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      for (let i = 0; i < 12; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 40 + 10, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${Math.random() * 360}, 80%, 60%, 0.5)`;
+        ctx.fill();
+      }
+      ctx.font = 'bold 42px sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.fillText('CANVAS', 40, H / 2);
+      sourceData = ctx.getImageData(0, 0, W, H);
+    }
+    drawSourceImage();
+
+    function getWorkingCopy() {
+      const copy = ctx.createImageData(sourceData.width, sourceData.height);
+      copy.data.set(sourceData.data);
+      return copy;
+    }
+
+    function grayscale(imgData) {
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const avg = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        d[i] = d[i + 1] = d[i + 2] = avg;
+      }
+      return imgData;
+    }
+    function invert(imgData) {
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
+      }
+      return imgData;
+    }
+    function sepia(imgData) {
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        d[i]     = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
+        d[i + 1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
+        d[i + 2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
+      }
+      return imgData;
+    }
+    function pixelate(imgData, blockSize = 10) {
+      const { data, width, height } = imgData;
+      for (let by = 0; by < height; by += blockSize) {
+        for (let bx = 0; bx < width; bx += blockSize) {
+          let r = 0, g = 0, b = 0, count = 0;
+          for (let y = by; y < Math.min(by + blockSize, height); y++) {
+            for (let x = bx; x < Math.min(bx + blockSize, width); x++) {
+              const idx = (y * width + x) * 4;
+              r += data[idx]; g += data[idx + 1]; b += data[idx + 2]; count++;
+            }
+          }
+          r /= count; g /= count; b /= count;
+          for (let y = by; y < Math.min(by + blockSize, height); y++) {
+            for (let x = bx; x < Math.min(bx + blockSize, width); x++) {
+              const idx = (y * width + x) * 4;
+              data[idx] = r; data[idx + 1] = g; data[idx + 2] = b;
+            }
+          }
+        }
+      }
+      return imgData;
+    }
+    // Generic 3x3 convolution — used for both blur and edge detection
+    function convolve(imgData, kernel, divisor = 1) {
+      const { data, width, height } = imgData;
+      const src = new Uint8ClampedArray(data);
+      const half = 1;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let r = 0, g = 0, b = 0;
+          for (let ky = -half; ky <= half; ky++) {
+            for (let kx = -half; kx <= half; kx++) {
+              const sx = Math.min(width - 1, Math.max(0, x + kx));
+              const sy = Math.min(height - 1, Math.max(0, y + ky));
+              const idx = (sy * width + sx) * 4;
+              const k = kernel[(ky + half) * 3 + (kx + half)];
+              r += src[idx] * k; g += src[idx + 1] * k; b += src[idx + 2] * k;
+            }
+          }
+          const outIdx = (y * width + x) * 4;
+          data[outIdx] = r / divisor;
+          data[outIdx + 1] = g / divisor;
+          data[outIdx + 2] = b / divisor;
+        }
+      }
+      return imgData;
+    }
+
+    const filters = {
+      reset: () => sourceData,
+      grayscale: () => grayscale(getWorkingCopy()),
+      invert: () => invert(getWorkingCopy()),
+      sepia: () => sepia(getWorkingCopy()),
+      pixelate: () => pixelate(getWorkingCopy(), 12),
+      blur: () => convolve(getWorkingCopy(), [1,1,1, 1,1,1, 1,1,1], 9),
+      edge: () => convolve(grayscale(getWorkingCopy()), [-1,-1,-1, -1,8,-1, -1,-1,-1], 1),
+    };
+
+    section.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const result = filters[btn.dataset.filter]();
+        ctx.putImageData(result, 0, 0);
+      });
+    });
+
+    return { start() {}, stop() {} };
+  });
+
+  // ---------------------------------------------------------------------
+  // DEMO 4: Drawing app — pointer events, variable stroke, undo stack
+  // ---------------------------------------------------------------------
+  registerDemo('draw', 'Brush Drawing App', 'pointer events', (section) => {
+    section.innerHTML = `
+      <div class="layout">
+        <div class="stage"><canvas id="drawCanvas" width="640" height="440"></canvas></div>
+        <div class="controls">
+          <h3>Velocity-aware brush</h3>
+          <p>Stroke width scales inversely with pointer speed (fast = thin, slow = thick), mimicking pressure.
+          Each completed stroke pushes a snapshot onto an undo stack captured via <code>getImageData</code>.</p>
+          <div class="row"><label>Color</label>
+            <input type="color" id="brushColor" value="#5eb5ff">
+          </div>
+          <div class="row"><label>Base size</label><input type="range" id="brushSize" min="2" max="40" value="14"></div>
+          <div class="btn-row">
+            <button id="undoBtn">Undo</button>
+            <button id="clearDraw">Clear</button>
+          </div>
+        </div>
+      </div>`;
+
+    const canvas = section.querySelector('#drawCanvas');
+    const ctx = canvas.getContext('2d');
+    const colorEl = section.querySelector('#brushColor');
+    const sizeEl = section.querySelector('#brushSize');
+    const undoStack = [];
+
+    function fillWhite() {
+      ctx.fillStyle = '#05070c';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    fillWhite();
+
+    function pushUndo() {
+      undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      if (undoStack.length > 25) undoStack.shift();
+    }
+
+    let drawing = false;
+    let last = null;
+    let lastTime = 0;
+
+    function pos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top, t: performance.now() };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      pushUndo();
+      drawing = true;
+      last = pos(e);
+      lastTime = last.t;
+    });
+    window.addEventListener('pointerup', () => { drawing = false; last = null; });
+    canvas.addEventListener('pointerleave', () => { /* keep drawing if button held elsewhere */ });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing || !last) return;
+      const p = pos(e);
+      const dist = Math.hypot(p.x - last.x, p.y - last.y);
+      const dt = Math.max(p.t - lastTime, 1);
+      const speed = dist / dt; // px per ms
+      const base = parseInt(sizeEl.value, 10);
+      const width = Math.max(base * 0.25, base - speed * 18);
+
+      ctx.strokeStyle = colorEl.value;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+
+      last = p;
+      lastTime = p.t;
+    });
+
+    section.querySelector('#undoBtn').addEventListener('click', () => {
+      const prev = undoStack.pop();
+      if (prev) ctx.putImageData(prev, 0, 0);
+    });
+    section.querySelector('#clearDraw').addEventListener('click', () => {
+      pushUndo();
+      fillWhite();
+    });
+
+    return { start() {}, stop() {} };
+  });
+
+  // ---------------------------------------------------------------------
+  // DEMO 5: Flow field — value noise, motion-trail compositing
+  // ---------------------------------------------------------------------
+  registerDemo('flow', 'Noise Flow Field', 'noise + trails', (section) => {
+    section.innerHTML = `
+      <div class="layout">
+        <div class="stage"><canvas id="flowCanvas" width="640" height="440"></canvas></div>
+        <div class="controls">
+          <h3>Flow field particles</h3>
+          <p>A lightweight value-noise function assigns a flow angle to every grid cell. Particles sample the
+          angle at their position and drift along it. Instead of clearing each frame, a low-alpha rectangle is
+          painted over the canvas — this leaves faint trails, a common cheap "motion blur" trick.</p>
+          <div class="row"><label>Particle count</label><input type="range" id="flowCount" min="100" max="1200" step="50" value="500"></div>
+          <div class="row"><label>Noise scale</label><input type="range" id="flowScale" min="1" max="20" value="8"></div>
+          <div class="btn-row"><button id="flowReseed">Reseed noise</button></div>
+        </div>
+      </div>`;
+
+    const canvas = section.querySelector('#flowCanvas');
+    const ctx = canvas.getContext('2d');
+    const flowCountEl = section.querySelector('#flowCount');
+    const flowScaleEl = section.querySelector('#flowScale');
+
+    // cheap 2D value-noise: sum of sine waves at randomized offsets/frequencies
+    let seeds = [];
+    function reseed() {
+      seeds = Array.from({ length: 4 }, () => ({
+        fx: Math.random() * 0.02 + 0.005,
+        fy: Math.random() * 0.02 + 0.005,
+        ox: Math.random() * 1000,
+        oy: Math.random() * 1000,
+      }));
+    }
+    reseed();
+    section.querySelector('#flowReseed').addEventListener('click', reseed);
+
+    function noiseAngle(x, y, t) {
+      let sum = 0;
+      for (const s of seeds) {
+        sum += Math.sin((x + s.ox) * s.fx + t) + Math.cos((y + s.oy) * s.fy + t);
+      }
+      return sum; // roughly in [-8, 8]
+    }
+
+    let particles = [];
+    function makeParticles(n) {
+      particles = Array.from({ length: n }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        hue: Math.random() * 60 + 180,
+      }));
+    }
+    makeParticles(parseInt(flowCountEl.value, 10));
+    flowCountEl.addEventListener('change', () => makeParticles(parseInt(flowCountEl.value, 10)));
+
+    let raf = null;
+    let t = 0;
+
+    function step() {
+      ctx.fillStyle = 'rgba(5, 7, 12, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const scale = parseInt(flowScaleEl.value, 10) / 10;
+      t += 0.004;
+      for (const p of particles) {
+        const angle = noiseAngle(p.x * scale, p.y * scale, t);
+        p.x += Math.cos(angle) * 1.6;
+        p.y += Math.sin(angle) * 1.6;
+        if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+
+        ctx.fillStyle = `hsla(${p.hue}, 90%, 65%, 0.8)`;
+        ctx.fillRect(p.x, p.y, 1.6, 1.6);
+      }
+      raf = requestAnimationFrame(step);
+    }
+
+    return {
+      start() { if (!raf) step(); },
+      stop() { cancelAnimationFrame(raf); raf = null; }
+    };
+  });
+
+  // kick things off
+  activate(demos[0].id);
+})();
+</script>
+</body>
+</html>

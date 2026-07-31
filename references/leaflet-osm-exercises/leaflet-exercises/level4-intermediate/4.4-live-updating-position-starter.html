@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>4.4 Live-Updating Position (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 8px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); font-family: sans-serif; }
+  </style>
+</head>
+<body>
+<div id="panel">Simulating a shuttle moving along a route...</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // A fixed path the "shuttle" will move along (a stand-in for GPS updates from
+  // a real vehicle -- in a real app these points would come from a server/websocket).
+  const path = [
+    [10.7725, 106.6980],
+    [10.7772, 106.6953],
+    [10.7800, 106.6870],
+    [10.7906, 106.7060],
+    [10.7850, 106.7100]
+  ];
+
+  L.polyline(path, { color: '#999', dashArray: '4 6' }).addTo(map);
+
+  // TODO 1: create a marker at path[0] to represent the shuttle.
+  // const shuttle = L.marker(path[0]).addTo(map);
+
+  // TODO 2: write a function that moves the shuttle smoothly from one path point to
+  // the next by interpolating position over several animation steps (similar to the
+  // tile-slide animation in the Canvas slider puzzle exercise), then, once it reaches
+  // the next point, starts interpolating toward the one after that -- looping back to
+  // path[0] once it reaches the end.
+  //
+  // Rough structure:
+  // let segmentIndex = 0;
+  // let t = 0; // progress along the current segment, 0 to 1
+  //
+  // function animate() {
+  //   const from = path[segmentIndex];
+  //   const to = path[(segmentIndex + 1) % path.length];
+  //   t += 0.01;
+  //   if (t >= 1) {
+  //     t = 0;
+  //     segmentIndex = (segmentIndex + 1) % path.length;
+  //   }
+  //   const lat = from[0] + (to[0] - from[0]) * t;
+  //   const lng = from[1] + (to[1] - from[1]) * t;
+  //   shuttle.setLatLng([lat, lng]);
+  //   requestAnimationFrame(animate);
+  // }
+  // animate();
+</script>
+</body>
+</html>

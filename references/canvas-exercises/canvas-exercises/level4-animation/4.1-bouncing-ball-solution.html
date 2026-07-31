@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>4.1 Bouncing Ball (Solution)</h2>
+<canvas id="canvas" width="400" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const ball = { x: 50, y: 50, radius: 15, vx: 3, vy: 2 };
+
+  function update() {
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
+      ball.vx *= -1;
+    }
+    if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+      ball.vy *= -1;
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#3366cc';
+    ctx.fill();
+  }
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+</script>
+</body>
+</html>

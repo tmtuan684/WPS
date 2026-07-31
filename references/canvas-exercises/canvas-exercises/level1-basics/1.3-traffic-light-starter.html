@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>1.3 Traffic Light (Starter)</h2>
+<p>Draw a rounded rectangle "body" containing 3 stacked circles: red, yellow, green.</p>
+<canvas id="canvas" width="150" height="400"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // TODO 1: draw a rounded rectangle body.
+  // Modern browsers support ctx.roundRect(x, y, w, h, radius) directly on the path.
+  // Example: ctx.beginPath(); ctx.roundRect(20, 20, 110, 360, 20); ctx.fillStyle = '#333'; ctx.fill();
+
+  // TODO 2: draw 3 circles (red, yellow, green) stacked vertically inside the body.
+  // Suggested centers: x = 75, y = 90 / 200 / 310, radius = 40
+</script>
+</body>
+</html>

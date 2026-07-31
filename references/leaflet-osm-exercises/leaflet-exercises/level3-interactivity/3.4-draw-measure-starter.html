@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>3.4 Draw & Measure (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); font-family: sans-serif; }
+    #panel button { margin-right: 6px; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  <button id="finish">Finish shape</button>
+  <button id="clear">Clear</button>
+  <div id="result" style="margin-top: 8px;"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  let points = [];       // array of L.LatLng, built up by clicking
+  let previewLine = null;
+  let finalPolygon = null;
+  const resultEl = document.getElementById('result');
+
+  // TODO 1: on map click (while not "finished"), push e.latlng into `points`,
+  // and redraw a polyline connecting them all (remove the old preview line first).
+
+  // A perimeter calculation is provided for you (sums distance between consecutive points):
+  function calculatePerimeter(latlngs) {
+    let total = 0;
+    for (let i = 0; i < latlngs.length - 1; i++) {
+      total += latlngs[i].distanceTo(latlngs[i + 1]);
+    }
+    // include the closing segment back to the first point
+    if (latlngs.length > 2) {
+      total += latlngs[latlngs.length - 1].distanceTo(latlngs[0]);
+    }
+    return total;
+  }
+
+  // An approximate planar area calculation is provided (fine for small areas):
+  function calculateArea(latlngs) {
+    const R = 6378137; // Earth radius in meters
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const lat0 = toRad(latlngs.reduce((sum, p) => sum + p.lat, 0) / latlngs.length);
+
+    const projected = latlngs.map((p) => ({
+      x: R * toRad(p.lng) * Math.cos(lat0),
+      y: R * toRad(p.lat)
+    }));
+
+    let sum = 0;
+    for (let i = 0; i < projected.length; i++) {
+      const a = projected[i];
+      const b = projected[(i + 1) % projected.length];
+      sum += a.x * b.y - b.x * a.y;
+    }
+    return Math.abs(sum) / 2;
+  }
+
+  // TODO 2: on "Finish shape" click -- if points.length >= 3, draw a closed
+  // L.polygon(points), remove the preview polyline, and display the perimeter (meters)
+  // and area (square meters) in #result using the functions above.
+
+  // TODO 3: on "Clear" click -- reset points to [], remove any polyline/polygon
+  // from the map, and clear #result.
+
+  document.getElementById('finish').addEventListener('click', () => {
+    // TODO
+  });
+
+  document.getElementById('clear').addEventListener('click', () => {
+    // TODO
+  });
+</script>
+</body>
+</html>

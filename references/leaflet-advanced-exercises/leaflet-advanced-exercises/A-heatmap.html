@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A. Heatmap Visualization</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; right: 10px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); }
+    #panel label { display: block; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  <label><input type="radio" name="mode" value="heat" checked> Heatmap</label>
+  <label><input type="radio" name="mode" value="markers"> Raw markers</label>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Simulate "incident report" style data: clustered around a few hotspots,
+  // with a weight value (e.g. severity, or number of reports at that spot).
+  function clusterAround(center, count, spread) {
+    const pts = [];
+    for (let i = 0; i < count; i++) {
+      // gaussian-ish scatter (sum of uniforms approximates a bell curve)
+      const jitter = () => ((Math.random() + Math.random() + Math.random()) / 3 - 0.5) * spread;
+      pts.push([center[0] + jitter(), center[1] + jitter(), Math.random()]); // [lat, lng, weight]
+    }
+    return pts;
+  }
+
+  const points = [
+    ...clusterAround([10.7725, 106.6980], 150, 0.03), // busy hotspot
+    ...clusterAround([10.7906, 106.7060], 80, 0.02),
+    ...clusterAround([10.7650, 106.6900], 40, 0.015),
+    ...clusterAround([10.8000, 106.6800], 20, 0.01)
+  ];
+
+  const heatLayer = L.heatLayer(points, {
+    radius: 22,
+    blur: 18,
+    maxZoom: 17,
+    gradient: { 0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.8: 'orange', 1.0: 'red' }
+  });
+
+  const markerLayer = L.layerGroup(
+    points.map(p => L.circleMarker([p[0], p[1]], { radius: 3, color: '#333', weight: 1 }))
+  );
+
+  heatLayer.addTo(map);
+
+  document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.value === 'heat') {
+        map.removeLayer(markerLayer);
+        map.addLayer(heatLayer);
+      } else {
+        map.removeLayer(heatLayer);
+        map.addLayer(markerLayer);
+      }
+    });
+  });
+</script>
+</body>
+</html>

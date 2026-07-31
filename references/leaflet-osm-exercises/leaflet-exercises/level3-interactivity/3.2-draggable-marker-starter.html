@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>3.2 Draggable Marker (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    #readout { position: absolute; top: 10px; left: 50px; z-index: 1000;
+               background: white; padding: 8px 12px; border-radius: 4px;
+               box-shadow: 0 0 6px rgba(0,0,0,0.3); font-family: sans-serif; }
+  </style>
+</head>
+<body>
+<div id="readout">Drag the marker...</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const readout = document.getElementById('readout');
+
+  // TODO 1: create a marker with { draggable: true } and add it to the map.
+  // const marker = L.marker([10.7769, 106.7009], { draggable: true }).addTo(map);
+
+  // TODO 2: listen for the marker's 'dragend' event. Inside the handler,
+  // get the new position with marker.getLatLng(), and update readout.textContent.
+  //
+  // marker.on('dragend', () => {
+  //   const pos = marker.getLatLng();
+  //   readout.textContent = `Lat: ${pos.lat.toFixed(5)}, Lng: ${pos.lng.toFixed(5)}`;
+  // });
+
+  // Bonus: also try the 'drag' event (fires continuously while dragging) instead of
+  // 'dragend' (fires once, when released) to make the readout update live.
+</script>
+</body>
+</html>

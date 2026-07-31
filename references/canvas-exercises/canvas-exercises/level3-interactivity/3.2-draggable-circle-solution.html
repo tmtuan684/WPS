@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>3.2 Draggable Circle (Solution)</h2>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const circle = { x: 150, y: 150, radius: 30 };
+  let isDragging = false;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#cc3366';
+    ctx.fill();
+  }
+
+  function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function isInsideCircle(pos) {
+    const dx = pos.x - circle.x;
+    const dy = pos.y - circle.y;
+    return Math.sqrt(dx * dx + dy * dy) <= circle.radius;
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    const pos = getMousePos(e);
+    if (isInsideCircle(pos)) isDragging = true;
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const pos = getMousePos(e);
+    circle.x = pos.x;
+    circle.y = pos.y;
+    draw();
+  });
+
+  ['mouseup', 'mouseleave'].forEach(evt =>
+    canvas.addEventListener(evt, () => isDragging = false)
+  );
+
+  draw();
+</script>
+</body>
+</html>

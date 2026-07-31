@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>E. Reachability / Simplified Isochrone</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); max-width: 280px; }
+    #panel button { padding: 6px 12px; margin-top: 6px; }
+    #status { margin-top: 6px; font-size: 13px; color: #555; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  Drag the marker to set an origin, then compute an approximate "how far can you
+  drive in 10 minutes" zone. This queries a real routing engine (OSRM) in several
+  directions and connects the results -- <b>not</b> a true isochrone (see notes below),
+  but demonstrates the underlying idea.
+  <br><button id="computeBtn">Compute reachability (10 min)</button>
+  <div id="status"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const originMarker = L.marker([10.7769, 106.7009], { draggable: true }).addTo(map);
+  let isochroneLayer = null;
+  const statusEl = document.getElementById('status');
+  const computeBtn = document.getElementById('computeBtn');
+
+  const TARGET_MINUTES = 10;
+  const DIRECTIONS = 8;    // number of compass directions to sample
+  const ITERATIONS = 3;    // binary-search refinements per direction
+
+  // Ask OSRM for the driving duration (in minutes) from origin to a candidate point.
+  async function routeDurationMinutes(originLatLng, destLatLng) {
+    const url = `https://router.project-osrm.org/route/v1/driving/` +
+                `${originLatLng.lng},${originLatLng.lat};${destLatLng.lng},${destLatLng.lat}` +
+                `?overview=false`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!data.routes || data.routes.length === 0) return null;
+    return data.routes[0].duration / 60;
+  }
+
+  async function computeReachability() {
+    computeBtn.disabled = true;
+    statusEl.textContent = 'Querying routing engine in 8 directions (binary search)...';
+
+    const origin = originMarker.getLatLng();
+    const originPoint = turf.point([origin.lng, origin.lat]);
+    const ringPoints = [];
+
+    for (let i = 0; i < DIRECTIONS; i++) {
+      const bearing = (360 / DIRECTIONS) * i; // degrees clockwise from north
+
+      let low = 0.3;  // km -- definitely reachable within target time
+      let high = 6;    // km -- probably not reachable within target time
+
+      for (let iter = 0; iter < ITERATIONS; iter++) {
+        const mid = (low + high) / 2;
+        const candidate = turf.destination(originPoint, mid, bearing, { units: 'kilometers' });
+        const [lng, lat] = candidate.geometry.coordinates;
+
+        const duration = await routeDurationMinutes(origin, L.latLng(lat, lng));
+
+        if (duration !== null && duration <= TARGET_MINUTES) {
+          low = mid;   // still reachable -- push the search radius outward
+        } else {
+          high = mid;  // not reachable (or routing failed) -- pull it back in
+        }
+
+        statusEl.textContent =
+          `Direction ${i + 1}/${DIRECTIONS}, refinement ${iter + 1}/${ITERATIONS}...`;
+      }
+
+      // use the last confirmed-reachable radius for this direction
+      const finalPoint = turf.destination(originPoint, low, bearing, { units: 'kilometers' });
+      ringPoints.push(finalPoint.geometry.coordinates);
+    }
+
+    ringPoints.push(ringPoints[0]); // close the ring
+
+    if (isochroneLayer) map.removeLayer(isochroneLayer);
+
+    const polygon = turf.polygon([ringPoints]);
+    isochroneLayer = L.geoJSON(polygon, {
+      style: { color: '#8e44ad', weight: 2, fillOpacity: 0.2 }
+    }).addTo(map);
+
+    statusEl.textContent = `Done. Shaded area is an approximate ${TARGET_MINUTES}-minute driving reach.`;
+    computeBtn.disabled = false;
+  }
+
+  computeBtn.addEventListener('click', computeReachability);
+</script>
+</body>
+</html>

@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML, From the Ground Up</title>
+<style>
+  :root{
+    --bg:#10131a;
+    --bg-elev:#161a23;
+    --bg-elev-2:#1d2230;
+    --border:#2a3040;
+    --text:#e9e7df;
+    --text-muted:#8d94a6;
+    --teal:#4fd1c5;
+    --amber:#f0a868;
+    --rose:#e2637a;
+    --code-bg:#0c0e13;
+    --radius:10px;
+    --font-disp: -apple-system, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    --font-body: -apple-system, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.55;
+  }
+  h1,h2,h3,h4{
+    font-family:var(--font-disp);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin:0 0 .5em 0;
+  }
+  a{color:var(--teal);}
+  p{color:var(--text);}
+  .muted{color:var(--text-muted);}
+  code, pre{font-family:var(--font-mono);}
+  code{background:var(--code-bg); padding:.15em .4em; border-radius:4px; font-size:.9em; color:var(--amber);}
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    overflow-x:auto;
+    font-size:13px;
+    line-height:1.6;
+    color:#d7dae2;
+  }
+  pre code{background:none; padding:0; color:inherit;}
+  button{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    background:var(--teal);
+    color:#0b1017;
+    border:none;
+    border-radius:7px;
+    padding:9px 16px;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease;
+  }
+  button:hover{transform:translateY(-1px); background:#66ddd2;}
+  button:active{transform:translateY(0);}
+  button.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  button.secondary:hover{background:var(--bg-elev-2); border-color:#3a4257;}
+  button:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+
+  /* ---------- layout ---------- */
+  .shell{display:flex; min-height:100vh;}
+  .sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--bg-elev);
+    border-right:1px solid var(--border);
+    padding:28px 18px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .brand{
+    font-family:var(--font-disp);
+    font-weight:800;
+    font-size:16px;
+    letter-spacing:-.01em;
+    margin-bottom:2px;
+  }
+  .brand .dot{color:var(--teal);}
+  .brand-sub{font-size:11.5px; color:var(--text-muted); margin-bottom:28px;}
+  .navstep{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:11px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-bottom:4px;
+    border:1px solid transparent;
+  }
+  .navstep:hover{background:var(--bg-elev-2);}
+  .navstep.active{background:var(--bg-elev-2); border-color:var(--border);}
+  .navstep .num{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-muted);
+    padding-top:2px;
+    width:18px;
+  }
+  .navstep.active .num{color:var(--teal);}
+  .navstep .label{font-size:13.5px; font-weight:600;}
+  .navstep .sub{font-size:11px; color:var(--text-muted); margin-top:1px;}
+
+  .main{flex:1; min-width:0;}
+  .view{display:none; padding:48px 56px 90px 56px; max-width:920px;}
+  .view.active{display:block;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin-bottom:10px;
+  }
+  .section{margin-bottom:56px;}
+  .section h2{font-size:24px;}
+  .section h3{font-size:16.5px; margin-top:28px;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:54px 56px 40px 56px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:40px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .hero-text{flex:1; min-width:280px;}
+  .hero h1{font-size:34px; max-width:480px;}
+  .hero p{color:var(--text-muted); max-width:440px; font-size:14.5px;}
+  .hero-widget{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px;
+    width:340px;
+  }
+  .hero-widget .caption{font-size:11px; color:var(--text-muted); margin-bottom:8px; font-family:var(--font-mono);}
+  .hero-controls{display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
+  .hero-loss{font-family:var(--font-mono); font-size:12px; color:var(--amber);}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+  @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+  .card{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px;
+  }
+  .card h4{font-size:14.5px; margin-bottom:6px;}
+  .card p{font-size:13px; color:var(--text-muted); margin:0;}
+  .tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    padding:2px 8px;
+    border-radius:20px;
+    margin-bottom:10px;
+    border:1px solid var(--border);
+  }
+  .tag.simple{color:var(--teal); border-color:#2b5c56;}
+  .tag.intermediate{color:var(--amber); border-color:#5c4a2b;}
+  .tag.advanced{color:var(--rose); border-color:#5c2b38;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th, td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--border);}
+  th{color:var(--text-muted); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em;}
+  td code{white-space:nowrap;}
+
+  .demo{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-top:14px;
+  }
+  .demo-row{display:flex; gap:22px; flex-wrap:wrap;}
+  .demo-canvas-wrap{flex-shrink:0;}
+  canvas{background:var(--code-bg); border-radius:7px; border:1px solid var(--border); display:block;}
+  .demo-controls{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center;}
+  .demo-side{flex:1; min-width:220px;}
+  .stat-line{font-family:var(--font-mono); font-size:12.5px; color:var(--text-muted); margin:4px 0;}
+  .stat-line b{color:var(--text);}
+  .out{
+    font-family:var(--font-mono);
+    font-size:12px;
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:10px 12px;
+    max-height:170px;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    color:#9fe6de;
+    margin-top:10px;
+  }
+  .note{
+    border-left:3px solid var(--amber);
+    background:var(--bg-elev);
+    padding:10px 14px;
+    border-radius:0 7px 7px 0;
+    font-size:13px;
+    color:var(--text-muted);
+    margin-top:14px;
+  }
+
+  /* quiz */
+  .quiz-q{margin-bottom:18px;}
+  .quiz-q p.q{font-weight:600; margin-bottom:8px; font-size:13.5px;}
+  .opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:7px;
+    margin-bottom:6px;
+    font-size:13px;
+    cursor:pointer;
+    font-weight:400;
+  }
+  .opt:hover{border-color:var(--teal);}
+  .opt.correct{border-color:var(--teal); background:#12312e; color:var(--teal);}
+  .opt.wrong{border-color:var(--rose); background:#331a20; color:var(--rose);}
+
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-thumb{background:#2a3040; border-radius:5px;}
+
+  /* real-world lab */
+  .scenario{
+    border-left:3px solid var(--teal);
+    background:var(--bg-elev);
+    padding:12px 16px;
+    border-radius:0 7px 7px 0;
+    font-size:13.5px;
+    margin-bottom:14px;
+  }
+  .scenario b{color:var(--teal);}
+  .exercise{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-top:10px;
+  }
+  textarea.codearea{
+    width:100%;
+    min-height:190px;
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:7px;
+    color:#d7dae2;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    line-height:1.6;
+    padding:14px;
+    resize:vertical;
+    tab-size:2;
+  }
+  textarea.codearea:focus{outline:none; border-color:var(--teal);}
+  details{margin-top:12px;}
+  summary{
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-muted);
+    padding:6px 0;
+  }
+  summary:hover{color:var(--teal);}
+  details[open] summary{color:var(--teal); margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="brand">ML<span class="dot">·</span>fromScratch</div>
+    <div class="brand-sub">An interactive path into machine learning</div>
+
+    <div class="navstep active" data-target="v1">
+      <div class="num">01</div>
+      <div><div class="label">Core Concepts</div><div class="sub">Paradigms, vocabulary, pipeline</div></div>
+    </div>
+    <div class="navstep" data-target="v2">
+      <div class="num">02</div>
+      <div><div class="label">Interactive Labs</div><div class="sub">From scratch, then with real models</div></div>
+    </div>
+    <div class="navstep" data-target="v3">
+      <div class="num">03</div>
+      <div><div class="label">API &amp; Code</div><div class="sub">Deploying a model for real</div></div>
+    </div>
+    <div class="navstep" data-target="v4">
+      <div class="num">04</div>
+      <div><div class="label">Exercises</div><div class="sub">Graded practice, simple → advanced</div></div>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- ============================================================ -->
+    <!-- VIEW 1 : CORE CONCEPTS -->
+    <!-- ============================================================ -->
+    <section class="view active" id="v1">
+      <div class="hero">
+        <div class="hero-text">
+          <div class="eyebrow">01 · Core Concepts</div>
+          <h1>Teach the machine, one small step at a time.</h1>
+          <p>Every model you'll meet, from a single line of best fit to a large language model, learns the same way: guess, measure how wrong the guess was, nudge the parameters to be less wrong, repeat. Try it below.</p>
+        </div>
+        <div class="hero-widget">
+          <div class="caption">// gradient descent, live</div>
+          <canvas id="heroCanvas" width="300" height="180"></canvas>
+          <div class="hero-controls">
+            <button id="heroStep">Take a step ↓</button>
+            <span class="hero-loss" id="heroLoss">loss: —</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-body" style="padding:44px 56px 0 56px;">
+
+        <div class="section">
+          <h2>What "learning" means here</h2>
+          <p>A machine learning model is a function with adjustable knobs (<b>parameters</b>). You don't hand-code the rules — you show the model examples, and an algorithm turns those knobs until the function's output matches reality closely enough. The ball in the widget above is doing exactly that: rolling toward the bottom of a curve that represents error. Bottom of the curve = the knobs are well tuned.</p>
+        </div>
+
+        <div class="section">
+          <h2>Three ways a model can learn</h2>
+          <div class="grid">
+            <div class="card">
+              <h4>Supervised</h4>
+              <p>You give the model labeled examples — inputs paired with the correct answer. It learns to map one to the other. Spam detection, price prediction, image classification.</p>
+            </div>
+            <div class="card">
+              <h4>Unsupervised</h4>
+              <p>No labels — the model finds structure on its own: groups, patterns, compressed representations. Customer segmentation, anomaly detection, embeddings.</p>
+            </div>
+            <div class="card">
+              <h4>Reinforcement</h4>
+              <p>An agent takes actions in an environment and learns from reward or penalty signals over time. Game-playing agents, robotics, resource scheduling.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Vocabulary you'll keep bumping into</h2>
+          <table>
+            <tr><th>Term</th><th>Means</th></tr>
+            <tr><td><code>feature</code></td><td>An input variable the model reads (e.g. square footage, pixel value, word count).</td></tr>
+            <tr><td><code>label / target</code></td><td>The correct answer you want the model to predict.</td></tr>
+            <tr><td><code>model</code></td><td>The function + its current parameters (weights, biases).</td></tr>
+            <tr><td><code>loss function</code></td><td>A number that scores how wrong a prediction was. Lower is better.</td></tr>
+            <tr><td><code>gradient descent</code></td><td>The nudging algorithm — adjusts parameters in the direction that reduces loss.</td></tr>
+            <tr><td><code>learning rate</code></td><td>How big each nudge is. Too big overshoots, too small crawls.</td></tr>
+            <tr><td><code>overfitting</code></td><td>The model memorizes training examples instead of learning the general pattern.</td></tr>
+            <tr><td><code>train / test split</code></td><td>Holding data back so you can honestly check if the model generalizes.</td></tr>
+          </table>
+        </div>
+
+        <div class="section">
+          <h2>The loop, in one picture</h2>
+          <p class="muted" style="font-size:13px;">This loop is the same whether the model is a straight line or a billion-parameter network.</p>
+          <svg viewBox="0 0 760 110" width="100%" height="110" style="margin-top:6px;">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#4fd1c5"/>
+              </marker>
+            </defs>
+            <g font-family="ui-monospace,monospace" font-size="12" fill="#e9e7df">
+              <rect x="10" y="30" width="130" height="46" rx="8" fill="#1d2230" stroke="#2a3040"/>
+              <text x="75" y="58" text-anchor="middle">data in</text>
+              <rect x="200" y="30" width="130" height="46" rx="8" fill="#1d2230" stroke="#2a3040"/>
+              <text x="265" y="58" text-anchor="middle">model guess</text>
+              <rect x="390" y="30" width="130" height="46" rx="8" fill="#1d2230" stroke="#2a3040"/>
+              <text x="455" y="58" text-anchor="middle">measure loss</text>
+              <rect x="580" y="30" width="150" height="46" rx="8" fill="#1d2230" stroke="#2a3040"/>
+              <text x="655" y="58" text-anchor="middle">update weights</text>
+              <line x1="140" y1="53" x2="196" y2="53" stroke="#4fd1c5" stroke-width="2" marker-end="url(#arrow)"/>
+              <line x1="330" y1="53" x2="386" y2="53" stroke="#4fd1c5" stroke-width="2" marker-end="url(#arrow)"/>
+              <line x1="520" y1="53" x2="576" y2="53" stroke="#4fd1c5" stroke-width="2" marker-end="url(#arrow)"/>
+              <path d="M655,76 C655,105 75,105 75,76" fill="none" stroke="#f0a868" stroke-width="2" marker-end="url(#arrow)"/>
+              <text x="365" y="104" text-anchor="middle" fill="#f0a868" font-size="11">repeat until loss stops improving</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="section">
+          <h2>The 5-step production pipeline</h2>
+          <p class="muted" style="font-size:13px;">The training loop above is step 3. Around it, a real project has four more steps that matter just as much.</p>
+          <div class="grid" style="grid-template-columns:repeat(5,1fr); gap:10px;">
+            <div class="card" style="padding:14px;">
+              <div style="font-size:20px; margin-bottom:6px;">📊</div>
+              <h4 style="font-size:13px;">1. Data prep</h4>
+              <p style="font-size:12px;">Cleaning, scaling, feature engineering.</p>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="font-size:20px; margin-bottom:6px;">⚙️</div>
+              <h4 style="font-size:13px;">2. Model selection</h4>
+              <p style="font-size:12px;">Regressor, classifier, or neural net.</p>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="font-size:20px; margin-bottom:6px;">🏋️</div>
+              <h4 style="font-size:13px;">3. Training</h4>
+              <p style="font-size:12px;">Gradient descent, loss optimization.</p>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="font-size:20px; margin-bottom:6px;">🎯</div>
+              <h4 style="font-size:13px;">4. Evaluation</h4>
+              <p style="font-size:12px;">MSE, accuracy, precision/recall.</p>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="font-size:20px; margin-bottom:6px;">🚀</div>
+              <h4 style="font-size:13px;">5. Deployment</h4>
+              <p style="font-size:12px;">Serve behind a REST API for web/mobile.</p>
+            </div>
+          </div>
+          <p class="muted" style="font-size:12.5px; margin-top:10px;">Section 03 (Try the API) picks up right at step 5 — you'll see what a deployed model's REST endpoint actually looks like.</p>
+        </div>
+
+        <div class="section">
+          <h2>Quick self-check</h2>
+          <div id="quiz"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 2 : INTERACTIVE LABS -->
+    <!-- ============================================================ -->
+    <section class="view" id="v2">
+      <div class="view-body" style="padding:48px 56px 0 56px;">
+        <div class="eyebrow">02 · Interactive Labs</div>
+        <h2 style="font-size:26px;">Hands on, in two stages</h2>
+        <p class="muted">First, build the core loop yourself — that's where the intuition sticks. Then see the same problems solved with a real trained model, live in your browser.</p>
+
+        <h3 style="margin-top:36px; color:var(--teal); font-size:13px; text-transform:uppercase; letter-spacing:.06em; font-family:var(--font-mono);">Build it yourself</h3>
+
+        <div class="section">
+          <h3>1. Linear regression — fitting a line with gradient descent</h3>
+          <p class="muted" style="font-size:13.5px;">The model is <code>y = m·x + b</code>. Loss is mean squared error. Each step nudges <code>m</code> and <code>b</code> a little against the slope of that loss.</p>
+<pre><code>// one gradient-descent step for y = m*x + b
+function trainStep(points, m, b, lr = 0.0003) {
+  let dm = 0, db = 0;
+  for (const { x, y } of points) {
+    const pred = m * x + b;
+    const err = pred - y;
+    dm += err * x;
+    db += err;
+  }
+  const n = points.length;
+  m -= lr * (dm / n) * 2;
+  b -= lr * (db / n) * 2;
+  return { m, b };
+}</code></pre>
+          <div class="demo">
+            <div class="demo-row">
+              <div class="demo-canvas-wrap">
+                <canvas id="linRegCanvas" width="320" height="240"></canvas>
+              </div>
+              <div class="demo-side">
+                <div class="stat-line">slope (m): <b id="lrM">–</b></div>
+                <div class="stat-line">intercept (b): <b id="lrB">–</b></div>
+                <div class="stat-line">loss (MSE): <b id="lrLoss">–</b></div>
+                <div class="demo-controls">
+                  <button id="lrStep">Step ×1</button>
+                  <button id="lrStep50">Step ×50</button>
+                  <button class="secondary" id="lrReset">Reset points</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>2. k-Nearest Neighbors — classify by asking your neighbors</h3>
+          <p class="muted" style="font-size:13.5px;">No training loop at all — just distance. To classify a new point, find the <code>k</code> closest labeled points and take a majority vote.</p>
+<pre><code>function classify(point, trainSet, k = 3) {
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const neighbors = [...trainSet]
+    .sort((a, b) => dist(point, a) - dist(point, b))
+    .slice(0, k);
+  const votes = neighbors.reduce((acc, n) => {
+    acc[n.label] = (acc[n.label] || 0) + 1;
+    return acc;
+  }, {});
+  return Object.keys(votes).sort((a, b) => votes[b] - votes[a])[0];
+}</code></pre>
+          <div class="demo">
+            <div class="demo-row">
+              <div class="demo-canvas-wrap">
+                <canvas id="knnCanvas" width="320" height="240"></canvas>
+              </div>
+              <div class="demo-side">
+                <p class="muted" style="font-size:12.5px;">Click anywhere on the grid to drop a new point — it's colored by a vote among its <b>k = 3</b> nearest neighbors.</p>
+                <div class="demo-controls">
+                  <button class="secondary" id="knnReset">New random clusters</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>3. Perceptron — the smallest possible neuron</h3>
+          <p class="muted" style="font-size:13.5px;">One neuron, two inputs, one weight update rule. This is the cell that neural networks are built out of. Here it learns the AND gate.</p>
+<pre><code>function trainPerceptron(examples, epochs = 20, lr = 0.1) {
+  let w = [Math.random(), Math.random()], bias = Math.random();
+  const log = [];
+  for (let e = 0; e < epochs; e++) {
+    let errors = 0;
+    for (const { x, y } of examples) {
+      const sum = x[0] * w[0] + x[1] * w[1] + bias;
+      const pred = sum >= 0 ? 1 : 0;
+      const err = y - pred;
+      if (err !== 0) {
+        w[0] += lr * err * x[0];
+        w[1] += lr * err * x[1];
+        bias += lr * err;
+        errors++;
+      }
+    }
+    log.push(`epoch ${e + 1}: w=[${w.map(v=>v.toFixed(2))}] bias=${bias.toFixed(2)} errors=${errors}`);
+    if (errors === 0) { log.push('converged — stopping early'); break; }
+  }
+  return log;
+}</code></pre>
+          <div class="demo">
+            <button id="runPerceptron">Run in browser</button>
+            <div class="out" id="perceptronOut">// click "Run in browser" to train on the AND gate</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:36px; color:var(--amber); font-size:13px; text-transform:uppercase; letter-spacing:.06em; font-family:var(--font-mono);">With a trained model</h3>
+        <p class="muted" style="font-size:13.5px;">Same shape of problem, now solved with a library instead of a hand-written loop — the difference between learning the mechanics and using them.</p>
+
+        <div class="section">
+          <h3>Real-estate price predictor <span class="tag simple" style="margin-left:6px;">supervised · regression</span></h3>
+          <p class="muted" style="font-size:13.5px;">Predict a house's value from its size. <a href="https://www.tensorflow.org/js" target="_blank">TensorFlow.js</a> trains a real (tiny) neural network, live, in this page.</p>
+<pre><code>const model = tf.sequential();
+model.add(tf.layers.dense({ units: 1, inputShape: [1] })); // 1 feature: sqft
+
+model.compile({
+  optimizer: tf.train.sgd(0.02),
+  loss: 'meanSquaredError'
+});
+
+await model.fit(sqftTensor, priceTensor, {
+  epochs: 120,
+  callbacks: { onEpochEnd: (epoch, logs) => console.log(logs.loss) }
+});
+
+model.predict(tf.tensor2d([1800], [1, 1])).print(); // predict a 1,800 sqft home</code></pre>
+
+          <div class="demo">
+            <div class="demo-row">
+              <div class="demo-canvas-wrap">
+                <canvas id="tfCanvas" width="320" height="200"></canvas>
+                <p class="muted" style="font-size:11px; margin-top:6px;">live loss curve — MSE gradient descent</p>
+              </div>
+              <div class="demo-side">
+                <p class="muted" style="font-size:12.5px;">Training data: 20 homes, roughly <code>price ≈ 140 × sqft + 25,000</code> plus noise. The model never sees that formula — only sqft/price pairs.</p>
+                <div class="demo-controls">
+                  <button id="tfTrain">⚡ Train model live</button>
+                  <input id="tfInput" type="number" placeholder="sqft" value="1800" style="width:74px; padding:8px; border-radius:7px; border:1px solid var(--border); background:var(--code-bg); color:var(--text);">
+                  <button class="secondary" id="tfPredict" disabled>Run inference</button>
+                </div>
+                <div class="stat-line" id="tfStatus">status: idle — press "Train model live" first</div>
+                <div class="stat-line" id="tfResult"></div>
+              </div>
+            </div>
+          </div>
+          <div class="note" id="tfError" style="display:none;">Couldn't load TensorFlow.js from the CDN — check your network connection and reload the page. The code above is still correct and will run once the library loads.</div>
+        </div>
+
+        <div class="section">
+          <h3>Real-time computer vision <span class="tag advanced" style="margin-left:6px;">deep learning · CNN</span></h3>
+          <p class="muted" style="font-size:13.5px;">A convolutional neural network trained on millions of images (<a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet" target="_blank">MobileNet</a>) can run entirely client-side, no server round trip. <a href="https://ml5js.org/" target="_blank">ml5.js</a> wraps it in a two-line API. Upload a photo and classify it — nothing leaves your browser.</p>
+<pre><code>const classifier = await ml5.imageClassifier('MobileNet');
+const results = await classifier.classify(imgElement);
+// results[0] -> { label: "golden retriever", confidence: 0.93 }</code></pre>
+          <div class="demo">
+            <div class="demo-row">
+              <div class="demo-canvas-wrap">
+                <input type="file" id="cvFile" accept="image/*" style="font-size:12.5px; color:var(--text-muted); max-width:220px;">
+                <div style="margin-top:10px; width:220px; height:220px; border:1px solid var(--border); border-radius:7px; background:var(--code-bg); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                  <img id="cvImg" style="max-width:100%; max-height:100%; display:none;">
+                  <span id="cvPlaceholder" class="muted" style="font-size:12px; padding:10px; text-align:center;">no image selected</span>
+                </div>
+              </div>
+              <div class="demo-side">
+                <div class="demo-controls">
+                  <button id="cvClassify" disabled>Classify image</button>
+                </div>
+                <div class="stat-line" id="cvStatus">status: loading MobileNet…</div>
+                <div class="out" id="cvOut">// predictions will show here</div>
+              </div>
+            </div>
+          </div>
+          <div class="note" id="cvError" style="display:none;">Couldn't load ml5.js/MobileNet from the CDN — check your network connection and reload the page.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 3 : API & CODE -->
+    <!-- ============================================================ -->
+    <section class="view" id="v3">
+      <div class="view-body" style="padding:48px 56px 0 56px;">
+        <div class="eyebrow">03 · API &amp; Code</div>
+        <h2 style="font-size:26px;">What "deployment" actually looks like</h2>
+        <p class="muted">The labs above run a model in the browser. In modern real-world architecture, models are more often trained once in Python (scikit-learn, PyTorch), saved to disk, and served behind a REST API that any web or mobile frontend calls. This can't execute inside this page — it needs a real server — but this is exactly what production code looks like.</p>
+
+        <div class="section">
+          <h3>1. Python model endpoint — FastAPI + scikit-learn</h3>
+          <p class="muted" style="font-size:13.5px;">The server loads an already-trained model artefact once at startup, then just runs inference on each request.</p>
+<pre><code>from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import numpy as np
+
+app = FastAPI()
+model = joblib.load("house_price_model.pkl")  # trained offline
+
+class PropertyFeatures(BaseModel):
+    sqft: float
+    bedrooms: int
+    age_years: float
+
+@app.post("/predict")
+def predict_price(features: PropertyFeatures):
+    input_vector = np.array([[features.sqft, features.bedrooms, features.age_years]])
+    prediction = model.predict(input_vector)[0]
+    return {"status": "success", "predicted_price_usd": round(float(prediction), 2)}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>2. Front-end integration — JavaScript / async fetch</h3>
+          <p class="muted" style="font-size:13.5px;">The frontend never sees a model or a weight — just a JSON request and a JSON response.</p>
+<pre><code>async function fetchHousePricePrediction(sqft, bedrooms, age) {
+  try {
+    const response = await fetch('https://api.yourdomain.com/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sqft, bedrooms, age_years: age })
+    });
+    if (!response.ok) throw new Error('Model server error');
+    const result = await response.json();
+    console.log(`Estimated Value: $${result.predicted_price_usd}`);
+    return result.predicted_price_usd;
+  } catch (error) {
+    console.error('Inference error:', error);
+  }
+}</code></pre>
+          <p class="muted" style="font-size:12.5px;">Notice the shape: the Python side owns training and the saved model file; the JS side only ever sees a JSON request/response. That boundary is what "deploying a model" means in practice.</p>
+        </div>
+
+        <div class="section">
+          <h3>Picking a tool for the job</h3>
+          <table>
+            <tr><th>Situation</th><th>Reach for</th></tr>
+            <tr><td>Learning the mechanics, small toy data</td><td>Vanilla JS / Python, hand-written loop</td></tr>
+            <tr><td>In-browser or on-device model, no server round trip</td><td><code>TensorFlow.js</code>, <code>onnxruntime-web</code></td></tr>
+            <tr><td>Serious training, research, tabular/image/text models</td><td>Python: <code>scikit-learn</code>, <code>PyTorch</code>, <code>TensorFlow</code></td></tr>
+            <tr><td>Local inference on your own machine, full data privacy</td><td>Local runtimes like <code>Ollama</code>, <code>llama.cpp</code></td></tr>
+            <tr><td>Don't want to train or host anything at all</td><td>Hosted inference APIs (Anthropic, OpenAI, etc.)</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 4 : EXERCISES -->
+    <!-- ============================================================ -->
+    <section class="view" id="v4">
+      <div class="view-body" style="padding:48px 56px 0 56px;">
+        <div class="eyebrow">04 · Exercises</div>
+        <h2 style="font-size:26px;">Test your intuition, then write the code</h2>
+        <p class="muted">Scenarios modeled after actual jobs a junior ML engineer gets handed — some are judgment calls, some need code. Coding exercises give you a stub with the interesting part missing and a test suite that grades your answer instantly, no server, right in this page. Fill in the <code>TODO</code>, hit <b>Run tests</b>. Stuck? Solutions are one click away.</p>
+
+        <!-- Exercise 1: problem formulation -->
+        <div class="section">
+          <h3>1. Problem formulation</h3>
+          <div class="exercise">
+            <div class="scenario"><b>The job — e-commerce customer churn prevention:</b> An online store wants to identify customers likely to stop buying within 30 days, so they can email them a discount code before they churn.</div>
+            <p class="q" style="font-size:13.5px; margin:10px 0 8px 0;">Which ML problem type is this?</p>
+            <div id="quiz-formulation"></div>
+          </div>
+        </div>
+
+        <!-- Exercise 2: overfitting diagnosis -->
+        <div class="section">
+          <h3>2. Overfitting diagnosis</h3>
+          <div class="exercise">
+            <div class="scenario"><b>The job — evaluating model diagnostics:</b> Your model achieves 99.5% accuracy on the training dataset, but drops to 61.2% accuracy on the unseen test dataset.</div>
+            <p class="q" style="font-size:13.5px; margin:10px 0 8px 0;">What's occurring, and how do you resolve it?</p>
+            <div id="quiz-overfitting"></div>
+          </div>
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="section">
+          <h3>3. Support-inbox spam filter</h3>
+          <div class="scenario"><b>The job:</b> Your team's shared support inbox is getting flooded with promotional junk mixed in with real customer emails. You're asked to write a quick first-pass filter — not perfect, just good enough to move obvious spam out of the way before a person reads anything.</div>
+          <div class="exercise">
+            <textarea class="codearea" id="ex1code" spellcheck="false">// Real emails often repeat urgency/promo words and pile on exclamation marks.
+// Flag an email as spam if it contains 2+ spam words, OR 3+ exclamation marks.
+function isSpam(email) {
+  const spamWords = ['free', 'winner', 'click here', 'urgent', 'act now', 'limited time'];
+  const text = email.toLowerCase();
+
+  // TODO: count how many of `spamWords` appear inside `text`
+  // TODO: count how many '!' characters appear in `text`
+  // TODO: return true if wordHits >= 2 OR exclaims >= 3
+
+  return false; // replace this
+}</textarea>
+            <div class="demo-controls">
+              <button onclick="runExercise('ex1code','isSpam',ex1Tests,'ex1out')">Run tests</button>
+            </div>
+            <div class="out" id="ex1out">// results will show here</div>
+            <details>
+              <summary>Show solution</summary>
+<pre><code>function isSpam(email) {
+  const spamWords = ['free', 'winner', 'click here', 'urgent', 'act now', 'limited time'];
+  const text = email.toLowerCase();
+  const wordHits = spamWords.filter(w => text.includes(w)).length;
+  const exclaims = (text.match(/!/g) || []).length;
+  return wordHits >= 2 || exclaims >= 3;
+}</code></pre>
+            </details>
+          </div>
+        </div>
+
+        <!-- Exercise 4 -->
+        <div class="section">
+          <h3>4. Deploying a churn model's scoring function</h3>
+          <div class="scenario"><b>The job:</b> A data scientist already trained a churn model offline and handed you its learned weights. Your task isn't to train anything — it's to write the small function that runs in production every time the app needs a live churn prediction for a customer. This is most of what "using ML in production" actually looks like day to day.</div>
+          <div class="exercise">
+            <textarea class="codearea" id="ex2code" spellcheck="false">// Weights already learned offline by a logistic regression model.
+const churnWeights = { monthsAsCustomer: -0.05, monthlySupportTickets: 0.6, monthlySpend: -0.01, bias: 0.3 };
+
+function sigmoid(z) {
+  // TODO: implement the logistic function: 1 / (1 + e^-z)
+  return 0;
+}
+
+function willChurn(customer, weights) {
+  // customer = { monthsAsCustomer, monthlySupportTickets, monthlySpend }
+  // TODO: compute z = weighted sum of customer's fields + weights.bias
+  // TODO: run z through sigmoid()
+  // TODO: return true if the probability is greater than 0.5
+  return false;
+}</textarea>
+            <div class="demo-controls">
+              <button onclick="runExercise('ex2code','willChurn',ex2Tests,'ex2out')">Run tests</button>
+            </div>
+            <div class="out" id="ex2out">// results will show here</div>
+            <details>
+              <summary>Show solution</summary>
+<pre><code>function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+function willChurn(customer, weights) {
+  const z = customer.monthsAsCustomer * weights.monthsAsCustomer +
+            customer.monthlySupportTickets * weights.monthlySupportTickets +
+            customer.monthlySpend * weights.monthlySpend +
+            weights.bias;
+  return sigmoid(z) > 0.5;
+}</code></pre>
+            </details>
+          </div>
+        </div>
+
+        <!-- Exercise 5 -->
+        <div class="section">
+          <h3>5. "More like this" movie recommender</h3>
+          <div class="scenario"><b>The job:</b> Your streaming app already represents each title as a short vector (its genre profile — this is a stand-in for the kind of embedding a real recommender or RAG system would use). Given the vector for what someone just watched, find the closest title in the catalog. This is the exact building block behind recommendation engines and semantic search.</div>
+          <div class="exercise">
+            <textarea class="codearea" id="ex3code" spellcheck="false">// Each vector is [action, comedy, romance] score, 0 to 1.
+function cosineSimilarity(a, b) {
+  // TODO: dot product of a and b
+  // TODO: magnitude (length) of a, and of b
+  // TODO: return dot / (magnitudeA * magnitudeB)
+  return 0;
+}
+
+function recommend(target, catalog) {
+  // catalog: [{ title, vector }, ...]
+  // TODO: find the catalog entry whose vector has the highest cosine
+  //       similarity to `target`, and return its title
+  return null;
+}</textarea>
+            <div class="demo-controls">
+              <button onclick="runExercise('ex3code','cosineSimilarity',ex3SimTests,'ex3out')">Run tests</button>
+            </div>
+            <div class="out" id="ex3out">// results will show here</div>
+            <details>
+              <summary>Show solution</summary>
+<pre><code>function cosineSimilarity(a, b) {
+  const dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
+  const magA = Math.sqrt(a.reduce((s, v) => s + v * v, 0));
+  const magB = Math.sqrt(b.reduce((s, v) => s + v * v, 0));
+  return dot / (magA * magB);
+}
+
+function recommend(target, catalog) {
+  let best = null, bestScore = -Infinity;
+  for (const item of catalog) {
+    const score = cosineSimilarity(target, item.vector);
+    if (score > bestScore) { bestScore = score; best = item.title; }
+  }
+  return best;
+}</code></pre>
+            </details>
+          </div>
+        </div>
+
+        <div class="note">Exercises 3–5 are inference, not training — reading a model's learned parameters and using them correctly. In real ML jobs, that's the code you write far more often than a training loop.</div>
+
+        <div class="section" style="margin-top:44px;">
+          <h3>6. More practice: a project path, simple → advanced</h3>
+          <p class="muted" style="font-size:13.5px;">Once the exercises above feel easy, pick a project just past your comfort line. Each one reuses a loop from Interactive Labs: fit a line, vote among neighbors, or nudge weights against a loss.</p>
+
+          <h4 style="font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-family:var(--font-mono); margin-top:20px;">Simple</h4>
+          <div class="grid">
+            <div class="card">
+              <span class="tag simple">simple</span>
+              <h4>Iris flower classifier</h4>
+              <p>Use k-NN on the classic 150-row Iris dataset. Petal/sepal measurements → species. Extends the k-NN demo above to real, multi-feature data.</p>
+            </div>
+            <div class="card">
+              <span class="tag simple">simple</span>
+              <h4>House price estimator</h4>
+              <p>Linear regression, one or two features (square footage, bedrooms) → price. Extends the linear regression demo above.</p>
+            </div>
+            <div class="card">
+              <span class="tag simple">simple</span>
+              <h4>Rule-vs-model comparison</h4>
+              <p>Write a hand-coded if/else spam filter, then a tiny trained one on the same data. Compare accuracy and talk about why they differ.</p>
+            </div>
+          </div>
+
+          <h4 style="font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-family:var(--font-mono); margin-top:20px;">Intermediate</h4>
+          <div class="grid">
+            <div class="card">
+              <span class="tag intermediate">intermediate</span>
+              <h4>Handwritten digit recognizer</h4>
+              <p>TensorFlow.js + MNIST. A small convolutional network, trained fully in-browser, drawing canvas for live testing.</p>
+            </div>
+            <div class="card">
+              <span class="tag intermediate">intermediate</span>
+              <h4>Text sentiment classifier</h4>
+              <p>Bag-of-words features + logistic regression on a review dataset. Good bridge from tabular ML into NLP.</p>
+            </div>
+            <div class="card">
+              <span class="tag intermediate">intermediate</span>
+              <h4>Model evaluation dashboard</h4>
+              <p>Take any classifier above and build a page showing confusion matrix, precision/recall, and a train/test accuracy split.</p>
+            </div>
+          </div>
+
+          <h4 style="font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-family:var(--font-mono); margin-top:20px;">Advanced</h4>
+          <div class="grid">
+            <div class="card">
+              <span class="tag advanced">advanced</span>
+              <h4>Local semantic search / mini-RAG</h4>
+              <p>Chunk a set of documents, embed them with a local model (e.g. via Ollama), store vectors, retrieve by cosine similarity, and ground an answer in the retrieved text.</p>
+            </div>
+            <div class="card">
+              <span class="tag advanced">advanced</span>
+              <h4>Recommendation engine</h4>
+              <p>Collaborative filtering on a ratings matrix — matrix factorization from scratch, then compare against a library implementation.</p>
+            </div>
+            <div class="card">
+              <span class="tag advanced">advanced</span>
+              <h4>Fine-tune vs. prompt evaluation</h4>
+              <p>Design a small stepped evaluation comparing a fine-tuned classifier against a prompted LLM on the same labeled task — a nice bridge between classic ML and applied LLM work.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.15.0/tf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js"></script>
+<script>
+/* ---------------- navigation ---------------- */
+document.querySelectorAll('.navstep').forEach(step => {
+  step.addEventListener('click', () => {
+    document.querySelectorAll('.navstep').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    step.classList.add('active');
+    document.getElementById(step.dataset.target).classList.add('active');
+    document.querySelector('.main').scrollTo?.(0,0);
+    window.scrollTo(0,0);
+  });
+});
+
+/* ---------------- hero: gradient descent ---------------- */
+(function heroDemo(){
+  const canvas = document.getElementById('heroCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const lossFn = x => 0.0035 * Math.pow(x - 210, 2) + 20;
+  const gradFn = x => 0.007 * (x - 210);
+  let x = 40;
+  const lr = 22;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = '#4fd1c5';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let px = 0; px <= W; px++){
+      const py = H - 10 - lossFn(px);
+      if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    const by = H - 10 - lossFn(x);
+    ctx.fillStyle = '#f0a868';
+    ctx.beginPath();
+    ctx.arc(x, by, 6, 0, Math.PI*2);
+    ctx.fill();
+    document.getElementById('heroLoss').textContent = 'loss: ' + lossFn(x).toFixed(2);
+  }
+  document.getElementById('heroStep').addEventListener('click', () => {
+    x = x - lr * gradFn(x) * 0.6;
+    x = Math.max(2, Math.min(W-2, x));
+    draw();
+  });
+  draw();
+})();
+
+/* ---------------- quiz ---------------- */
+function renderQuiz(containerId, questions){
+  const box = document.getElementById(containerId);
+  questions.forEach((item, qi) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-q';
+    const p = document.createElement('p');
+    p.className = 'q';
+    p.textContent = (qi+1) + '. ' + item.q;
+    wrap.appendChild(p);
+    item.opts.forEach((opt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = opt;
+      b.addEventListener('click', () => {
+        [...wrap.querySelectorAll('.opt')].forEach(o => o.disabled = true);
+        if (oi === item.correct) b.classList.add('correct');
+        else {
+          b.classList.add('wrong');
+          wrap.querySelectorAll('.opt')[item.correct].classList.add('correct');
+        }
+      });
+      wrap.appendChild(b);
+    });
+    box.appendChild(wrap);
+  });
+}
+
+renderQuiz('quiz', [
+  {
+    q: "You have thousands of customer records with no labels and want to find natural groupings. Which paradigm?",
+    opts: ["Supervised", "Unsupervised", "Reinforcement"],
+    correct: 1
+  },
+  {
+    q: "The loss function is climbing instead of dropping during training. Most likely culprit?",
+    opts: ["Learning rate is too high", "Too many training examples", "The model has too few parameters"],
+    correct: 0
+  },
+  {
+    q: "A model scores 99% on training data but 61% on new data. What's happening?",
+    opts: ["Underfitting", "Overfitting", "The learning rate is too low"],
+    correct: 1
+  }
+]);
+
+renderQuiz('quiz-formulation', [
+  {
+    q: "What kind of ML problem is this?",
+    opts: ["Unsupervised clustering", "Binary classification (will churn / won't churn)", "Continuous regression"],
+    correct: 1
+  }
+]);
+
+renderQuiz('quiz-overfitting', [
+  {
+    q: "What's occurring, and what's the fix?",
+    opts: [
+      "Underfitting — the model is too simple; add more features",
+      "Overfitting — the model memorized training noise; add regularization or reduce complexity",
+      "The data is mislabeled; nothing to do with the model"
+    ],
+    correct: 1
+  }
+]);
+
+/* ---------------- linear regression demo ---------------- */
+(function linRegDemo(){
+  const canvas = document.getElementById('linRegCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let points = [], m = 0, b = 0;
+
+  function genPoints(){
+    points = [];
+    const trueM = 0.6, trueB = 40;
+    for (let i = 0; i < 24; i++){
+      const x = Math.random() * (W - 40) + 20;
+      const noise = (Math.random() - 0.5) * 40;
+      const y = H - (trueM * x + trueB + noise);
+      points.push({ x, y: Math.max(10, Math.min(H-10, y)) });
+    }
+    m = (Math.random() - 0.5) * 0.4;
+    b = H/2;
+  }
+
+  function loss(){
+    let s = 0;
+    for (const p of points){
+      const pred = m * p.x + b;
+      s += Math.pow(pred - p.y, 2);
+    }
+    return s / points.length;
+  }
+
+  function step(){
+    let dm = 0, db = 0;
+    for (const p of points){
+      const pred = m * p.x + b;
+      const err = pred - p.y;
+      dm += err * p.x;
+      db += err;
+    }
+    const n = points.length;
+    const lr = 0.00002;
+    m -= lr * (dm / n) * 2;
+    b -= lr * (db / n) * 2;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#4fd1c5';
+    for (const p of points){
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = '#f0a868';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, m*0+b);
+    ctx.lineTo(W, m*W+b);
+    ctx.stroke();
+    document.getElementById('lrM').textContent = m.toFixed(3);
+    document.getElementById('lrB').textContent = b.toFixed(1);
+    document.getElementById('lrLoss').textContent = loss().toFixed(1);
+  }
+
+  document.getElementById('lrStep').addEventListener('click', () => { step(); draw(); });
+  document.getElementById('lrStep50').addEventListener('click', () => { for(let i=0;i<50;i++) step(); draw(); });
+  document.getElementById('lrReset').addEventListener('click', () => { genPoints(); draw(); });
+
+  genPoints(); draw();
+})();
+
+/* ---------------- k-NN demo ---------------- */
+(function knnDemo(){
+  const canvas = document.getElementById('knnCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let trainSet = [];
+  const colors = { A: '#4fd1c5', B: '#f0a868' };
+
+  function genClusters(){
+    trainSet = [];
+    const centers = [{x:100,y:70,label:'A'}, {x:210,y:170,label:'B'}];
+    centers.forEach(c => {
+      for (let i = 0; i < 12; i++){
+        trainSet.push({
+          x: c.x + (Math.random()-0.5)*80,
+          y: c.y + (Math.random()-0.5)*80,
+          label: c.label
+        });
+      }
+    });
+    draw();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for (const p of trainSet){
+      ctx.fillStyle = colors[p.label];
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function classify(point, k=3){
+    const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+    const neighbors = [...trainSet].sort((a,b) => dist(point,a)-dist(point,b)).slice(0,k);
+    const votes = {};
+    neighbors.forEach(n => votes[n.label] = (votes[n.label]||0)+1);
+    return Object.keys(votes).sort((a,b) => votes[b]-votes[a])[0];
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const label = classify({x,y});
+    ctx.fillStyle = colors[label];
+    ctx.strokeStyle = '#e9e7df';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  document.getElementById('knnReset').addEventListener('click', genClusters);
+  genClusters();
+})();
+
+/* ---------------- perceptron demo ---------------- */
+document.getElementById('runPerceptron').addEventListener('click', () => {
+  const examples = [
+    { x: [0,0], y: 0 }, { x: [0,1], y: 0 },
+    { x: [1,0], y: 0 }, { x: [1,1], y: 1 }
+  ];
+  let w = [Math.random(), Math.random()], bias = Math.random();
+  const lr = 0.1, epochs = 20;
+  const log = [];
+  for (let e = 0; e < epochs; e++){
+    let errors = 0;
+    for (const { x, y } of examples){
+      const sum = x[0]*w[0] + x[1]*w[1] + bias;
+      const pred = sum >= 0 ? 1 : 0;
+      const err = y - pred;
+      if (err !== 0){
+        w[0] += lr*err*x[0];
+        w[1] += lr*err*x[1];
+        bias += lr*err;
+        errors++;
+      }
+    }
+    log.push(`epoch ${e+1}: w=[${w.map(v=>v.toFixed(2))}] bias=${bias.toFixed(2)} errors=${errors}`);
+    if (errors === 0){ log.push('converged — stopping early'); break; }
+  }
+  document.getElementById('perceptronOut').textContent = log.join('\n');
+});
+
+/* ---------------- tensorflow.js demo ---------------- */
+(function tfDemo(){
+  const trainBtn = document.getElementById('tfTrain');
+  const predictBtn = document.getElementById('tfPredict');
+  const status = document.getElementById('tfStatus');
+  const result = document.getElementById('tfResult');
+  const canvas = document.getElementById('tfCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let model = null;
+  let losses = [];
+
+  if (typeof tf === 'undefined'){
+    document.getElementById('tfError').style.display = 'block';
+    trainBtn.disabled = true;
+    return;
+  }
+
+  function drawLosses(){
+    ctx.clearRect(0,0,W,H);
+    if (losses.length < 2) return;
+    const max = Math.max(...losses);
+    ctx.strokeStyle = '#4fd1c5';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    losses.forEach((l, i) => {
+      const px = (i / (losses.length-1)) * (W-20) + 10;
+      const py = H - 15 - (l / max) * (H - 30);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+  }
+
+  trainBtn.addEventListener('click', async () => {
+    trainBtn.disabled = true;
+    status.textContent = 'status: training…';
+    losses = [];
+
+    // sqft scaled to thousands, price scaled to thousands, for stable SGD
+    const xsData = [], ysData = [];
+    for (let i = 0; i < 20; i++){
+      const sqft = 800 + i * 115;              // 800 .. ~3000 sqft
+      const x = sqft / 1000;
+      const y = 140 * x + 25 + (Math.random()-0.5) * 6; // price/1000 ≈ 140*(sqft/1000)+25
+      xsData.push(x);
+      ysData.push(y);
+    }
+    const xs = tf.tensor2d(xsData, [xsData.length, 1]);
+    const ys = tf.tensor2d(ysData, [ysData.length, 1]);
+
+    model = tf.sequential();
+    model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    model.compile({ optimizer: tf.train.sgd(0.02), loss: 'meanSquaredError' });
+
+    await model.fit(xs, ys, {
+      epochs: 120,
+      callbacks: {
+        onEpochEnd: (epoch, logs) => {
+          losses.push(logs.loss);
+          if (epoch % 4 === 0) drawLosses();
+        }
+      }
+    });
+    drawLosses();
+    xs.dispose(); ys.dispose();
+
+    status.textContent = 'status: trained (120 epochs) — final loss ' + losses[losses.length-1].toFixed(3);
+    trainBtn.disabled = false;
+    predictBtn.disabled = false;
+  });
+
+  predictBtn.addEventListener('click', () => {
+    const sqft = parseFloat(document.getElementById('tfInput').value);
+    if (isNaN(sqft) || !model) return;
+    const x = sqft / 1000;
+    const pred = model.predict(tf.tensor2d([x], [1,1]));
+    pred.data().then(d => {
+      const price = d[0] * 1000;
+      result.textContent = `${sqft} sqft → predicted price ≈ $${price.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+    });
+  });
+})();
+
+/* ---------------- computer vision demo (ml5.js MobileNet) ---------------- */
+(function cvDemo(){
+  const fileInput = document.getElementById('cvFile');
+  const img = document.getElementById('cvImg');
+  const placeholder = document.getElementById('cvPlaceholder');
+  const classifyBtn = document.getElementById('cvClassify');
+  const status = document.getElementById('cvStatus');
+  const out = document.getElementById('cvOut');
+
+  if (typeof ml5 === 'undefined'){
+    document.getElementById('cvError').style.display = 'block';
+    status.textContent = 'status: unavailable';
+    return;
+  }
+
+  let classifier = null;
+  ml5.imageClassifier('MobileNet', (err, clf) => {
+    if (err){
+      status.textContent = 'status: failed to load MobileNet';
+      return;
+    }
+    classifier = clf;
+    status.textContent = 'status: MobileNet ready — upload an image';
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    img.src = url;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+    out.textContent = '// predictions will show here';
+    img.onload = () => { classifyBtn.disabled = false; };
+  });
+
+  classifyBtn.addEventListener('click', () => {
+    status.textContent = 'status: classifying…';
+    const runWith = (clf) => {
+      clf.classify(img, (err, results) => {
+        if (err){ out.textContent = 'Error: ' + err.message; return; }
+        out.textContent = results
+          .map(r => `${(r.confidence*100).toFixed(1)}%  ${r.label}`)
+          .join('\n');
+        status.textContent = 'status: done';
+      });
+    };
+    if (classifier) runWith(classifier);
+    else ml5.imageClassifier('MobileNet', (err, clf) => { if(!err) runWith(clf); });
+  });
+})();
+
+/* ---------------- real-world lab: exercise runner ---------------- */
+function runExercise(textareaId, fnName, tests, outputId){
+  const code = document.getElementById(textareaId).value;
+  const outEl = document.getElementById(outputId);
+  let fn;
+  try {
+    fn = new Function(`${code}\nreturn (typeof ${fnName} !== 'undefined') ? ${fnName} : undefined;`)();
+    if (typeof fn !== 'function') throw new Error(fnName + ' is not defined, or not a function');
+  } catch(e){
+    outEl.textContent = 'Error: ' + e.message;
+    outEl.style.color = '#e2637a';
+    return;
+  }
+  let passed = 0;
+  const lines = [];
+  tests.forEach((t, i) => {
+    try {
+      const actual = fn(...t.args);
+      let ok;
+      if (typeof t.expected === 'number') ok = Math.abs(actual - t.expected) < (t.tolerance ?? 0.01);
+      else ok = actual === t.expected;
+      if (ok) passed++;
+      lines.push((ok ? '✓' : '✗') + ` ${t.label || ('test ' + (i+1))} — expected ${JSON.stringify(t.expected)}, got ${JSON.stringify(actual)}`);
+    } catch(e){
+      lines.push('✗ ' + (t.label || ('test ' + (i+1))) + ' — threw: ' + e.message);
+    }
+  });
+  lines.push('');
+  lines.push(`${passed}/${tests.length} passed`);
+  outEl.textContent = lines.join('\n');
+  outEl.style.color = passed === tests.length ? '#9fe6de' : '#e2637a';
+}
+
+/* exercise 1 test data */
+const ex1Tests = [
+  { label:'obvious spam', args:['Congratulations! You are a WINNER! Click here now for your FREE prize!!!'], expected:true },
+  { label:'normal work email', args:["Hi team, please review the attached report before Friday's meeting."], expected:false },
+  { label:'urgent promo', args:['URGENT: act now, limited time offer, click here!'], expected:true },
+  { label:'normal reminder', args:['Reminder: your invoice is due next week.'], expected:false }
+];
+
+/* exercise 2 test data */
+const churnWeightsRef = { monthsAsCustomer: -0.05, monthlySupportTickets: 0.6, monthlySpend: -0.01, bias: 0.3 };
+const ex2Tests = [
+  { label:'loyal, low-friction customer', args:[{ monthsAsCustomer:36, monthlySupportTickets:0, monthlySpend:120 }, churnWeightsRef], expected:false },
+  { label:'new customer, lots of tickets', args:[{ monthsAsCustomer:2, monthlySupportTickets:5, monthlySpend:10 }, churnWeightsRef], expected:true },
+  { label:'borderline customer', args:[{ monthsAsCustomer:12, monthlySupportTickets:2, monthlySpend:50 }, churnWeightsRef], expected:true },
+  { label:'steady mid-tenure customer', args:[{ monthsAsCustomer:24, monthlySupportTickets:1, monthlySpend:80 }, churnWeightsRef], expected:false }
+];
+
+/* exercise 3 test data (tests cosineSimilarity directly; recommend() is checked via solution logic if defined) */
+const ex3SimTests = [
+  { label:'identical vectors', args:[[1,0,0],[1,0,0]], expected:1, tolerance:0.001 },
+  { label:'orthogonal vectors', args:[[1,0],[0,1]], expected:0, tolerance:0.001 },
+  { label:'similar action profiles', args:[[0.85,0.15,0.1],[0.9,0.1,0.1]], expected:0.9984, tolerance:0.01 }
+];
+</script>
+</body>
+</html>

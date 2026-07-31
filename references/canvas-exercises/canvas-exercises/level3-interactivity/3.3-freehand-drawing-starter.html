@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fff; }
+</style>
+</head>
+<body>
+<h2>3.3 Freehand Drawing (Starter)</h2>
+<p>Draw on the canvas like a simple sketch pad.</p>
+<canvas id="canvas" width="400" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#222';
+
+  let isDrawing = false;
+
+  function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  // TODO:
+  // mousedown -> isDrawing = true; ctx.beginPath(); ctx.moveTo(pos.x, pos.y)
+  // mousemove -> if isDrawing: ctx.lineTo(pos.x, pos.y); ctx.stroke()
+  // mouseup / mouseleave -> isDrawing = false
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; cursor: grab; }
+</style>
+</head>
+<body>
+<h2>2.3 Zoom & Pan (Starter)</h2>
+<p>Scroll to zoom, drag to pan.</p>
+<canvas id="canvas" width="400" height="400"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  let scale = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDragging = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function drawScene() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // TODO: apply pan then zoom, in this order:
+    // ctx.translate(offsetX, offsetY);
+    // ctx.scale(scale, scale);
+
+    // Then draw some shapes (already provided below once you apply the transform)
+    ctx.fillStyle = 'tomato';
+    ctx.fillRect(50, 50, 100, 100);
+    ctx.fillStyle = 'steelblue';
+    ctx.beginPath();
+    ctx.arc(250, 200, 60, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // TODO: on 'wheel', adjust `scale` (e.g. scale *= e.deltaY < 0 ? 1.1 : 0.9), then drawScene()
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+  });
+
+  // TODO: on mousedown, set isDragging = true and record lastX/lastY
+  // on mousemove (if isDragging), update offsetX/offsetY by the delta moved, then drawScene()
+  // on mouseup / mouseleave, set isDragging = false
+
+  drawScene();
+</script>
+</body>
+</html>

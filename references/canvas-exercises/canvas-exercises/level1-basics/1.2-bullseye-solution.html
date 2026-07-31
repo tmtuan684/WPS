@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>1.2 Bullseye (Solution)</h2>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const maxRadius = 150;
+  const rings = 5;
+  const step = maxRadius / rings;
+
+  for (let i = 0; i < rings; i++) {
+    const radius = maxRadius - i * step;
+    ctx.fillStyle = i % 2 === 0 ? 'red' : 'white';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+</script>
+</body>
+</html>

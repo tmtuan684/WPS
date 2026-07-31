@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenStreetMap &amp; Leaflet Learning Lab</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-2: #1f2330;
+    --text: #e7e9ee;
+    --muted: #9098ab;
+    --accent: #5eb5ff;
+    --ok: #6fd08c;
+    --err: #ff6b6b;
+    --warn: #ffcf5c;
+    --border: #2a2f3d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header { padding: 20px 24px 0; border-bottom: 1px solid var(--border); }
+  header h1 { margin: 0 0 4px; font-size: 22px; }
+  header p { margin: 0 0 14px; color: var(--muted); font-size: 14px; max-width: 900px; }
+
+  .tabs { display: flex; gap: 6px; }
+  .tab-btn {
+    background: transparent; border: none; border-bottom: 3px solid transparent;
+    color: var(--muted); padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding: 20px 24px 40px; }
+  .panel.active { display: block; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .lead { color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 850px; margin-bottom: 16px; }
+  .lead strong { color: var(--text); }
+  code { background: #05070c; padding: 1px 6px; border-radius: 4px; color: var(--accent); font-size: 12.5px; }
+  pre {
+    background: #05070c; border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 12px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; margin: 6px 0 0;
+  }
+  pre code { background: none; padding: 0; color: #d7e3f4; }
+
+  .row-flex { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .map-box { height: 360px; width: 100%; min-width: 320px; border-radius: 8px; background: #1a1d26; }
+  .readout {
+    font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; color: var(--accent); margin-top: 8px;
+  }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .btn-row button {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  .btn-row button:hover { border-color: var(--accent); }
+  .btn-row button.primary { border-color: var(--accent); color: var(--accent); }
+
+  /* Reference tab */
+  .ref-search {
+    width: 100%; max-width: 420px; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+    font-size: 14px; margin-bottom: 18px;
+  }
+  .ref-group { margin-bottom: 20px; }
+  .ref-group h3 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 10px;
+  }
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .ref-item { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .ref-item h4 { margin: 0 0 4px; font-size: 13.5px; color: var(--accent); font-weight: 600; }
+  .ref-item p { margin: 0 0 6px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .ref-demo { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .ref-demo-map { width: 100%; border-radius: 6px; background: #1a1d26; }
+  .ref-demo-controls { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .ref-demo-controls button {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  }
+  .ref-demo-controls button:hover { border-color: var(--accent); }
+  .ref-demo-controls button:disabled { opacity: 0.5; cursor: default; }
+  .ref-demo-readout { margin-top: 8px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; color: var(--accent); }
+  .ref-legend { background: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; color: #222; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+  /* Exercises tab */
+  .ex-layout { display: flex; gap: 16px; }
+  .ex-sidebar { width: 260px; flex-shrink: 0; }
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-bar-bg { background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; height: 8px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width .2s; }
+  .progress-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .ex-tier-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 14px 10px 6px; }
+  .ex-tier-label:first-child { margin-top: 0; }
+  .ex-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+    background: transparent; border: 1px solid transparent; color: var(--text);
+    padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 2px;
+  }
+  .ex-btn:hover { background: var(--panel-2); }
+  .ex-btn.active { background: var(--panel-2); border-color: var(--accent); color: var(--accent); }
+  .ex-check { width: 14px; flex-shrink: 0; color: var(--ok); }
+  .ex-next-tag { font-size: 10px; color: var(--warn); border: 1px solid var(--warn); padding: 0 6px; border-radius: 999px; margin-left: auto; }
+
+  .ex-main { flex: 1; min-width: 0; }
+  .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .title-row h2 { margin: 0; font-size: 19px; }
+  .tier-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .instructions {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.55; white-space: pre-wrap;
+  }
+  .hint-box {
+    display: none; background: #1c1a12; border: 1px solid var(--warn); color: var(--warn);
+    border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px;
+  }
+  .hint-box.show { display: block; }
+
+  .full-file-box {
+    display: none; margin-top: 16px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .full-file-box.show { display: block; }
+  .full-file-header {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    margin-bottom: 10px; font-size: 12.5px; color: var(--muted); line-height: 1.5;
+  }
+  .full-file-header button {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12.5px; flex-shrink: 0;
+  }
+  .full-file-header button:hover { border-color: var(--accent); }
+  .full-file-box pre { max-height: 420px; margin: 0; }
+
+  .workspace { display: flex; gap: 16px; flex-wrap: wrap; }
+  .canvas-box { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px; width: 480px; }
+  .editor-box {
+    flex: 1; min-width: 320px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px; display: flex; flex-direction: column;
+  }
+  textarea {
+    flex: 1; min-height: 300px; width: 100%; background: #05070c; color: #d7e3f4;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: "SFMono-Regular", Consolas, monospace; font-size: 12.5px; line-height: 1.5;
+    padding: 10px; resize: vertical; tab-size: 2;
+  }
+  .status { margin-top: 8px; font-size: 12.5px; min-height: 18px; }
+  .status.err { color: var(--err); }
+  .status.ok { color: var(--ok); }
+  .mark-complete { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+  /* Leaflet popup readability against our dark theme */
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #fff; color: #111; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>OpenStreetMap &amp; Leaflet Learning Lab</h1>
+  <p>Learn to build maps with free OpenStreetMap data and the Leaflet.js library in three steps: understand
+  how map coordinates and tiles work, keep the Leaflet method reference nearby, then build mini map apps
+  suggested from simple to advanced. Requires an internet connection to load map tiles.</p>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<section class="panel" id="panel-basics"></section>
+<section class="panel" id="panel-reference"></section>
+<section class="panel" id="panel-exercises"></section>
+
+<script>
+(() => {
+  // =====================================================================
+  // Tab plumbing
+  // =====================================================================
+  const tabs = [
+    { id: 'basics', label: '1. Map Basics' },
+    { id: 'reference', label: '2. API Reference' },
+    { id: 'exercises', label: '3. Exercises' },
+  ];
+  const tabsEl = document.getElementById('tabs');
+  tabs.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = t.label;
+    btn.dataset.tab = t.id;
+    btn.addEventListener('click', () => activateTab(t.id));
+    tabsEl.appendChild(btn);
+  });
+
+  function activateTab(id) {
+    tabs.forEach(t => {
+      document.getElementById('panel-' + t.id).classList.toggle('active', t.id === id);
+      tabsEl.querySelector(`[data-tab="${t.id}"]`).classList.toggle('active', t.id === id);
+    });
+    // Leaflet needs a nudge to recompute size when its container was just made visible
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  const HANOI = [21.0285, 105.8542]; // Hoan Kiem Lake
+
+  // =====================================================================
+  // TAB 1 — Map Basics
+  // =====================================================================
+  (function buildBasicsTab() {
+    const panel = document.getElementById('panel-basics');
+    panel.innerHTML = `
+      <div class="lead">
+        Leaflet locates everything with <strong>[latitude, longitude]</strong> pairs — latitude first, which
+        trips people up because GeoJSON (the standard map data format) stores coordinates the other way round,
+        as <strong>[longitude, latitude]</strong>. <strong>Zoom</strong> is a single integer (usually 0–19):
+        each level shows roughly double the detail of the one before it. The map imagery itself is made of
+        256×256px <strong>tiles</strong>, each addressed by its zoom level and (x, y) grid position — OpenStreetMap's
+        servers hand you the right tiles as you pan and zoom.
+      </div>
+      <div class="row-flex">
+        <div class="card" style="flex:1; min-width:340px;">
+          <div style="font-weight:600; margin-bottom:8px;">Click for coordinates</div>
+          <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">
+            Click anywhere on the map to drop a marker and read its latitude/longitude. Zoom in/out to see the
+            zoom level update.
+          </div>
+          <div id="clickMapDiv" class="map-box"></div>
+          <div class="readout" id="coordReadout">lat: —, lng: —</div>
+          <div class="readout" id="zoomReadout">zoom: —</div>
+        </div>
+        <div class="card" style="flex:1; min-width:340px;">
+          <div style="font-weight:600; margin-bottom:8px;">Tile grid visualizer</div>
+          <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">
+            Toggle an overlay that draws the boundary and <code>z/x/y</code> address of every tile currently on
+            screen — this is exactly how OSM tile URLs are built:
+            <code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code>.
+          </div>
+          <div id="gridMapDiv" class="map-box"></div>
+          <div class="btn-row"><button id="gridToggle" class="primary">Show tile grid</button></div>
+        </div>
+      </div>`;
+
+    // --- Click-for-coordinates map ---
+    const clickMap = L.map('clickMapDiv').setView(HANOI, 14);
+    L.tileLayer(OSM_TILE_URL, { maxZoom: 19, attribution: OSM_ATTRIBUTION }).addTo(clickMap);
+
+    const coordReadout = panel.querySelector('#coordReadout');
+    const zoomReadout = panel.querySelector('#zoomReadout');
+    zoomReadout.textContent = `zoom: ${clickMap.getZoom()}`;
+
+    let clickMarker = null;
+    clickMap.on('click', (e) => {
+      const { lat, lng } = e.latlng;
+      coordReadout.textContent = `lat: ${lat.toFixed(5)}, lng: ${lng.toFixed(5)}`;
+      if (clickMarker) clickMarker.setLatLng(e.latlng);
+      else clickMarker = L.marker(e.latlng).addTo(clickMap);
+    });
+    clickMap.on('zoomend', () => {
+      zoomReadout.textContent = `zoom: ${clickMap.getZoom()}`;
+    });
+
+    // --- Tile grid visualizer ---
+    const gridMap = L.map('gridMapDiv').setView(HANOI, 13);
+    L.tileLayer(OSM_TILE_URL, { maxZoom: 19, attribution: OSM_ATTRIBUTION }).addTo(gridMap);
+
+    const DebugTileLayer = L.GridLayer.extend({
+      createTile: function (coords) {
+        const tile = document.createElement('div');
+        tile.style.outline = '1px dashed rgba(255,255,255,0.45)';
+        tile.style.fontSize = '10px';
+        tile.style.color = '#fff';
+        tile.style.textShadow = '0 0 3px #000, 0 0 3px #000';
+        tile.style.boxSizing = 'border-box';
+        tile.style.padding = '2px 4px';
+        tile.textContent = `${coords.z}/${coords.x}/${coords.y}`;
+        return tile;
+      }
+    });
+    const debugLayer = new DebugTileLayer();
+    let gridOn = false;
+    panel.querySelector('#gridToggle').addEventListener('click', (e) => {
+      gridOn = !gridOn;
+      if (gridOn) { debugLayer.addTo(gridMap); e.target.textContent = 'Hide tile grid'; }
+      else { gridMap.removeLayer(debugLayer); e.target.textContent = 'Show tile grid'; }
+    });
+  })();
+
+  // =====================================================================
+  // TAB 2 — API Reference
+  // =====================================================================
+  (function buildReferenceTab() {
+    const panel = document.getElementById('panel-reference');
+
+    const TEMPLE = [21.0294, 105.8355];
+    const OPERA = [21.0244, 105.8573];
+    const WEST_LAKE = [21.0587, 105.8228];
+    const LONG_BIEN = [21.0433, 105.8600];
+
+    // Every demo map shares one small builder. Attribution is intentionally
+    // turned off on these tiny previews to reduce clutter — see the notice
+    // above the search box for the required OSM attribution.
+    let activeDemoMaps = [];
+    function smallMap(container, center, zoom, height) {
+      const div = document.createElement('div');
+      div.className = 'ref-demo-map';
+      div.style.height = (height || 190) + 'px';
+      container.appendChild(div);
+      const map = L.map(div, { attributionControl: false }).setView(center || HANOI, zoom || 14);
+      L.tileLayer(OSM_TILE_URL, { maxZoom: 19 }).addTo(map);
+      activeDemoMaps.push(map);
+      return map;
+    }
+    function addButton(container, label, onClick) {
+      const row = container.querySelector('.ref-demo-controls') || (() => {
+        const r = document.createElement('div');
+        r.className = 'ref-demo-controls';
+        container.appendChild(r);
+        return r;
+      })();
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.addEventListener('click', onClick);
+      row.appendChild(btn);
+      return btn;
+    }
+    function addReadout(container, initialText) {
+      const div = document.createElement('div');
+      div.className = 'ref-demo-readout';
+      div.textContent = initialText;
+      container.appendChild(div);
+      return div;
+    }
+
+    const groups = [
+      {
+        name: 'Map Setup',
+        items: [
+          { m: "L.map(id).setView([lat, lng], zoom)", d: 'Create a map in a container element and set its initial center + zoom in one chained call.', c: "const map = L.map('mapDiv').setView([21.0285, 105.8542], 14);",
+            demo: (el) => { smallMap(el); } },
+          { m: 'L.tileLayer(urlTemplate, options).addTo(map)', d: 'Add a raster tile layer. {s}/{z}/{x}/{y} are filled in per tile; attribution is required by OSM’s usage policy.', c: "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {\n  maxZoom: 19,\n  attribution: '&copy; OpenStreetMap contributors'\n}).addTo(map);",
+            demo: (el) => { smallMap(el, HANOI, 12); } },
+          { m: 'map.remove()', d: 'Destroy a map instance and free its resources — needed before re-initializing Leaflet on the same container.', c: 'map.remove();',
+            demo: (el) => {
+              const map = smallMap(el);
+              const btn = addButton(el, 'map.remove()', () => {
+                map.remove();
+                btn.disabled = true;
+                btn.textContent = 'Removed ✓';
+              });
+            } },
+        ]
+      },
+      {
+        name: 'Markers & Popups',
+        items: [
+          { m: 'L.marker(latlng).addTo(map)', d: 'Place a pin at a coordinate. Returns the marker so you can chain further setup.', c: "L.marker([21.03, 105.85]).addTo(map);",
+            demo: (el) => { const map = smallMap(el, HANOI, 15); L.marker(HANOI).addTo(map); } },
+          { m: '.bindPopup(html) / .openPopup()', d: 'Attach a popup with HTML content to a layer; openPopup() shows it immediately instead of waiting for a click.', c: "marker.bindPopup('Hello!').openPopup();",
+            demo: (el) => { const map = smallMap(el, HANOI, 15); L.marker(HANOI).addTo(map).bindPopup('Hello!').openPopup(); } },
+          { m: '.bindTooltip(html)', d: 'Attach lightweight hover text — lighter weight than a popup, shown on mouseover instead of click.', c: "marker.bindTooltip('12 visitors today');",
+            demo: (el) => { const map = smallMap(el, HANOI, 15); L.marker(HANOI).addTo(map).bindTooltip('12 visitors today', { permanent: true, direction: 'top' }); } },
+        ]
+      },
+      {
+        name: 'Vector Layers',
+        items: [
+          { m: 'L.circle(latlng, { radius })', d: 'A circle whose radius is in meters — it visually grows/shrinks relative to the ground as you zoom.', c: "L.circle([21.03, 105.85], { radius: 300 }).addTo(map);",
+            demo: (el) => { const map = smallMap(el, HANOI, 15); L.circle(HANOI, { radius: 300, color: '#5eb5ff', fillColor: '#5eb5ff', fillOpacity: 0.25 }).addTo(map); } },
+          { m: 'L.circleMarker(latlng, { radius })', d: 'A circle whose radius is in screen pixels — stays a constant size on screen regardless of zoom; ideal for proportional-symbol maps.', c: "L.circleMarker([21.03, 105.85], { radius: 10 }).addTo(map);",
+            demo: (el) => { const map = smallMap(el, HANOI, 15); L.circleMarker(HANOI, { radius: 20, color: '#ff6b81', fillColor: '#ff6b81', fillOpacity: 0.5 }).addTo(map); } },
+          { m: 'L.polygon(latlngs)', d: 'A closed, fillable shape from an array of [lat, lng] points.', c: "L.polygon([[21.03,105.83],[21.02,105.85],[21.03,105.86]]).addTo(map);",
+            demo: (el) => { const map = smallMap(el, HANOI, 13); L.polygon([TEMPLE, HANOI, OPERA], { color: '#ff8a65', fillOpacity: 0.2 }).addTo(map); } },
+          { m: 'L.polyline(latlngs)', d: 'An open line through an array of points — routes, borders, tracks.', c: "L.polyline([[21.03,105.83],[21.02,105.85]], { color: 'red' }).addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const route = [TEMPLE, HANOI, OPERA, LONG_BIEN];
+              L.polyline(route, { color: 'crimson', weight: 4 }).addTo(map);
+              map.fitBounds(route, { padding: [20, 20] });
+            } },
+          { m: 'L.rectangle(bounds)', d: 'A rectangle from a [[south,west],[north,east]] bounds pair.', c: "L.rectangle([[21.0,105.8],[21.05,105.86]]).addTo(map);",
+            demo: (el) => { const map = smallMap(el, HANOI, 13); L.rectangle([[21.02, 105.84], [21.04, 105.87]], { color: '#8e6fd0', fillOpacity: 0.15 }).addTo(map); } },
+        ]
+      },
+      {
+        name: 'GeoJSON',
+        items: [
+          { m: 'L.geoJSON(data, options).addTo(map)', d: 'Render a GeoJSON FeatureCollection. Remember: GeoJSON coordinates are [lng, lat] — reversed from Leaflet’s own [lat, lng].', c: "L.geoJSON(geojsonData, {\n  onEachFeature: (feature, layer) => {\n    layer.bindPopup(feature.properties.name);\n  }\n}).addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, [21.04, 105.84], 12);
+              const data = {
+                type: 'FeatureCollection',
+                features: [
+                  { type: 'Feature', properties: { name: 'Hoan Kiem Lake' }, geometry: { type: 'Point', coordinates: [105.8542, 21.0285] } },
+                  { type: 'Feature', properties: { name: 'West Lake' }, geometry: { type: 'Point', coordinates: [105.8228, 21.0587] } }
+                ]
+              };
+              L.geoJSON(data, { onEachFeature: (f, l) => l.bindPopup(f.properties.name) }).addTo(map);
+            } },
+          { m: 'style / pointToLayer options', d: 'Customize how GeoJSON features are drawn: a style callback for polygons/lines, pointToLayer for points.', c: "L.geoJSON(data, {\n  pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 6 })\n});",
+            demo: (el) => {
+              const map = smallMap(el, [21.04, 105.84], 12);
+              const data = {
+                type: 'FeatureCollection',
+                features: [
+                  { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [105.8542, 21.0285] } },
+                  { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [105.8228, 21.0587] } }
+                ]
+              };
+              L.geoJSON(data, { pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 8, color: '#6fd08c', fillOpacity: 0.7 }) }).addTo(map);
+            } },
+        ]
+      },
+      {
+        name: 'Layer Groups & Control',
+        items: [
+          { m: 'L.layerGroup([layers]).addTo(map)', d: 'Bundle multiple layers so you can add/remove/toggle them together.', c: "const group = L.layerGroup([marker1, marker2]).addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const group = L.layerGroup([L.marker(TEMPLE), L.marker(OPERA)]).addTo(map);
+              let on = true;
+              addButton(el, 'Toggle group', () => {
+                on = !on;
+                on ? group.addTo(map) : map.removeLayer(group);
+              });
+            } },
+          { m: 'L.control.layers(base, overlays).addTo(map)', d: 'Add a UI widget letting users switch base layers or toggle overlay layers on/off.', c: "L.control.layers(null, { 'Landmarks': group }).addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const landmarks = L.layerGroup([L.marker(TEMPLE), L.marker(OPERA)]).addTo(map);
+              L.control.layers(null, { 'Landmarks': landmarks }).addTo(map);
+            } },
+        ]
+      },
+      {
+        name: 'Icons',
+        items: [
+          { m: "L.icon({ iconUrl, iconSize, iconAnchor })", d: 'Define a custom marker icon from an image file.', c: "const icon = L.icon({ iconUrl: 'pin.png', iconSize: [32,32], iconAnchor: [16,32] });\nL.marker(latlng, { icon }).addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 15);
+              const icon = L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+              L.marker(HANOI, { icon }).addTo(map);
+            } },
+          { m: "L.divIcon({ html, iconSize })", d: 'Define a marker icon from arbitrary HTML/CSS (emoji, a styled div) instead of an image file.', c: "const icon = L.divIcon({ html: '🏛️', iconSize: [32,32] });",
+            demo: (el) => {
+              const map = smallMap(el, TEMPLE, 15);
+              const icon = L.divIcon({ html: '🏛️', className: '', iconSize: [28, 28], iconAnchor: [14, 28] });
+              L.marker(TEMPLE, { icon }).addTo(map);
+            } },
+        ]
+      },
+      {
+        name: 'Events',
+        items: [
+          { m: "map.on('click', e => ...)", d: 'e.latlng gives the clicked geographic coordinate as { lat, lng }.', c: "map.on('click', (e) => console.log(e.latlng));",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 14);
+              const readout = addReadout(el, 'Click the map…');
+              let marker = null;
+              map.on('click', (e) => {
+                readout.textContent = `lat: ${e.latlng.lat.toFixed(4)}, lng: ${e.latlng.lng.toFixed(4)}`;
+                if (marker) marker.setLatLng(e.latlng); else marker = L.marker(e.latlng).addTo(map);
+              });
+            } },
+          { m: "map.on('zoomend' / 'moveend', ...)", d: 'Fire after the user finishes zooming or panning — good for syncing UI to the current view.', c: "map.on('zoomend', () => console.log(map.getZoom()));",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const readout = addReadout(el, `zoom: ${map.getZoom()}`);
+              map.on('zoomend', () => { readout.textContent = `zoom: ${map.getZoom()}`; });
+            } },
+          { m: "layer.on('click', ...)", d: 'Any layer (marker, polygon, circle…) can have its own click/hover handlers independent of the map’s.', c: "marker.on('click', () => marker.openPopup());",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 15);
+              const readout = addReadout(el, 'Click the marker…');
+              const marker = L.marker(HANOI).addTo(map);
+              let count = 0;
+              marker.on('click', () => {
+                count++;
+                readout.textContent = `Marker clicked ${count} time${count === 1 ? '' : 's'}`;
+              });
+            } },
+        ]
+      },
+      {
+        name: 'View & Bounds',
+        items: [
+          { m: 'map.setView(latlng, zoom)', d: 'Instantly jump the map to a new center and zoom.', c: "map.setView([21.03, 105.85], 15);",
+            demo: (el) => { const map = smallMap(el, HANOI, 13); addButton(el, 'setView → West Lake', () => map.setView(WEST_LAKE, 15)); } },
+          { m: 'map.flyTo(latlng, zoom)', d: 'Same as setView but animates smoothly to the destination.', c: "map.flyTo([21.03, 105.85], 16);",
+            demo: (el) => { const map = smallMap(el, HANOI, 13); addButton(el, 'flyTo → Opera House', () => map.flyTo(OPERA, 16)); } },
+          { m: 'map.fitBounds(bounds, { padding })', d: 'Zoom/pan so every point in bounds (or an array of latlngs) is visible, with optional pixel padding.', c: "map.fitBounds([[21.02,105.83],[21.05,105.86]], { padding: [30,30] });",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const pts = [TEMPLE, HANOI, OPERA, WEST_LAKE];
+              pts.forEach(p => L.marker(p).addTo(map));
+              addButton(el, 'fitBounds → all 4', () => map.fitBounds(pts, { padding: [20, 20] }));
+            } },
+          { m: 'L.latLngBounds(points)', d: 'Build a bounds object from an array of points — useful when you need the bounds value itself, not just fitBounds.', c: "const bounds = L.latLngBounds(points);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 12);
+              const pts = [TEMPLE, HANOI, OPERA, WEST_LAKE];
+              const bounds = L.latLngBounds(pts);
+              L.rectangle(bounds, { color: '#5eb5ff', fillOpacity: 0.1, dashArray: '4' }).addTo(map);
+              map.fitBounds(bounds, { padding: [20, 20] });
+            } },
+        ]
+      },
+      {
+        name: 'Custom Controls',
+        items: [
+          { m: 'L.Control.extend({ onAdd, options })', d: 'Define a reusable custom control (legend, button, search box) that docks into a map corner.', c: "const Legend = L.Control.extend({\n  options: { position: 'bottomright' },\n  onAdd() { return L.DomUtil.create('div', 'legend'); }\n});\nnew Legend().addTo(map);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const Legend = L.Control.extend({
+                options: { position: 'bottomright' },
+                onAdd: function () {
+                  const div = L.DomUtil.create('div', 'ref-legend');
+                  div.innerHTML = '<span style="color:#5eb5ff;">●</span> Custom control';
+                  return div;
+                }
+              });
+              new Legend().addTo(map);
+            } },
+        ]
+      },
+      {
+        name: 'Utilities',
+        items: [
+          { m: 'L.latLng(lat, lng)', d: 'Normalize a coordinate into a proper LatLng object, which most Leaflet methods accept interchangeably with a plain [lat, lng] array.', c: "const p = L.latLng(21.03, 105.85);",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 14);
+              const p = L.latLng(HANOI[0], HANOI[1]);
+              L.marker(p).addTo(map).bindPopup(`L.latLng → lat ${p.lat}, lng ${p.lng}`).openPopup();
+            } },
+          { m: 'L.DomUtil.create(tag, className)', d: 'Create a plain DOM element the Leaflet way — mainly used inside custom control onAdd() methods.', c: "const div = L.DomUtil.create('div', 'info');",
+            demo: (el) => {
+              const map = smallMap(el, HANOI, 13);
+              const Badge = L.Control.extend({
+                options: { position: 'bottomleft' },
+                onAdd: function () {
+                  const div = L.DomUtil.create('div', 'ref-legend');
+                  div.textContent = 'Made with L.DomUtil.create';
+                  return div;
+                }
+              });
+              new Badge().addTo(map);
+            } },
+        ]
+      },
+    ];
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <p style="color:var(--muted); font-size:12.5px; max-width:800px; margin:0 0 12px;">
+        Each entry below has a small live map so you can see the actual result, not just the code. Map tiles
+        are &copy; <a href="https://www.openstreetmap.org/copyright" style="color:var(--accent);">OpenStreetMap</a>
+        contributors — attribution is omitted on these tiny previews to save space.
+      </p>
+      <input type="text" class="ref-search" id="refSearch" placeholder="Search methods, e.g. 'popup', 'geojson', 'bounds'…">`;
+    panel.appendChild(wrapper);
+
+    const groupsContainer = document.createElement('div');
+    panel.appendChild(groupsContainer);
+
+    let demoObserver = null;
+
+    function teardownDemos() {
+      activeDemoMaps.forEach(m => { try { m.remove(); } catch (e) { /* ignore */ } });
+      activeDemoMaps = [];
+      if (demoObserver) { demoObserver.disconnect(); demoObserver = null; }
+    }
+
+    function renderGroups(filterText) {
+      teardownDemos();
+      groupsContainer.innerHTML = '';
+      const q = (filterText || '').toLowerCase().trim();
+      let anyMatches = false;
+
+      groups.forEach(group => {
+        const matches = group.items.filter(item =>
+          !q || item.m.toLowerCase().includes(q) || item.d.toLowerCase().includes(q)
+        );
+        if (matches.length === 0) return;
+        anyMatches = true;
+
+        const groupEl = document.createElement('div');
+        groupEl.className = 'ref-group';
+        const h3 = document.createElement('h3');
+        h3.textContent = group.name;
+        groupEl.appendChild(h3);
+
+        const grid = document.createElement('div');
+        grid.className = 'ref-grid';
+
+        matches.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'ref-item';
+
+          const h4 = document.createElement('h4');
+          h4.textContent = item.m;
+          const p = document.createElement('p');
+          p.textContent = item.d;
+          const pre = document.createElement('pre');
+          const codeEl = document.createElement('code');
+          codeEl.textContent = item.c;
+          pre.appendChild(codeEl);
+
+          card.appendChild(h4);
+          card.appendChild(p);
+          card.appendChild(pre);
+
+          if (item.demo) {
+            const demoEl = document.createElement('div');
+            demoEl.className = 'ref-demo';
+            demoEl.__refItem = item;
+            demoEl.__built = false;
+            card.appendChild(demoEl);
+          }
+
+          grid.appendChild(card);
+        });
+
+        groupEl.appendChild(grid);
+        groupsContainer.appendChild(groupEl);
+      });
+
+      if (!anyMatches) {
+        const p = document.createElement('p');
+        p.style.color = 'var(--muted)';
+        p.style.fontSize = '14px';
+        p.textContent = 'No methods match that search.';
+        groupsContainer.appendChild(p);
+        return;
+      }
+
+      // Build each demo lazily as it scrolls near the viewport — this also
+      // naturally avoids initializing Leaflet maps while this tab is hidden
+      // (display:none elements never intersect, so nothing builds until the
+      // tab is actually opened).
+      demoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !entry.target.__built) {
+            entry.target.__built = true;
+            try {
+              entry.target.__refItem.demo(entry.target);
+            } catch (err) {
+              entry.target.textContent = 'Demo failed to load: ' + err.message;
+            }
+            demoObserver.unobserve(entry.target);
+          }
+        });
+      }, { root: null, rootMargin: '150px', threshold: 0.05 });
+
+      groupsContainer.querySelectorAll('.ref-demo').forEach(el => demoObserver.observe(el));
+    }
+    renderGroups('');
+
+    wrapper.querySelector('#refSearch').addEventListener('input', (e) => renderGroups(e.target.value));
+  })();
+
+  // =====================================================================
+  // TAB 3 — Exercises (progressive mini map-apps, simple to advanced)
+  // =====================================================================
+  (function buildExercisesTab() {
+    const panel = document.getElementById('panel-exercises');
+
+    const TILE_BOILERPLATE = `L.tileLayer('${OSM_TILE_URL}', {
+  maxZoom: 19,
+  attribution: '${OSM_ATTRIBUTION}'
+}).addTo(map);`;
+
+    const exercises = [
+      {
+        id: 'first-map', tier: 'Beginner', title: '1. Your First Map',
+        instructions: `Create a map inside the 'exMap' div, centered on Hoan Kiem Lake [21.0285, 105.8542]
+at zoom 14, and add an OpenStreetMap tile layer with attribution.`,
+        hint: 'L.map(id) creates the map; setView(latlng, zoom) positions it; a tileLayer must be added or the map stays blank.',
+        starter: `// TODO: create the map (container id is 'exMap'), center on [21.0285, 105.8542], zoom 14
+
+
+// TODO: add an OpenStreetMap tile layer with attribution — see the API Reference tab
+`,
+        solution: `const map = L.map('exMap').setView([21.0285, 105.8542], 14);
+
+${TILE_BOILERPLATE}
+`
+      },
+      {
+        id: 'marker-popup', tier: 'Beginner', title: '2. Marker & Popup',
+        instructions: `Add a marker at Hoan Kiem Lake [21.0285, 105.8542] and bind a popup that says
+"Hoan Kiem Lake" — open it immediately with .openPopup().`,
+        hint: 'L.marker(latlng).addTo(map).bindPopup(text) chains together; call .openPopup() at the end to skip the click.',
+        starter: `const map = L.map('exMap').setView([21.0285, 105.8542], 15);
+${TILE_BOILERPLATE}
+
+// TODO: add a marker at [21.0285, 105.8542], bind a popup "Hoan Kiem Lake", and open it
+`,
+        solution: `const map = L.map('exMap').setView([21.0285, 105.8542], 15);
+${TILE_BOILERPLATE}
+
+L.marker([21.0285, 105.8542])
+  .addTo(map)
+  .bindPopup('Hoan Kiem Lake')
+  .openPopup();
+`
+      },
+      {
+        id: 'shapes', tier: 'Beginner', title: '3. Basic Shapes: Circle & Polygon',
+        instructions: `Draw a filled circle (radius 300m) around Hoan Kiem Lake [21.0285, 105.8542],
+and a filled triangle-shaped polygon connecting:
+  Temple of Literature [21.0294, 105.8355]
+  Hoan Kiem Lake       [21.0285, 105.8542]
+  Opera House          [21.0244, 105.8573]`,
+        hint: 'L.circle takes a radius in meters. L.polygon takes an array of [lat, lng] points and closes itself automatically.',
+        starter: `const map = L.map('exMap').setView([21.0275, 105.8480], 13);
+${TILE_BOILERPLATE}
+
+// TODO: filled circle, center [21.0285, 105.8542], radius 300
+
+
+// TODO: filled polygon through the three landmark points listed above
+`,
+        solution: `const map = L.map('exMap').setView([21.0275, 105.8480], 13);
+${TILE_BOILERPLATE}
+
+L.circle([21.0285, 105.8542], {
+  radius: 300,
+  color: '#5eb5ff',
+  fillColor: '#5eb5ff',
+  fillOpacity: 0.25
+}).addTo(map);
+
+L.polygon([
+  [21.0294, 105.8355],
+  [21.0285, 105.8542],
+  [21.0244, 105.8573]
+], {
+  color: '#ff8a65',
+  fillOpacity: 0.2
+}).addTo(map);
+`
+      },
+      {
+        id: 'polyline', tier: 'Beginner', title: '4. Connect Points: Polyline',
+        instructions: `Draw a route (polyline) connecting these four landmarks in order, then call
+map.fitBounds() on the same array so the whole route is visible:
+  [21.0294, 105.8355], [21.0285, 105.8542], [21.0244, 105.8573], [21.0433, 105.8600]`,
+        hint: 'L.polyline takes an array of points, same shape as the array you can hand straight to map.fitBounds().',
+        starter: `const map = L.map('exMap').setView([21.03, 105.85], 13);
+${TILE_BOILERPLATE}
+
+const route = [
+  [21.0294, 105.8355],
+  [21.0285, 105.8542],
+  [21.0244, 105.8573],
+  [21.0433, 105.8600]
+];
+
+// TODO: draw "route" as a crimson polyline, weight 4
+
+// TODO: call map.fitBounds(route) so the whole path is visible
+`,
+        solution: `const map = L.map('exMap').setView([21.03, 105.85], 13);
+${TILE_BOILERPLATE}
+
+const route = [
+  [21.0294, 105.8355],
+  [21.0285, 105.8542],
+  [21.0244, 105.8573],
+  [21.0433, 105.8600]
+];
+
+L.polyline(route, { color: 'crimson', weight: 4 }).addTo(map);
+map.fitBounds(route);
+`
+      },
+      {
+        id: 'custom-icon', tier: 'Intermediate', title: '5. Custom Icons',
+        instructions: `Instead of the default pin, mark the Temple of Literature [21.0294, 105.8355] with
+a custom icon built from an emoji using L.divIcon (no external image file needed).`,
+        hint: 'L.divIcon({ html, iconSize, iconAnchor }) builds an icon out of arbitrary HTML — pass it as the "icon" option to L.marker.',
+        starter: `const map = L.map('exMap').setView([21.0294, 105.8355], 16);
+${TILE_BOILERPLATE}
+
+// TODO: build a divIcon with html: '🏛️', iconSize [32,32], iconAnchor [16,32]
+
+
+// TODO: add a marker at [21.0294, 105.8355] using { icon: yourDivIcon }, bind popup "Temple of Literature"
+`,
+        solution: `const map = L.map('exMap').setView([21.0294, 105.8355], 16);
+${TILE_BOILERPLATE}
+
+const templeIcon = L.divIcon({
+  html: '🏛️',
+  className: '',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32]
+});
+
+L.marker([21.0294, 105.8355], { icon: templeIcon })
+  .addTo(map)
+  .bindPopup('Temple of Literature');
+`
+      },
+      {
+        id: 'layer-groups', tier: 'Intermediate', title: '6. Layer Groups & Layer Control',
+        instructions: `Put the two landmark markers into one layerGroup ("Landmarks") and the Hoan Kiem
+circle into another ("Zones"). Add both groups to the map, then add an L.control.layers
+overlay control so a user can toggle each group independently.`,
+        hint: 'L.layerGroup([...layers]) bundles layers; L.control.layers(null, { name: group, ... }).addTo(map) builds the toggle UI.',
+        starter: `const map = L.map('exMap').setView([21.0275, 105.8480], 13);
+${TILE_BOILERPLATE}
+
+// TODO: landmarks = L.layerGroup([...]) with two markers (Temple of Literature, Opera House)
+
+// TODO: zones = L.layerGroup([...]) with the Hoan Kiem circle (radius 300)
+
+// TODO: add both groups to the map
+
+// TODO: L.control.layers(null, { 'Landmarks': landmarks, 'Zones': zones }).addTo(map)
+`,
+        solution: `const map = L.map('exMap').setView([21.0275, 105.8480], 13);
+${TILE_BOILERPLATE}
+
+const landmarks = L.layerGroup([
+  L.marker([21.0294, 105.8355]).bindPopup('Temple of Literature'),
+  L.marker([21.0244, 105.8573]).bindPopup('Opera House')
+]);
+
+const zones = L.layerGroup([
+  L.circle([21.0285, 105.8542], { radius: 300, color: '#5eb5ff' })
+]);
+
+landmarks.addTo(map);
+zones.addTo(map);
+
+L.control.layers(null, {
+  'Landmarks': landmarks,
+  'Zones': zones
+}).addTo(map);
+`
+      },
+      {
+        id: 'geojson', tier: 'Intermediate', title: '7. GeoJSON Layer',
+        instructions: `Render this GeoJSON FeatureCollection with L.geoJSON, binding each feature's
+"name" property as its popup text.
+
+Note the coordinate order: GeoJSON stores [longitude, latitude] — the reverse of
+Leaflet's own [lat, lng] convention. The data below is already correct GeoJSON order.`,
+        hint: 'Use the onEachFeature(feature, layer) option: layer.bindPopup(feature.properties.name) inside it.',
+        starter: `const map = L.map('exMap').setView([21.04, 105.84], 12);
+${TILE_BOILERPLATE}
+
+const geojsonData = {
+  type: 'FeatureCollection',
+  features: [
+    { type: 'Feature', properties: { name: 'Hoan Kiem Lake' }, geometry: { type: 'Point', coordinates: [105.8542, 21.0285] } },
+    { type: 'Feature', properties: { name: 'West Lake' }, geometry: { type: 'Point', coordinates: [105.8228, 21.0587] } }
+  ]
+};
+
+// TODO: L.geoJSON(geojsonData, { onEachFeature: ... }).addTo(map)
+//   inside onEachFeature, bind a popup using feature.properties.name
+`,
+        solution: `const map = L.map('exMap').setView([21.04, 105.84], 12);
+${TILE_BOILERPLATE}
+
+const geojsonData = {
+  type: 'FeatureCollection',
+  features: [
+    { type: 'Feature', properties: { name: 'Hoan Kiem Lake' }, geometry: { type: 'Point', coordinates: [105.8542, 21.0285] } },
+    { type: 'Feature', properties: { name: 'West Lake' }, geometry: { type: 'Point', coordinates: [105.8228, 21.0587] } }
+  ]
+};
+
+L.geoJSON(geojsonData, {
+  onEachFeature: (feature, layer) => {
+    layer.bindPopup(feature.properties.name);
+  }
+}).addTo(map);
+`
+      },
+      {
+        id: 'click-events', tier: 'Intermediate', title: '8. Map Events: Click to Add Marker',
+        instructions: `Listen for map clicks and drop a new marker at each clicked location, with a popup
+showing the latitude/longitude to 4 decimal places.`,
+        hint: "map.on('click', e => ...) — e.latlng has .lat and .lng; use .toFixed(4) for readable coordinates.",
+        starter: `const map = L.map('exMap').setView([21.0285, 105.8542], 14);
+${TILE_BOILERPLATE}
+
+// TODO: map.on('click', (e) => { ... })
+//   inside: add a marker at e.latlng, bind + open a popup showing
+//   e.latlng.lat.toFixed(4) and e.latlng.lng.toFixed(4)
+`,
+        solution: `const map = L.map('exMap').setView([21.0285, 105.8542], 14);
+${TILE_BOILERPLATE}
+
+map.on('click', (e) => {
+  const label = \`\${e.latlng.lat.toFixed(4)}, \${e.latlng.lng.toFixed(4)}\`;
+  L.marker(e.latlng).addTo(map).bindPopup(label).openPopup();
+});
+`
+      },
+      {
+        id: 'fit-bounds', tier: 'Advanced', title: '9. Fit Bounds to Multiple Markers',
+        instructions: `Add a marker at each of these four landmarks, then call map.fitBounds() with
+padding so every marker is visible with some breathing room, regardless of the map's
+starting view:
+  [21.0294, 105.8355], [21.0285, 105.8542], [21.0244, 105.8573], [21.0587, 105.8228]`,
+        hint: 'map.fitBounds() accepts a plain array of [lat, lng] points directly — you don’t have to build an L.latLngBounds object yourself.',
+        starter: `const map = L.map('exMap').setView([0, 0], 2); // deliberately wrong starting view
+${TILE_BOILERPLATE}
+
+const spots = [
+  [21.0294, 105.8355],
+  [21.0285, 105.8542],
+  [21.0244, 105.8573],
+  [21.0587, 105.8228]
+];
+
+// TODO: add a marker for each point in "spots" (hint: spots.forEach)
+
+// TODO: map.fitBounds(spots, { padding: [30, 30] })
+`,
+        solution: `const map = L.map('exMap').setView([0, 0], 2); // deliberately wrong starting view
+${TILE_BOILERPLATE}
+
+const spots = [
+  [21.0294, 105.8355],
+  [21.0285, 105.8542],
+  [21.0244, 105.8573],
+  [21.0587, 105.8228]
+];
+
+spots.forEach(pt => L.marker(pt).addTo(map));
+
+map.fitBounds(spots, { padding: [30, 30] });
+`
+      },
+      {
+        id: 'proportional-circles', tier: 'Advanced', title: '10. Data-Driven Proportional Circles',
+        instructions: `Given a small dataset of { name, latlng, value }, draw one L.circleMarker per
+point sized by its value (radius = value * 2), with a tooltip showing "name: value".
+
+Use circleMarker (pixel radius) rather than circle (meter radius) — that's what keeps
+the symbols proportionally comparable regardless of zoom level.`,
+        hint: 'circleMarker’s radius is in screen pixels, unlike circle’s radius which is in meters — that’s exactly why it’s the right tool for proportional-symbol maps.',
+        starter: `const map = L.map('exMap').setView([21.04, 105.83], 12);
+${TILE_BOILERPLATE}
+
+const data = [
+  { name: 'Hoan Kiem', latlng: [21.0285, 105.8542], value: 8 },
+  { name: 'Temple of Literature', latlng: [21.0294, 105.8355], value: 5 },
+  { name: 'West Lake', latlng: [21.0587, 105.8228], value: 12 }
+];
+
+// TODO: data.forEach(d => { ... })
+//   inside: L.circleMarker(d.latlng, { radius: d.value * 2, ... })
+//   .bindTooltip(\`\${d.name}: \${d.value}\`).addTo(map)
+`,
+        solution: `const map = L.map('exMap').setView([21.04, 105.83], 12);
+${TILE_BOILERPLATE}
+
+const data = [
+  { name: 'Hoan Kiem', latlng: [21.0285, 105.8542], value: 8 },
+  { name: 'Temple of Literature', latlng: [21.0294, 105.8355], value: 5 },
+  { name: 'West Lake', latlng: [21.0587, 105.8228], value: 12 }
+];
+
+data.forEach(d => {
+  L.circleMarker(d.latlng, {
+    radius: d.value * 2,
+    color: '#ff6b81',
+    fillColor: '#ff6b81',
+    fillOpacity: 0.5
+  })
+    .bindTooltip(\`\${d.name}: \${d.value}\`)
+    .addTo(map);
+});
+`
+      },
+      {
+        id: 'custom-control', tier: 'Advanced', title: '11. Custom Control: Legend',
+        instructions: `Build a custom Leaflet control — a small legend box docked to the bottom-right
+corner — using L.Control.extend({ options: { position }, onAdd() {...} }), then add an
+instance of it to the map.`,
+        hint: 'onAdd() must return a real DOM element — build it with L.DomUtil.create("div", className) and set its innerHTML/styles.',
+        starter: `const map = L.map('exMap').setView([21.0285, 105.8542], 13);
+${TILE_BOILERPLATE}
+
+// TODO: const Legend = L.Control.extend({
+//   options: { position: 'bottomright' },
+//   onAdd() {
+//     const div = L.DomUtil.create('div', 'legend');
+//     // style div and set its innerHTML with a couple of legend rows
+//     return div;
+//   }
+// });
+
+// TODO: new Legend().addTo(map)
+`,
+        solution: `const map = L.map('exMap').setView([21.0285, 105.8542], 13);
+${TILE_BOILERPLATE}
+
+const Legend = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd: function () {
+    const div = L.DomUtil.create('div', 'info legend');
+    div.style.background = 'white';
+    div.style.padding = '8px 10px';
+    div.style.borderRadius = '6px';
+    div.style.fontSize = '12px';
+    div.style.color = '#222';
+    div.innerHTML = \`
+      <div><span style="color:#5eb5ff;">●</span> Landmarks</div>
+      <div><span style="color:#ff6b81;">●</span> Data points</div>
+    \`;
+    return div;
+  }
+});
+
+new Legend().addTo(map);
+`
+      },
+      {
+        id: 'store-locator', tier: 'Advanced', title: '12. Capstone: Mini Store Locator',
+        instructions: `Combine everything: given a list of stores with a category, group markers by
+category into their own layerGroup (creating groups on the fly), add an L.control.layers
+overlay so users can toggle each category, and finish with map.fitBounds() over every
+store so the whole set is visible on load.`,
+        hint: 'Keep an object keyed by category; the first time you see a new category, create its layerGroup and .addTo(map) immediately.',
+        starter: `const map = L.map('exMap').setView([21.03, 105.85], 12);
+${TILE_BOILERPLATE}
+
+const stores = [
+  { name: 'Cafe Pho Co', category: 'cafe', latlng: [21.0292, 105.8520] },
+  { name: 'The Note Coffee', category: 'cafe', latlng: [21.0288, 105.8530] },
+  { name: 'Temple of Literature', category: 'museum', latlng: [21.0294, 105.8355] },
+  { name: 'Museum of Ethnology', category: 'museum', latlng: [20.9963, 105.7975] }
+];
+
+// TODO: const groups = {}; loop over "stores", creating a layerGroup per new
+//   category (adding it to the map the first time), then add a marker with a
+//   popup "name (category)" into the right group
+
+// TODO: L.control.layers(null, groups).addTo(map)
+
+// TODO: map.fitBounds(stores.map(s => s.latlng), { padding: [40, 40] })
+`,
+        solution: `const map = L.map('exMap').setView([21.03, 105.85], 12);
+${TILE_BOILERPLATE}
+
+const stores = [
+  { name: 'Cafe Pho Co', category: 'cafe', latlng: [21.0292, 105.8520] },
+  { name: 'The Note Coffee', category: 'cafe', latlng: [21.0288, 105.8530] },
+  { name: 'Temple of Literature', category: 'museum', latlng: [21.0294, 105.8355] },
+  { name: 'Museum of Ethnology', category: 'museum', latlng: [20.9963, 105.7975] }
+];
+
+const groups = {};
+stores.forEach(s => {
+  if (!groups[s.category]) groups[s.category] = L.layerGroup().addTo(map);
+  L.marker(s.latlng)
+    .bindPopup(\`\${s.name} (\${s.category})\`)
+    .addTo(groups[s.category]);
+});
+
+L.control.layers(null, groups).addTo(map);
+
+map.fitBounds(stores.map(s => s.latlng), { padding: [40, 40] });
+`
+      },
+    ];
+
+    // --- persisted progress (guarded — file:// or privacy modes may block storage) ---
+    const STORAGE_KEY = 'osm-leaflet-learning-lab-progress';
+    let completed = {};
+    try {
+      completed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) { completed = {}; }
+    function saveProgress() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(completed)); } catch (e) { /* ignore */ }
+    }
+
+    panel.innerHTML = `
+      <div class="ex-layout">
+        <div class="ex-sidebar">
+          <div class="progress-wrap">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel"></div>
+          </div>
+          <div id="exList"></div>
+        </div>
+        <div class="ex-main">
+          <div class="title-row">
+            <h2 id="exTitle"></h2>
+            <span class="tier-tag" id="exTier"></span>
+          </div>
+          <div class="instructions" id="exInstructions"></div>
+          <div class="hint-box" id="hintBox"></div>
+          <div class="workspace">
+            <div class="canvas-box"><div id="mapMount"></div></div>
+            <div class="editor-box">
+              <textarea id="editor" spellcheck="false"></textarea>
+              <div class="btn-row">
+                <button id="runBtn" class="primary">▶ Run</button>
+                <button id="resetBtn">Reset starter</button>
+                <button id="hintBtn">💡 Hint</button>
+                <button id="solutionBtn">Show solution</button>
+                <button id="fullFileBtn">📄 View full HTML file</button>
+              </div>
+              <div class="status" id="status"></div>
+              <label class="mark-complete">
+                <input type="checkbox" id="completeCheck"> Mark this exercise complete
+              </label>
+            </div>
+          </div>
+          <div class="full-file-box" id="fullFileBox">
+            <div class="full-file-header">
+              <span>Full standalone file — this is exactly where the Leaflet CSS/JS includes, the map
+              container, and this exercise's code live in a real page. Save it as e.g.
+              <code>my-map.html</code> and open it directly in a browser.</span>
+              <button id="copyFullFileBtn">Copy</button>
+            </div>
+            <pre><code id="fullFileCode"></code></pre>
+          </div>
+        </div>
+      </div>`;
+
+    const exList = panel.querySelector('#exList');
+    const editor = panel.querySelector('#editor');
+    const statusEl = panel.querySelector('#status');
+    const mapMount = panel.querySelector('#mapMount');
+    const hintBox = panel.querySelector('#hintBox');
+    const completeCheck = panel.querySelector('#completeCheck');
+    const fullFileBox = panel.querySelector('#fullFileBox');
+    const fullFileCode = panel.querySelector('#fullFileCode');
+
+    let currentIndex = 0;
+    let liveMap = null;
+    const tiers = ['Beginner', 'Intermediate', 'Advanced'];
+
+    // Wraps the current editor code in a complete, saveable HTML document —
+    // so learners can see exactly where the Leaflet <link>/<script> tags and
+    // the map container div belong in a real file, not just in this sandbox.
+    function buildFullFile(code) {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Leaflet Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""><\/script>
+<style>
+  #exMap { height: 400px; width: 100%; }
+</style>
+</head>
+<body>
+
+<div id="exMap"></div>
+
+<script>
+${code}
+<\/script>
+</body>
+</html>`;
+    }
+
+    function refreshFullFileIfVisible() {
+      if (fullFileBox.classList.contains('show')) {
+        fullFileCode.textContent = buildFullFile(editor.value);
+      }
+    }
+
+    function resetMapContainer() {
+      if (liveMap) { try { liveMap.remove(); } catch (e) { /* ignore */ } liveMap = null; }
+      mapMount.innerHTML = '';
+      const div = document.createElement('div');
+      div.id = 'exMap';
+      div.className = 'map-box';
+      div.style.height = '400px';
+      mapMount.appendChild(div);
+    }
+
+    function firstUncompletedIndex() {
+      const idx = exercises.findIndex(ex => !completed[ex.id]);
+      return idx === -1 ? null : idx;
+    }
+
+    function renderSidebar() {
+      exList.innerHTML = '';
+      const suggestedIdx = firstUncompletedIndex();
+      tiers.forEach(tier => {
+        const h = document.createElement('div');
+        h.className = 'ex-tier-label';
+        h.textContent = tier;
+        exList.appendChild(h);
+        exercises.forEach((ex, i) => {
+          if (ex.tier !== tier) return;
+          const btn = document.createElement('button');
+          btn.className = 'ex-btn' + (i === currentIndex ? ' active' : '');
+          const check = completed[ex.id] ? '✓' : '○';
+          btn.innerHTML = `<span class="ex-check">${check}</span><span>${ex.title}</span>` +
+            (i === suggestedIdx ? '<span class="ex-next-tag">next</span>' : '');
+          btn.addEventListener('click', () => loadExercise(i));
+          exList.appendChild(btn);
+        });
+      });
+    }
+
+    function renderProgress() {
+      const total = exercises.length;
+      const done = exercises.filter(ex => completed[ex.id]).length;
+      panel.querySelector('#progressFill').style.width = (done / total * 100) + '%';
+      panel.querySelector('#progressLabel').textContent = `${done} / ${total} exercises complete`;
+    }
+
+    function setStatus(msg, kind) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function loadExercise(i) {
+      currentIndex = i;
+      const ex = exercises[i];
+      panel.querySelector('#exTitle').textContent = ex.title;
+      panel.querySelector('#exTier').textContent = ex.tier;
+      panel.querySelector('#exInstructions').textContent = ex.instructions;
+      editor.value = ex.starter;
+      hintBox.textContent = ex.hint;
+      hintBox.classList.remove('show');
+      fullFileBox.classList.remove('show');
+      completeCheck.checked = !!completed[ex.id];
+      setStatus('');
+      resetMapContainer();
+      renderSidebar();
+    }
+
+    function runCode() {
+      resetMapContainer();
+      try {
+        const fn = new Function('L', editor.value);
+        fn(L);
+        setStatus('Ran without errors — check the map.', 'ok');
+      } catch (err) {
+        setStatus('Error: ' + err.message, 'err');
+      }
+      window.dispatchEvent(new Event('resize'));
+      refreshFullFileIfVisible();
+    }
+
+    panel.querySelector('#runBtn').addEventListener('click', runCode);
+    panel.querySelector('#resetBtn').addEventListener('click', () => {
+      editor.value = exercises[currentIndex].starter;
+      setStatus('');
+      refreshFullFileIfVisible();
+    });
+    panel.querySelector('#hintBtn').addEventListener('click', () => {
+      hintBox.classList.toggle('show');
+    });
+    panel.querySelector('#solutionBtn').addEventListener('click', () => {
+      editor.value = exercises[currentIndex].solution;
+      setStatus('Solution loaded — click Run to see it.', 'ok');
+      refreshFullFileIfVisible();
+    });
+    panel.querySelector('#fullFileBtn').addEventListener('click', () => {
+      fullFileBox.classList.toggle('show');
+      refreshFullFileIfVisible();
+    });
+    panel.querySelector('#copyFullFileBtn').addEventListener('click', () => {
+      const btn = panel.querySelector('#copyFullFileBtn');
+      navigator.clipboard.writeText(fullFileCode.textContent).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {
+        btn.textContent = 'Select & copy manually';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+    editor.addEventListener('input', refreshFullFileIfVisible);
+    completeCheck.addEventListener('change', () => {
+      const ex = exercises[currentIndex];
+      if (completeCheck.checked) completed[ex.id] = true;
+      else delete completed[ex.id];
+      saveProgress();
+      renderProgress();
+      renderSidebar();
+    });
+
+    renderProgress();
+    loadExercise(0);
+  })();
+
+  activateTab('basics');
+})();
+</script>
+</body>
+</html>

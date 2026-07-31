@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>1.4 Fit Bounds (Solution)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map');
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const places = [
+    { name: 'Ben Thanh Market', lat: 10.7725, lng: 106.6980 },
+    { name: 'Independence Palace', lat: 10.7772, lng: 106.6953 },
+    { name: 'Jade Emperor Pagoda', lat: 10.7906, lng: 106.7060 },
+    { name: 'Suoi Tien Theme Park', lat: 10.8626, lng: 106.8025 }
+  ];
+
+  const markers = places.map(place =>
+    L.marker([place.lat, place.lng]).addTo(map).bindPopup(place.name)
+  );
+
+  const group = L.featureGroup(markers);
+  map.fitBounds(group.getBounds(), { padding: [30, 30] });
+</script>
+</body>
+</html>

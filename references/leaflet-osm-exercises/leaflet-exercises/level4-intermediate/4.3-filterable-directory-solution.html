@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>4.3 Filterable Directory Map (Solution)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #app { display: flex; height: 100vh; }
+    #sidebar { width: 280px; overflow-y: auto; border-right: 1px solid #ddd; }
+    #filters { padding: 10px; border-bottom: 1px solid #ddd; }
+    #filters select { width: 100%; padding: 6px; }
+    #list { list-style: none; margin: 0; padding: 0; }
+    #list li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+    #list li:hover { background: #f5f5f5; }
+    #list li .cat { font-size: 12px; color: #888; }
+    #map { flex: 1; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <div id="filters">
+      <select id="categoryFilter">
+        <option value="all">All categories</option>
+        <option value="cafe">Cafe</option>
+        <option value="restaurant">Restaurant</option>
+        <option value="landmark">Landmark</option>
+      </select>
+    </div>
+    <ul id="list"></ul>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const places = [
+    { id: 1, name: 'Cafe Sua Da', category: 'cafe', lat: 10.7725, lng: 106.6980 },
+    { id: 2, name: 'Pho 24', category: 'restaurant', lat: 10.7772, lng: 106.6953 },
+    { id: 3, name: 'Jade Emperor Pagoda', category: 'landmark', lat: 10.7906, lng: 106.7060 },
+    { id: 4, name: 'The Coffee House', category: 'cafe', lat: 10.7650, lng: 106.6900 },
+    { id: 5, name: 'Independence Palace', category: 'landmark', lat: 10.7772, lng: 106.6900 },
+    { id: 6, name: 'Banh Xeo 46A', category: 'restaurant', lat: 10.7800, lng: 106.6870 }
+  ];
+
+  const markerById = {};
+
+  places.forEach((place) => {
+    const marker = L.marker([place.lat, place.lng]).bindPopup(place.name);
+    markerById[place.id] = marker;
+  });
+
+  const listEl = document.getElementById('list');
+  const filterEl = document.getElementById('categoryFilter');
+
+  function renderList(filterCategory) {
+    listEl.innerHTML = '';
+
+    const visiblePlaces = places.filter(
+      (p) => filterCategory === 'all' || p.category === filterCategory
+    );
+
+    // Sync markers on the map: show only the ones matching the filter
+    places.forEach((place) => {
+      const marker = markerById[place.id];
+      const shouldShow = filterCategory === 'all' || place.category === filterCategory;
+      if (shouldShow) {
+        marker.addTo(map);
+      } else {
+        map.removeLayer(marker);
+      }
+    });
+
+    visiblePlaces.forEach((place) => {
+      const li = document.createElement('li');
+      li.innerHTML = `${place.name}<br><span class="cat">${place.category}</span>`;
+      li.addEventListener('click', () => {
+        map.setView([place.lat, place.lng], 16);
+        markerById[place.id].openPopup();
+      });
+      listEl.appendChild(li);
+    });
+  }
+
+  filterEl.addEventListener('change', () => renderList(filterEl.value));
+
+  renderList('all');
+</script>
+</body>
+</html>

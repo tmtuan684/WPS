@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>2.1 Clock Face (Solution)</h2>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const radius = 140;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 12; i++) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(i * (Math.PI * 2 / 12));
+
+    ctx.beginPath();
+    ctx.moveTo(0, -radius);
+    ctx.lineTo(0, -radius + 15);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+</script>
+</body>
+</html>

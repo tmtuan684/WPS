@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>1.3 Multiple Markers from an Array (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const places = [
+    { name: 'Ben Thanh Market', lat: 10.7725, lng: 106.6980 },
+    { name: 'Notre-Dame Cathedral Basilica', lat: 10.7798, lng: 106.6990 },
+    { name: 'Independence Palace', lat: 10.7772, lng: 106.6953 },
+    { name: 'Bitexco Financial Tower', lat: 10.7716, lng: 106.7040 },
+    { name: 'Jade Emperor Pagoda', lat: 10.7906, lng: 106.7060 }
+  ];
+
+  // TODO: loop over `places` and add a marker + popup for each one.
+  // places.forEach(place => {
+  //   L.marker([place.lat, place.lng]).addTo(map).bindPopup(place.name);
+  // });
+</script>
+</body>
+</html>

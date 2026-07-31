@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>B. Geofencing with Turf.js</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); min-width: 220px; }
+    #status { font-weight: bold; margin-top: 6px; }
+    #log { margin-top: 8px; max-height: 150px; overflow-y: auto; font-size: 12px; color: #555; }
+    #log div { padding: 2px 0; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  A shuttle moves along a fixed path. Its marker turns red whenever it enters the
+  shaded geofence zone, using Turf's <code>booleanPointInPolygon</code>.
+  <div id="status">Status: outside zone</div>
+  <div id="log"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // The geofence zone as GeoJSON (Turf works with GeoJSON, coordinates are [lng, lat]).
+  const zoneGeoJSON = turf.polygon([[
+    [106.694, 10.780],
+    [106.702, 10.780],
+    [106.702, 10.772],
+    [106.694, 10.772],
+    [106.694, 10.780]
+  ]]);
+
+  const zoneLayer = L.geoJSON(zoneGeoJSON, {
+    style: { color: '#3366cc', weight: 2, fillOpacity: 0.15 }
+  }).addTo(map);
+
+  const path = [
+    [10.7650, 106.6900],
+    [10.7760, 106.6950],
+    [10.7770, 106.6980], // passes through the zone
+    [10.7790, 106.7000], // still inside
+    [10.7850, 106.7050],
+    [10.7906, 106.7060]
+  ];
+  L.polyline(path, { color: '#999', dashArray: '4 6' }).addTo(map);
+
+  const normalIcon = L.divIcon({
+    className: '', iconSize: [16, 16], iconAnchor: [8, 8],
+    html: '<div style="width:16px;height:16px;border-radius:50%;background:#2ecc71;border:2px solid #fff;box-shadow:0 0 4px rgba(0,0,0,0.5);"></div>'
+  });
+  const alertIcon = L.divIcon({
+    className: '', iconSize: [16, 16], iconAnchor: [8, 8],
+    html: '<div style="width:16px;height:16px;border-radius:50%;background:#e74c3c;border:2px solid #fff;box-shadow:0 0 4px rgba(0,0,0,0.5);"></div>'
+  });
+
+  const shuttle = L.marker(path[0], { icon: normalIcon }).addTo(map);
+
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  let wasInside = false;
+
+  function logEvent(text) {
+    const div = document.createElement('div');
+    const time = new Date().toLocaleTimeString();
+    div.textContent = `[${time}] ${text}`;
+    logEl.prepend(div);
+  }
+
+  let segmentIndex = 0;
+  let t = 0;
+  const speed = 0.005;
+
+  function animate() {
+    const from = path[segmentIndex];
+    const to = path[(segmentIndex + 1) % path.length];
+
+    t += speed;
+    if (t >= 1) {
+      t = 0;
+      segmentIndex = (segmentIndex + 1) % path.length;
+    }
+
+    const lat = from[0] + (to[0] - from[0]) * t;
+    const lng = from[1] + (to[1] - from[1]) * t;
+    shuttle.setLatLng([lat, lng]);
+
+    // The core geofencing check: is this point inside the zone polygon right now?
+    const point = turf.point([lng, lat]);
+    const isInside = turf.booleanPointInPolygon(point, zoneGeoJSON);
+
+    if (isInside !== wasInside) {
+      // a crossing event just happened
+      wasInside = isInside;
+      shuttle.setIcon(isInside ? alertIcon : normalIcon);
+      statusEl.textContent = `Status: ${isInside ? 'INSIDE zone' : 'outside zone'}`;
+      logEvent(isInside ? 'Entered geofence zone' : 'Exited geofence zone');
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+</body>
+</html>

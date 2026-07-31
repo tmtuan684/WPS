@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>3.1 Click to Fill Cell (Solution)</h2>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const cellSize = 100;
+  const cols = 3;
+  const rows = 3;
+
+  function drawGrid() {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#333';
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  function fillCell(row, col) {
+    ctx.fillStyle = '#3366cc';
+    ctx.fillRect(col * cellSize + 2, row * cellSize + 2, cellSize - 4, cellSize - 4);
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
+
+    fillCell(row, col);
+    drawGrid();
+  });
+
+  drawGrid();
+</script>
+</body>
+</html>

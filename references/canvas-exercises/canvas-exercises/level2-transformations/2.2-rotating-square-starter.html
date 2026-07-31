@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>2.2 Rotating Square (Starter)</h2>
+<p>Animate a square rotating continuously around its own center.</p>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const size = 80;
+  let angle = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // TODO:
+    // 1. ctx.save()
+    // 2. translate to (cx, cy) -- the square's center
+    // 3. rotate by `angle`
+    // 4. fillRect the square OFFSET by -size/2, -size/2 (so it rotates around its own center,
+    //    not the canvas origin)
+    // 5. ctx.restore()
+
+    angle += 0.02;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+</script>
+</body>
+</html>

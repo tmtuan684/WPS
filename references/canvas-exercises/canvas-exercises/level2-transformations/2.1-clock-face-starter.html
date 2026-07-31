@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>2.1 Clock Face (Starter)</h2>
+<p>Draw a circle with 12 tick marks around it, using save/translate/rotate/restore.</p>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const radius = 140;
+
+  // Outer circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // TODO: draw 12 tick marks.
+  // For i = 0 to 11:
+  //   1. ctx.save()
+  //   2. ctx.translate(cx, cy)                 -> move origin to clock center
+  //   3. ctx.rotate(i * (Math.PI * 2 / 12))     -> rotate by 30deg increments
+  //   4. draw a short line from (0, -radius) to (0, -radius + 15)
+  //      (it will now be drawn "up" from center, then rotated into place)
+  //   5. ctx.restore()
+</script>
+</body>
+</html>

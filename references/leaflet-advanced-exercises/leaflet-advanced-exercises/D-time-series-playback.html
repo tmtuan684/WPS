@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>D. Time-Series Playback</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; bottom: 20px; left: 50px; right: 50px; z-index: 1000;
+             background: white; padding: 10px 14px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; }
+    #panel input[type="range"] { flex: 1; }
+    #timeLabel { min-width: 70px; font-weight: bold; }
+    #playBtn { padding: 6px 14px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="panel">
+  <button id="playBtn">Play</button>
+  <span id="timeLabel">08:00</span>
+  <input type="range" id="slider" min="0" max="0" value="0" step="1">
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Fixed set of station locations; each timestamp has a "value" (e.g. foot traffic
+  // or occupancy count) per station. In a real app this would come from a database/API
+  // keyed by time -- here it's generated to make the exercise self-contained.
+  const stations = [
+    { id: 1, name: 'Station A', lat: 10.7725, lng: 106.6980 },
+    { id: 2, name: 'Station B', lat: 10.7772, lng: 106.6953 },
+    { id: 3, name: 'Station C', lat: 10.7906, lng: 106.7060 },
+    { id: 4, name: 'Station D', lat: 10.7650, lng: 106.6900 },
+    { id: 5, name: 'Station E', lat: 10.7800, lng: 106.6870 }
+  ];
+
+  const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+
+  // Generate a plausible "traffic" curve per station: builds up, peaks near lunch, tapers off.
+  function valueAt(hour, peakHour, peakValue) {
+    const distance = Math.abs(hour - peakHour);
+    return Math.max(5, Math.round(peakValue * Math.exp(-0.15 * distance * distance)));
+  }
+
+  const timestamps = hours.map(hour => ({
+    label: `${String(hour).padStart(2, '0')}:00`,
+    values: stations.map(s => ({
+      id: s.id,
+      value: valueAt(hour, 12 + (s.id % 3), 40 + s.id * 15)
+    }))
+  }));
+
+  function colorForValue(v) {
+    if (v > 70) return '#800026';
+    if (v > 50) return '#e31a1c';
+    if (v > 30) return '#fd8d3c';
+    return '#ffeda0';
+  }
+
+  const circleMarkers = {};
+  stations.forEach(s => {
+    circleMarkers[s.id] = L.circleMarker([s.lat, s.lng], {
+      radius: 10, color: '#333', weight: 1, fillOpacity: 0.8
+    }).addTo(map).bindTooltip(s.name, { permanent: false });
+  });
+
+  const slider = document.getElementById('slider');
+  const timeLabel = document.getElementById('timeLabel');
+  const playBtn = document.getElementById('playBtn');
+
+  slider.max = timestamps.length - 1;
+
+  function renderFrame(index) {
+    const frame = timestamps[index];
+    timeLabel.textContent = frame.label;
+
+    frame.values.forEach(entry => {
+      const marker = circleMarkers[entry.id];
+      // radius and color both encode the value -- redundant encoding makes it
+      // easier to read at a glance than color alone
+      marker.setRadius(6 + entry.value / 6);
+      marker.setStyle({ fillColor: colorForValue(entry.value), color: '#333' });
+      const station = stations.find(s => s.id === entry.id);
+      marker.setTooltipContent(`${station.name}: ${entry.value}`);
+    });
+  }
+
+  slider.addEventListener('input', () => renderFrame(Number(slider.value)));
+
+  let playing = false;
+  let playTimer = null;
+
+  playBtn.addEventListener('click', () => {
+    playing = !playing;
+    playBtn.textContent = playing ? 'Pause' : 'Play';
+
+    if (playing) {
+      playTimer = setInterval(() => {
+        let next = Number(slider.value) + 1;
+        if (next > Number(slider.max)) next = 0;
+        slider.value = next;
+        renderFrame(next);
+      }, 800);
+    } else {
+      clearInterval(playTimer);
+    }
+  });
+
+  renderFrame(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>2.3 Layer Groups & Control (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const restaurants = [
+    { name: 'Pho Restaurant', lat: 10.7725, lng: 106.6980 },
+    { name: 'Banh Mi Stall', lat: 10.7650, lng: 106.6900 }
+  ];
+
+  const landmarks = [
+    { name: 'Independence Palace', lat: 10.7772, lng: 106.6953 },
+    { name: 'Jade Emperor Pagoda', lat: 10.7906, lng: 106.7060 }
+  ];
+
+  // TODO 1: build two L.layerGroup()s -- one containing markers for `restaurants`,
+  // one containing markers for `landmarks`. Add BOTH groups to the map initially.
+  //
+  // const restaurantLayer = L.layerGroup(
+  //   restaurants.map(r => L.marker([r.lat, r.lng]).bindPopup(r.name))
+  // );
+  // const landmarkLayer = L.layerGroup(
+  //   landmarks.map(l => L.marker([l.lat, l.lng]).bindPopup(l.name))
+  // );
+  // restaurantLayer.addTo(map);
+  // landmarkLayer.addTo(map);
+
+  // TODO 2: add a layer control (top-right by default) that lets the user toggle
+  // each group independently:
+  // L.control.layers(null, {
+  //   'Restaurants': restaurantLayer,
+  //   'Landmarks': landmarkLayer
+  // }).addTo(map);
+</script>
+</body>
+</html>

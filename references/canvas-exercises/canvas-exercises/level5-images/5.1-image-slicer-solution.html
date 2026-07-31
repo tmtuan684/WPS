@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  #tiles { display: flex; flex-wrap: wrap; width: 300px; margin: 20px auto; gap: 4px; }
+  canvas { border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<h2>5.1 Image Slicer (Solution)</h2>
+<p>Pick an image from your computer — it will be sliced into a 3x3 grid of tile canvases.</p>
+<input type="file" id="fileInput" accept="image/*">
+<div id="tiles"></div>
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const tilesContainer = document.getElementById('tiles');
+  const n = 3;
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    img.onload = () => sliceImage(img);
+    img.src = URL.createObjectURL(file);
+  });
+
+  function sliceImage(img) {
+    tilesContainer.innerHTML = '';
+
+    const side = Math.min(img.width, img.height);
+    const sliceSize = side / n;
+    const tileSize = 100;
+
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col < n; col++) {
+        const tileCanvas = document.createElement('canvas');
+        tileCanvas.width = tileSize;
+        tileCanvas.height = tileSize;
+        tilesContainer.appendChild(tileCanvas);
+
+        const tileCtx = tileCanvas.getContext('2d');
+        const sx = col * sliceSize;
+        const sy = row * sliceSize;
+
+        tileCtx.drawImage(
+          img,
+          sx, sy, sliceSize, sliceSize,
+          0, 0, tileSize, tileSize
+        );
+      }
+    }
+  }
+</script>
+</body>
+</html>

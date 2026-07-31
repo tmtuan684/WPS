@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>C. Nearest-Neighbor Spatial Search</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); max-width: 260px; }
+    #resultList { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; }
+    #resultList li { padding: 4px 0; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  Click anywhere on the map to find the <b>5 nearest cafes</b> to that point,
+  using Turf's distance calculation.
+  <ul id="resultList"></ul>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // A scattered dataset of "cafes" across the city.
+  function randomPoints(center, count, spread) {
+    const pts = [];
+    for (let i = 0; i < count; i++) {
+      pts.push({
+        id: i,
+        name: `Cafe #${i + 1}`,
+        lat: center[0] + (Math.random() - 0.5) * spread,
+        lng: center[1] + (Math.random() - 0.5) * spread
+      });
+    }
+    return pts;
+  }
+
+  const cafes = randomPoints([10.7769, 106.7009], 60, 0.3);
+  const cafeMarkers = {};
+
+  cafes.forEach(cafe => {
+    cafeMarkers[cafe.id] = L.circleMarker([cafe.lat, cafe.lng], {
+      radius: 5, color: '#3366cc', fillOpacity: 0.7
+    }).addTo(map).bindPopup(cafe.name);
+  });
+
+  const resultListEl = document.getElementById('resultList');
+  let clickMarker = null;
+  let connectorLines = [];
+  const K = 5;
+
+  map.on('click', (e) => {
+    const { lat, lng } = e.latlng;
+
+    // reset previous state
+    if (clickMarker) map.removeLayer(clickMarker);
+    connectorLines.forEach(line => map.removeLayer(line));
+    connectorLines = [];
+    Object.values(cafeMarkers).forEach(m => m.setStyle({ color: '#3366cc', radius: 5 }));
+
+    clickMarker = L.marker([lat, lng]).addTo(map);
+    const clickPoint = turf.point([lng, lat]);
+
+    // Compute distance (in km) from the click to every cafe using Turf,
+    // then sort ascending and take the top K.
+    const withDistances = cafes.map(cafe => {
+      const cafePoint = turf.point([cafe.lng, cafe.lat]);
+      const distanceKm = turf.distance(clickPoint, cafePoint, { units: 'kilometers' });
+      return { ...cafe, distanceKm };
+    });
+
+    withDistances.sort((a, b) => a.distanceKm - b.distanceKm);
+    const nearest = withDistances.slice(0, K);
+
+    resultListEl.innerHTML = '';
+    nearest.forEach(cafe => {
+      // highlight the marker
+      cafeMarkers[cafe.id].setStyle({ color: '#e67e22', radius: 8 });
+
+      // draw a connector line from click point to this cafe
+      const line = L.polyline([[lat, lng], [cafe.lat, cafe.lng]], {
+        color: '#e67e22', weight: 1, dashArray: '3 4'
+      }).addTo(map);
+      connectorLines.push(line);
+
+      const li = document.createElement('li');
+      li.textContent = `${cafe.name} — ${cafe.distanceKm.toFixed(2)} km`;
+      resultListEl.appendChild(li);
+    });
+  });
+</script>
+</body>
+</html>

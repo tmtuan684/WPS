@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>1.2 Bullseye (Starter)</h2>
+<p>Draw 5 concentric circles alternating red and white, centered on the canvas.</p>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const maxRadius = 150;
+  const rings = 5;
+  const step = maxRadius / rings;
+
+  // TODO: loop from the outer ring inward (i = 0 to rings-1)
+  // radius = maxRadius - i * step
+  // alternate ctx.fillStyle between 'red' and 'white'
+  // for each ring: ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); ctx.fill();
+  // NOTE: draw largest circle first, then smaller ones on top, or they'll be hidden
+</script>
+</body>
+</html>

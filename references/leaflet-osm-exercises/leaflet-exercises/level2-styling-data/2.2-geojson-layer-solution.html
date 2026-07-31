@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>2.2 GeoJSON Layer (Solution)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const geodata = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: { name: 'Sample District Outline' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [106.690, 10.780], [106.705, 10.782], [106.708, 10.772],
+            [106.698, 10.765], [106.688, 10.770], [106.690, 10.780]
+          ]]
+        }
+      },
+      {
+        type: 'Feature',
+        properties: { name: 'Point of Interest' },
+        geometry: { type: 'Point', coordinates: [106.6990, 10.7798] }
+      }
+    ]
+  };
+
+  L.geoJSON(geodata, {
+    style: { color: '#3366cc', weight: 2, fillOpacity: 0.15 },
+    onEachFeature: (feature, layer) => {
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(feature.properties.name);
+      }
+    }
+  }).addTo(map);
+</script>
+</body>
+</html>

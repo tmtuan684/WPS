@@ -1,0 +1,14 @@
+{
+  "name": "superhero-joke-cli",
+  "version": "1.0.0",
+  "description": "Capstone exercise: a small CLI combining process.argv, fs, npm packages, and async/await",
+  "main": "superhero-joke-solution.js",
+  "scripts": {
+    "start": "node superhero-joke-starter.js"
+  },
+  "dependencies": {
+    "give-me-a-joke": "^0.4.0",
+    "superheroes": "^3.0.0",
+    "chalk": "^4.1.2"
+  }
+}

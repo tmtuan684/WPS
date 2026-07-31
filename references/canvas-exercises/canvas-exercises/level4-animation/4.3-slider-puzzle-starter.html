@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; cursor: pointer; }
+</style>
+</head>
+<body>
+<h2>4.3 Slider Puzzle Renderer (Starter)</h2>
+<p>Click a tile adjacent to the blank space to slide it. Uses your isAdjacent/isSolvable functions.</p>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const n = 3;                 // 3x3 board
+  const cellSize = 100;
+  const BLANK = 0;
+
+  // ---- Your existing helper functions ----
+  function isAdjacent(board, i, j) {
+    i = parseInt(i, 10);
+    j = parseInt(j, 10);
+    const size = Math.floor(Math.sqrt(board.length));
+    return (Math.abs(i - j) === size) ||
+           (Math.abs(i - j) === 1 && Math.floor(i / size) === Math.floor(j / size));
+  }
+
+  function isSolvable(board) {
+    let inversion = 0;
+    const tiles = board.filter(v => v !== BLANK);
+    for (let i = 0; i < tiles.length - 1; i++) {
+      for (let j = i + 1; j < tiles.length; j++) {
+        if (tiles[i] > tiles[j]) inversion++;
+      }
+    }
+    return inversion % 2 === 0;
+  }
+
+  // ---- Board state ----
+  // Start solved: [1,2,3,4,5,6,7,8,0] then shuffle
+  let board = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+
+  function shuffle(arr) {
+    // Fisher-Yates shuffle, reshuffle until solvable
+    let a = arr.slice();
+    do {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+    } while (!isSolvable(a));
+    return a;
+  }
+
+  board = shuffle(board);
+
+  // ---- Rendering ----
+  function drawBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // TODO: loop over `board` by index.
+    // For each index i with value v:
+    //   - skip drawing if v === BLANK (leave that cell empty)
+    //   - compute row = Math.floor(i / n), col = i % n
+    //   - draw a rounded rect tile at (col*cellSize, row*cellSize)
+    //   - draw the number `v` centered in the tile (ctx.fillText, with ctx.textAlign='center', ctx.textBaseline='middle')
+  }
+
+  // ---- Interaction ----
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
+    const clickedIndex = row * n + col;
+
+    // TODO:
+    // 1. find blankIndex = board.indexOf(BLANK)
+    // 2. if isAdjacent(board, clickedIndex, blankIndex), swap board[clickedIndex] and board[blankIndex]
+    // 3. redraw: drawBoard()
+    // (Bonus: instead of an instant swap, animate the tile sliding — interpolate its
+    //  drawn x/y over a few frames from old position to new position before committing the swap)
+  });
+
+  drawBoard();
+</script>
+</body>
+</html>

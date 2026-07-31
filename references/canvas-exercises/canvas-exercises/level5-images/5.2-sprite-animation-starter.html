@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>5.2 Sprite Animation (Starter)</h2>
+<p>No external sprite sheet needed — we generate one programmatically, then animate through its frames.</p>
+<canvas id="canvas" width="200" height="200"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // --- Step 1: build a sprite sheet on an offscreen canvas ---
+  // 6 frames, each 64x64, of a circle "pulsing" in size — stand-in for a real sprite sheet.
+  const frameSize = 64;
+  const frameCount = 6;
+
+  const sheet = document.createElement('canvas');
+  sheet.width = frameSize * frameCount;
+  sheet.height = frameSize;
+  const sheetCtx = sheet.getContext('2d');
+
+  for (let i = 0; i < frameCount; i++) {
+    const cx = i * frameSize + frameSize / 2;
+    const cy = frameSize / 2;
+    const radius = 10 + (i / (frameCount - 1)) * 15; // grows from 10 to 25
+    sheetCtx.beginPath();
+    sheetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+    sheetCtx.fillStyle = `hsl(${i * 40}, 70%, 55%)`;
+    sheetCtx.fill();
+  }
+
+  // --- Step 2: animate by drawing one frame at a time from `sheet` onto `canvas` ---
+  let currentFrame = 0;
+  let lastFrameTime = 0;
+  const frameDuration = 150; // ms per frame
+
+  function loop(timestamp) {
+    if (timestamp - lastFrameTime > frameDuration) {
+      lastFrameTime = timestamp;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // TODO: draw the current frame from `sheet` onto `canvas`, centered.
+      // Source rect: x = currentFrame * frameSize, y = 0, w = frameSize, h = frameSize
+      // Destination: center it on the 200x200 canvas, e.g. dx = 100 - frameSize/2, dy = 100 - frameSize/2
+      // ctx.drawImage(sheet, sx, sy, frameSize, frameSize, dx, dy, frameSize, frameSize)
+
+      // TODO: advance currentFrame, wrapping around: currentFrame = (currentFrame + 1) % frameCount
+    }
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

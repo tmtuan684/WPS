@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>4.2 Routing Between Two Points (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); font-family: sans-serif; max-width: 260px; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  Click the map to set a <b>start</b> point, then click again to set the <b>end</b> point.
+  <div id="result" style="margin-top: 8px;"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const resultEl = document.getElementById('result');
+  let startPoint = null;
+  let endPoint = null;
+  let startMarker = null;
+  let endMarker = null;
+  let routeLine = null;
+
+  async function getRoute(start, end) {
+    // OSRM's free demo server (https://project-osrm.org) -- fine for light,
+    // non-commercial testing/practice. Coordinates go lng,lat (opposite of Leaflet).
+    const url = `https://router.project-osrm.org/route/v1/driving/` +
+                `${start.lng},${start.lat};${end.lng},${end.lat}` +
+                `?overview=full&geometries=geojson`;
+
+    // TODO 1: fetch the URL, parse JSON. The response has a `routes` array;
+    // routes[0].geometry is a GeoJSON LineString, routes[0].distance is meters,
+    // routes[0].duration is seconds.
+    // const response = await fetch(url);
+    // const data = await response.json();
+    // const route = data.routes[0];
+
+    // TODO 2: draw the route. You can pass GeoJSON straight into L.geoJSON(route.geometry),
+    // or convert route.geometry.coordinates ([lng,lat] pairs) into Leaflet's [lat,lng]
+    // order and use L.polyline(). Store it in `routeLine` so you can remove it on reset.
+
+    // TODO 3: display distance (km) and duration (minutes) in #result.
+  }
+
+  map.on('click', (e) => {
+    if (!startPoint) {
+      startPoint = e.latlng;
+      startMarker = L.marker(startPoint).addTo(map).bindPopup('Start').openPopup();
+    } else if (!endPoint) {
+      endPoint = e.latlng;
+      endMarker = L.marker(endPoint).addTo(map).bindPopup('End').openPopup();
+      getRoute(startPoint, endPoint);
+    } else {
+      // TODO 4: third click resets everything -- remove markers/route, clear points/result.
+    }
+  });
+</script>
+</body>
+</html>

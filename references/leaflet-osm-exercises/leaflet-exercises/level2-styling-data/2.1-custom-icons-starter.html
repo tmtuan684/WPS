@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>2.1 Custom Icons (Starter)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    /* simple divIcon styles used below */
+    .pin { width: 18px; height: 18px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+           border: 2px solid #fff; box-shadow: 0 0 3px rgba(0,0,0,0.5); }
+    .pin-open { background: #2ecc71; }
+    .pin-closed { background: #e74c3c; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const shops = [
+    { name: 'Cafe A', lat: 10.7725, lng: 106.6980, open: true },
+    { name: 'Cafe B', lat: 10.7772, lng: 106.6953, open: false },
+    { name: 'Cafe C', lat: 10.7906, lng: 106.7060, open: true },
+    { name: 'Cafe D', lat: 10.7650, lng: 106.6900, open: false }
+  ];
+
+  // TODO 1: create two L.divIcon() instances, one using className 'pin pin-open',
+  // one using className 'pin pin-closed'. Give both a sensible iconSize/iconAnchor, e.g.
+  // const openIcon = L.divIcon({ className: 'pin pin-open', iconSize: [18, 18], iconAnchor: [9, 18] });
+
+  // TODO 2: loop over `shops`, and for each one create a marker using
+  // { icon: shop.open ? openIcon : closedIcon } as the second argument to L.marker()
+</script>
+</body>
+</html>

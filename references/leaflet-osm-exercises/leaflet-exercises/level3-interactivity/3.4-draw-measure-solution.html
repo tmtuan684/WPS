@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>3.4 Draw & Measure (Solution)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    #panel { position: absolute; top: 10px; left: 50px; z-index: 1000;
+             background: white; padding: 10px 12px; border-radius: 4px;
+             box-shadow: 0 0 6px rgba(0,0,0,0.3); font-family: sans-serif; }
+    #panel button { margin-right: 6px; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+<div id="panel">
+  <button id="finish">Finish shape</button>
+  <button id="clear">Clear</button>
+  <div id="result" style="margin-top: 8px;"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.7769, 106.7009], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  let points = [];
+  let previewLine = null;
+  let finalPolygon = null;
+  let finished = false;
+  const resultEl = document.getElementById('result');
+
+  function calculatePerimeter(latlngs) {
+    let total = 0;
+    for (let i = 0; i < latlngs.length - 1; i++) {
+      total += latlngs[i].distanceTo(latlngs[i + 1]);
+    }
+    if (latlngs.length > 2) {
+      total += latlngs[latlngs.length - 1].distanceTo(latlngs[0]);
+    }
+    return total;
+  }
+
+  function calculateArea(latlngs) {
+    const R = 6378137;
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const lat0 = toRad(latlngs.reduce((sum, p) => sum + p.lat, 0) / latlngs.length);
+
+    const projected = latlngs.map((p) => ({
+      x: R * toRad(p.lng) * Math.cos(lat0),
+      y: R * toRad(p.lat)
+    }));
+
+    let sum = 0;
+    for (let i = 0; i < projected.length; i++) {
+      const a = projected[i];
+      const b = projected[(i + 1) % projected.length];
+      sum += a.x * b.y - b.x * a.y;
+    }
+    return Math.abs(sum) / 2;
+  }
+
+  map.on('click', (e) => {
+    if (finished) return;
+
+    points.push(e.latlng);
+
+    if (previewLine) map.removeLayer(previewLine);
+    previewLine = L.polyline(points, { color: '#3366cc' }).addTo(map);
+  });
+
+  document.getElementById('finish').addEventListener('click', () => {
+    if (points.length < 3) {
+      resultEl.textContent = 'Add at least 3 points first.';
+      return;
+    }
+
+    finished = true;
+    if (previewLine) { map.removeLayer(previewLine); previewLine = null; }
+
+    finalPolygon = L.polygon(points, { color: '#3366cc', fillOpacity: 0.3 }).addTo(map);
+
+    const perimeter = calculatePerimeter(points);
+    const area = calculateArea(points);
+
+    resultEl.innerHTML =
+      `Perimeter: ${perimeter.toFixed(1)} m<br>Area: ${area.toFixed(1)} m&sup2;`;
+  });
+
+  document.getElementById('clear').addEventListener('click', () => {
+    points = [];
+    finished = false;
+    if (previewLine) { map.removeLayer(previewLine); previewLine = null; }
+    if (finalPolygon) { map.removeLayer(finalPolygon); finalPolygon = null; }
+    resultEl.textContent = '';
+  });
+</script>
+</body>
+</html>
