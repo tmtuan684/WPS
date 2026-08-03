@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Arcs examples</title>
+    <style>
+      canvas {
+        width: 70%;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+      function draw() {
+        const canvas = document.getElementById("canvas");
+        if (canvas.getContext) {
+          const ctx = canvas.getContext("2d");
+          // Start drawing from here
+          
+          // Circle
+          ctx.beginPath();
+          ctx.arc(75, 75, 50, 0, Math.PI, true);
+          ctx.fill();
+
+          // ArcTo
+            ctx.beginPath();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 5;
+            ctx.moveTo(200, 20);
+            ctx.arcTo(200, 130, 400, 20, 40);
+            ctx.stroke();
+        } else {
+            // canvas unsupported code here
+        }
+      }
+      window.addEventListener("load", draw);    // Call draw() when the window fully loads
+    </script>
+  </body>
+</html>

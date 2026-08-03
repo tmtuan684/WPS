@@ -1,0 +1,2 @@
+This is file 1 -- imagine this is the largest of the three files,
+representative of something slower to read, like a big log file.
