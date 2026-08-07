@@ -11,7 +11,7 @@ const fs = require('fs'); // fs to read HTML files
 
 // Define the hostname and port for the server
 const hostname = '127.0.0.1';
-const port = 8080;
+const port = 1234;
 
 // Define and Create an HTTP server that listens for requests and sends a response
 const server = http.createServer((req, res) => {

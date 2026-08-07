@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Learning Lab</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161923; --panel-2:#1c202c; --line:#262b39;
+    --text:#e7e5df; --dim:#9498a3; --dim-2:#6b7080;
+    --accent:#e8b84c; --accent-soft:rgba(232,184,76,.14); --accent-line:rgba(232,184,76,.35);
+    --err:#e8664f;
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    --sans:-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:radial-gradient(1200px 600px at 20% -10%, #171a24 0%, var(--bg) 55%);color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 18px 60px;}
+  .editor{max-width:1080px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);}
+  .titlebar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
+  .dots{display:flex;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .titlebar .name{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-left:4px;}
+  .titlebar .lab-badge{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 10px;border-radius:20px;letter-spacing:.03em;}
+  .tabs{display:flex;overflow-x:auto;background:var(--panel);border-bottom:1px solid var(--line);}
+  .tab{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:11px 18px;border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;position:relative;transition:color .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--text);background:var(--bg);}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);}
+  .tab .dim{color:var(--dim-2);}
+  .pane{display:none;padding:34px 38px 50px;background:var(--bg);}
+  .pane.active{display:block;}
+  h1.hero{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  h1.hero span{color:var(--accent);}
+  .sub{color:var(--dim);font-size:14.5px;margin:0 0 30px;max-width:640px;line-height:1.55;}
+  h2.section-h{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:38px 0 16px;display:flex;align-items:center;gap:10px;}
+  h2.section-h:first-of-type{margin-top:0;}
+  h2.section-h::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card h3{margin:0 0 8px;font-size:14.5px;font-family:var(--mono);color:var(--text);}
+  .card p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.55;}
+  .quiz{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;background:var(--panel);}
+  .quiz .q{font-size:14.5px;font-weight:600;margin-bottom:8px;}
+  .quiz .a{display:none;font-size:13.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;line-height:1.6;}
+  .quiz .a.show{display:block;}
+  .reveal-btn{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .reveal-btn:hover{filter:brightness(1.15);}
+  table.ref{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:8px;}
+  table.ref th{text-align:left;font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim-2);padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.ref td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim);}
+  table.ref td.name{font-family:var(--mono);color:var(--text);white-space:nowrap;}
+  table.ref code{font-family:var(--mono);font-size:12px;background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#f0d497;}
+  .group-title{font-size:13px;color:var(--dim-2);font-family:var(--mono);margin:22px 0 8px;}
+  .group-title:first-child{margin-top:0;}
+  .ex{border:1px solid var(--line);border-radius:12px;margin-bottom:26px;overflow:hidden;background:var(--panel);}
+  .ex-head{padding:16px 20px;border-bottom:1px solid var(--line);}
+  .ex-head h3{margin:0 0 6px;font-size:15.5px;font-family:var(--mono);}
+  .ex-head ol{margin:8px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px;line-height:1.65;}
+  .ex-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  @media (max-width:760px){.ex-body{grid-template-columns:1fr;}}
+  .ex-editor{border-right:1px solid var(--line);background:var(--bg);}
+  @media (max-width:760px){.ex-editor{border-right:none;border-bottom:1px solid var(--line);}}
+  .pane-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim-2);padding:8px 14px;border-bottom:1px solid var(--line);}
+  textarea.code{width:100%;height:220px;background:var(--bg);color:#d8e0f0;border:none;font-family:var(--mono);font-size:12.5px;padding:14px;resize:vertical;outline:none;line-height:1.55;}
+  .console{width:100%;height:220px;background:#0b0d11;color:#c9e6c0;font-family:var(--mono);font-size:12.5px;padding:14px;overflow:auto;white-space:pre-wrap;line-height:1.6;}
+  .console .err{color:var(--err);}
+  .ex-foot{display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid var(--line);}
+  .btn{font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--text);}
+  .btn.primary{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);}
+  .btn:hover{filter:brightness(1.2);}
+  .solution{display:none;padding:16px 20px;border-top:1px dashed var(--line);background:var(--panel-2);}
+  .solution.show{display:block;}
+  .solution pre{margin:0 0 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:#d8e0f0;line-height:1.6;}
+  .solution .why{font-size:13px;color:var(--dim);line-height:1.6;}
+  .badge{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--dim-2);}
+  .badge.adv{border-color:var(--accent-line);color:var(--accent);}
+  footer.foot{max-width:1080px;margin:22px auto 0;color:var(--dim-2);font-size:12px;font-family:var(--mono);text-align:center;}
+</style>
+</head>
+<body>
+<div class="editor">
+  <div class="titlebar">
+    <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <span class="name">learning-lab / javascript</span>
+    <span class="lab-badge">JS</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-pane="review">README<span class="dim">.md</span></div>
+    <div class="tab" data-pane="basics">syntax<span class="dim">.js</span></div>
+    <div class="tab" data-pane="playground">playground<span class="dim">.js</span></div>
+    <div class="tab" data-pane="challenges">challenges<span class="dim">.js</span></div>
+  </div>
+
+  <section class="pane active" id="pane-review">
+    <h1 class="hero">JavaScript <span>Learning Lab</span></h1>
+    <p class="sub">JavaScript adds behavior to a page: logic, data handling, interactivity. Review the core ideas, then check your recall.</p>
+    <h2 class="section-h">Core concepts</h2>
+    <div class="grid" id="review-cards"></div>
+    <h2 class="section-h">Quick self-check</h2>
+    <div id="quiz-list"></div>
+  </section>
+
+  <section class="pane" id="pane-basics">
+    <h1 class="hero">Syntax <span>Reference</span></h1>
+    <p class="sub">Variables, types, and functions &mdash; the vocabulary you'll use in almost every script.</p>
+    <div id="basics-groups"></div>
+  </section>
+
+  <section class="pane" id="pane-playground">
+    <h1 class="hero">Guided <span>Playground</span></h1>
+    <p class="sub">Write code on the left, click Run, and read the console output on the right. Self-check: try it yourself before revealing the model solution.</p>
+    <div id="playground-list"></div>
+  </section>
+
+  <section class="pane" id="pane-challenges">
+    <h1 class="hero">Apply <span>&amp; Build</span></h1>
+    <p class="sub">Intermediate to advanced tasks combining functions, arrays, and objects into small working programs.</p>
+    <div id="challenges-list"></div>
+  </section>
+</div>
+<footer class="foot">JavaScript Learning Lab &mdash; single file, no build step, no dependencies</footer>
+
+<script>
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("pane-"+t.dataset.pane).classList.add("active");
+  });
+});
+
+const reviewCards=[
+  {t:"What JS is",d:"A programming language that runs in the browser (and, via Node.js, on servers) to add logic, data handling, and interactivity to pages."},
+  {t:"Variables",d:"let declares a variable that can be reassigned; const declares one that can't be reassigned; var is the old, function-scoped way — prefer let/const."},
+  {t:"Data types",d:"Primitives: string, number, boolean, null, undefined. Structures: object and array. typeof tells you which one you have."},
+  {t:"Functions",d:"Reusable blocks of logic that take inputs (parameters) and can return a value. Declared with function, as an expression, or as an arrow function."},
+  {t:"Control flow",d:"if/else branches on conditions; for/while repeat code; switch branches on one value against many cases."},
+  {t:"Arrays & objects",d:"Arrays are ordered lists ([1,2,3]); objects are key/value collections ({name:'A'}). Both are reference types."}
+];
+const quiz=[
+  {q:"When should you use const instead of let?",a:"Use const by default for anything that won't be reassigned. Only use let when the variable's value genuinely needs to change later. Avoid var entirely in modern code."},
+  {q:"What's the difference between == and ===?",a:"== compares values after converting types if they differ ('1' == 1 is true). === compares both value and type with no conversion ('1' === 1 is false). Prefer === to avoid surprising conversions."},
+  {q:"What does 'hoisting' mean for var and function declarations?",a:"Declarations are moved to the top of their scope before code runs. var variables are hoisted but start as undefined; function declarations are hoisted with their full body, so they can be called before they appear in the file."},
+  {q:"What's special about a template literal like `Hello ${name}`?",a:"Backticks allow embedded expressions inside ${...} that are evaluated and inserted into the string, and they support multi-line strings without \\n."},
+  {q:"What does array.map() return, and how is it different from forEach()?",a:"map() returns a new array built from the return value of the callback for each item. forEach() just runs the callback for its side effects and always returns undefined."},
+  {q:"In an arrow function, what does 'this' refer to?",a:"Arrow functions don't have their own 'this' — they inherit it from the surrounding (lexical) scope, unlike regular functions where 'this' depends on how the function is called."}
+];
+const rc=document.getElementById("review-cards");
+reviewCards.forEach(c=>{const div=document.createElement("div");div.className="card";div.innerHTML=`<h3>${c.t}</h3><p>${c.d}</p>`;rc.appendChild(div);});
+const ql=document.getElementById("quiz-list");
+quiz.forEach((item,i)=>{
+  const div=document.createElement("div");div.className="quiz";
+  div.innerHTML=`<div class="q">Q${i+1}. ${item.q}</div><button class="reveal-btn">Show answer</button><div class="a">${item.a}</div>`;
+  const btn=div.querySelector(".reveal-btn"),a=div.querySelector(".a");
+  btn.addEventListener("click",()=>{a.classList.toggle("show");btn.textContent=a.classList.contains("show")?"Hide answer":"Show answer";});
+  ql.appendChild(div);
+});
+
+const basicsGroups=[
+  {title:"Syntax basics",items:[
+    ["// comment","Single-line comment, ignored by the interpreter.","// this explains the next line"],
+    ["/* */","Multi-line comment.","/* explains\\n several lines */"],
+    [";","Statement terminator (optional but recommended).","let x = 1;"],
+    ["{ }","Block scope — groups statements, e.g. inside if/for/function.","if (x) { ... }"]
+  ]},
+  {title:"Variables & types",items:[
+    ["let","Mutable, block-scoped variable.","let count = 0;"],
+    ["const","Block-scoped variable that can't be reassigned.","const name = \"An\";"],
+    ["string","Text, in quotes or backticks.","\"hello\" or `hi ${x}`"],
+    ["number","Any numeric value (no separate int/float).","42 or 3.14"],
+    ["boolean","true or false.","let isOpen = true;"],
+    ["null / undefined","Explicit 'no value' vs. 'not yet assigned'.","let x = null;"],
+    ["array","Ordered list of values.","[1, 2, 3]"],
+    ["object","Key/value collection.","{ name: \"An\", age: 21 }"]
+  ]},
+  {title:"Operators",items:[
+    ["+ - * / %","Arithmetic (% is remainder/modulo).","10 % 3 // 1"],
+    ["=== / !==","Strict equal / not equal (no type conversion).","a === b"],
+    ["&& / || / !","Logical and / or / not.","isOpen && hasSeats"],
+    ["? :","Ternary — a compact if/else that returns a value.","age >= 18 ? \"adult\" : \"minor\""],
+    ["??","Nullish coalescing — fallback only for null/undefined.","value ?? \"default\""]
+  ]},
+  {title:"Control flow",items:[
+    ["if / else if / else","Branches based on a condition.","if (x > 0) { ... } else { ... }"],
+    ["for","Repeats with a counter.","for (let i = 0; i < 5; i++) { ... }"],
+    ["for...of","Iterates over array values.","for (const item of list) { ... }"],
+    ["while","Repeats while a condition is true.","while (x < 10) { x++; }"],
+    ["switch","Branches on one value against multiple cases.","switch (day) { case 1: ...; break; }"]
+  ]},
+  {title:"Functions",items:[
+    ["function name(){}","A named, hoisted function declaration.","function add(a, b) { return a + b; }"],
+    ["const f = function(){}","A function expression assigned to a variable.","const add = function(a, b) { return a + b; };"],
+    ["const f = () => {}","Arrow function — shorter syntax, lexical 'this'.","const add = (a, b) => a + b;"],
+    ["default params","Parameter used when no argument is passed.","function greet(name = \"friend\") {...}"],
+    ["return","Sends a value back to the caller; ends the function.","return a + b;"]
+  ]}
+];
+const bgEl=document.getElementById("basics-groups");
+basicsGroups.forEach(g=>{
+  const h=document.createElement("div");h.className="group-title";h.textContent=g.title;bgEl.appendChild(h);
+  const table=document.createElement("table");table.className="ref";
+  table.innerHTML=`<thead><tr><th>Syntax</th><th>What it does</th><th>Example</th></tr></thead>`;
+  const tbody=document.createElement("tbody");
+  g.items.forEach(([name,desc,ex])=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="name">${name}</td><td>${desc}</td><td><code>${ex.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);bgEl.appendChild(table);
+});
+
+// ---------- Safe in-page JS sandbox ----------
+function formatVal(v){
+  if (typeof v === "string") return v;
+  if (v === undefined) return "undefined";
+  try { return JSON.stringify(v, null, 2); } catch(e){ return String(v); }
+}
+function runJS(code, consoleEl){
+  const logs=[];
+  const fakeConsole={
+    log:(...args)=>logs.push({t:args.map(formatVal).join(" "), err:false}),
+    warn:(...args)=>logs.push({t:"Warning: "+args.map(formatVal).join(" "), err:false}),
+    error:(...args)=>logs.push({t:"Error: "+args.map(formatVal).join(" "), err:true})
+  };
+  try{
+    const fn=new Function("console", '"use strict";\n'+code);
+    fn(fakeConsole);
+  }catch(e){
+    logs.push({t:"Uncaught: "+e.message, err:true});
+  }
+  consoleEl.innerHTML = logs.length
+    ? logs.map(l=>`<div class="${l.err?'err':''}">${l.t.replace(/</g,"&lt;")}</div>`).join("")
+    : `<div style="color:#6b7080">(no output — try console.log(...))</div>`;
+}
+
+function buildExercise(ex, advanced){
+  const wrap=document.createElement("div");
+  wrap.className="ex";
+  wrap.innerHTML=`
+    <div class="ex-head">
+      <h3>${ex.title} ${advanced?'<span class="badge adv">advanced</span>':'<span class="badge">guided</span>'}</h3>
+      <ol>${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>
+    <div class="ex-body">
+      <div class="ex-editor">
+        <div class="pane-label">your code</div>
+        <textarea class="code" spellcheck="false">${ex.starter}</textarea>
+      </div>
+      <div>
+        <div class="pane-label">console output</div>
+        <div class="console"><div style="color:#6b7080">(no output — try console.log(...))</div></div>
+      </div>
+    </div>
+    <div class="ex-foot">
+      <button class="btn primary run">Run</button>
+      <button class="btn solution-toggle">Show model solution</button>
+    </div>
+    <div class="solution">
+      <pre>${ex.solution.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+      <div class="why">${ex.why}</div>
+    </div>
+  `;
+  const ta=wrap.querySelector("textarea");
+  const out=wrap.querySelector(".console");
+  wrap.querySelector(".run").addEventListener("click",()=>runJS(ta.value, out));
+  const solBtn=wrap.querySelector(".solution-toggle");
+  const sol=wrap.querySelector(".solution");
+  solBtn.addEventListener("click",()=>{sol.classList.toggle("show");solBtn.textContent=sol.classList.contains("show")?"Hide model solution":"Show model solution";});
+  return wrap;
+}
+
+const playground=[
+  {
+    title:"1. Variables & template literals",
+    steps:["Declare const name and let age","Log a sentence using a template literal that includes both"],
+    starter:`const name = "An";\nlet age = 21;\n\n// log: "An is 21 years old."\n`,
+    solution:`const name = "An";\nlet age = 21;\n\nconsole.log(\`\${name} is \${age} years old.\`);`,
+    why:"Template literals (backticks) let you embed expressions with \${...} directly in a string, which is clearer than string concatenation with +."
+  },
+  {
+    title:"2. Grade calculator",
+    steps:["Declare a score variable (0-100)","Use if/else if/else to log a letter grade: >=90 A, >=80 B, >=70 C, else F"],
+    starter:`const score = 84;\n\n// log the letter grade\n`,
+    solution:`const score = 84;\n\nif (score >= 90) {\n  console.log("A");\n} else if (score >= 80) {\n  console.log("B");\n} else if (score >= 70) {\n  console.log("C");\n} else {\n  console.log("F");\n}`,
+    why:"Conditions are checked top to bottom; the first one that's true runs and the rest are skipped. Ordering from highest to lowest threshold makes each branch correct."
+  },
+  {
+    title:"3. Sum an array with a loop",
+    steps:["Given const nums = [4, 8, 15, 16, 23, 42]","Use a for...of loop to add them up and log the total"],
+    starter:`const nums = [4, 8, 15, 16, 23, 42];\nlet total = 0;\n\n// loop and add\n\nconsole.log(total);`,
+    solution:`const nums = [4, 8, 15, 16, 23, 42];\nlet total = 0;\n\nfor (const n of nums) {\n  total += n;\n}\n\nconsole.log(total);`,
+    why:"for...of gives you each value directly (no index bookkeeping), which is the clearest way to loop over an array when you just need its values."
+  },
+  {
+    title:"4. Write and call a function",
+    steps:["Write a function isEven(n) that returns true if n is even","Call it with a few numbers and log the results"],
+    starter:`function isEven(n) {\n  \n}\n\nconsole.log(isEven(4));\nconsole.log(isEven(7));`,
+    solution:`function isEven(n) {\n  return n % 2 === 0;\n}\n\nconsole.log(isEven(4));\nconsole.log(isEven(7));`,
+    why:"% (modulo) gives the remainder of division. A number is even exactly when dividing by 2 leaves no remainder — n % 2 === 0."
+  },
+  {
+    title:"5. Filter and map an array",
+    steps:["Given const nums = [1,2,3,4,5,6,7,8]","Use filter to keep only even numbers, then map to double them, then log the result"],
+    starter:`const nums = [1,2,3,4,5,6,7,8];\n\n// filter then map\n`,
+    solution:`const nums = [1,2,3,4,5,6,7,8];\n\nconst result = nums\n  .filter(n => n % 2 === 0)\n  .map(n => n * 2);\n\nconsole.log(result);`,
+    why:"filter() and map() both return new arrays, so they chain naturally: filter narrows the set down first, then map transforms what's left — without ever mutating the original array."
+  }
+];
+document.getElementById("playground-list").append(...playground.map(ex=>buildExercise(ex,false)));
+
+const challenges=[
+  {
+    title:"1. Simple calculator functions",
+    steps:["Write add, subtract, multiply, divide functions (each takes a, b)","Divide should return \"Cannot divide by zero\" if b is 0","Log a few example calls"],
+    starter:`// write add, subtract, multiply, divide\n`,
+    solution:`function add(a, b) { return a + b; }\nfunction subtract(a, b) { return a - b; }\nfunction multiply(a, b) { return a * b; }\nfunction divide(a, b) {\n  if (b === 0) return "Cannot divide by zero";\n  return a / b;\n}\n\nconsole.log(add(2, 3));\nconsole.log(divide(10, 0));\nconsole.log(divide(10, 2));`,
+    why:"Guarding divide() against b === 0 before doing the division is a common defensive-programming pattern: check the edge case first, then handle the normal case."
+  },
+  {
+    title:"2. To-do list manager",
+    steps:["Start with const todos = [] (array of {text, done} objects)","Write addTodo(text), toggleTodo(index), and a function to log all todos with their status"],
+    starter:`const todos = [];\n\nfunction addTodo(text) {\n  \n}\nfunction toggleTodo(index) {\n  \n}\nfunction printTodos() {\n  \n}\n\naddTodo("Learn arrays");\naddTodo("Learn objects");\ntoggleTodo(0);\nprintTodos();`,
+    solution:`const todos = [];\n\nfunction addTodo(text) {\n  todos.push({ text, done: false });\n}\nfunction toggleTodo(index) {\n  todos[index].done = !todos[index].done;\n}\nfunction printTodos() {\n  todos.forEach((t, i) => {\n    console.log(\`\${i}: [\${t.done ? "x" : " "}] \${t.text}\`);\n  });\n}\n\naddTodo("Learn arrays");\naddTodo("Learn objects");\ntoggleTodo(0);\nprintTodos();`,
+    why:"Each todo is an object so it can carry both the text and its done state together. toggleTodo flips done with !, and forEach is ideal here since we only need side effects (logging), not a new array."
+  },
+  {
+    title:"3. Higher-order function: makeMultiplier",
+    steps:["Write makeMultiplier(factor) that returns a new function","The returned function should take a number and multiply it by factor","Create double and triple from it, and log some results"],
+    starter:`function makeMultiplier(factor) {\n  \n}\n\nconst double = makeMultiplier(2);\nconst triple = makeMultiplier(3);\nconsole.log(double(5));\nconsole.log(triple(5));`,
+    solution:`function makeMultiplier(factor) {\n  return function (n) {\n    return n * factor;\n  };\n}\n\nconst double = makeMultiplier(2);\nconst triple = makeMultiplier(3);\nconsole.log(double(5));\nconsole.log(triple(5));`,
+    why:"The inner function 'closes over' factor — it remembers the value from when it was created, even after makeMultiplier has returned. This is a closure, a core JS concept for building configurable functions."
+  },
+  {
+    title:"4. BankAccount with a class",
+    steps:["Write a class BankAccount with a constructor(owner, balance = 0)","Add methods deposit(amount) and withdraw(amount) (withdraw should refuse if it would go negative)","Create an account, perform a few operations, and log the balance"],
+    starter:`class BankAccount {\n  constructor(owner, balance = 0) {\n    \n  }\n  deposit(amount) {\n    \n  }\n  withdraw(amount) {\n    \n  }\n}\n\nconst acc = new BankAccount("An", 100);\nacc.deposit(50);\nacc.withdraw(30);\nconsole.log(acc.balance);`,
+    solution:`class BankAccount {\n  constructor(owner, balance = 0) {\n    this.owner = owner;\n    this.balance = balance;\n  }\n  deposit(amount) {\n    this.balance += amount;\n  }\n  withdraw(amount) {\n    if (amount > this.balance) {\n      console.log("Insufficient funds");\n      return;\n    }\n    this.balance -= amount;\n  }\n}\n\nconst acc = new BankAccount("An", 100);\nacc.deposit(50);\nacc.withdraw(30);\nconsole.log(acc.balance);`,
+    why:"A class bundles state (this.balance) with the behavior that's allowed to change it (deposit/withdraw), so the balance can never be modified except through methods that enforce the rules."
+  },
+  {
+    title:"5. Word frequency counter",
+    steps:["Given a sentence string, split it into words (lowercase, no punctuation)","Count how many times each word appears using an object","Log the resulting counts"],
+    starter:`const text = "the quick brown fox jumps over the lazy dog the fox runs";\n\n// split into words, count each, log the object\n`,
+    solution:`const text = "the quick brown fox jumps over the lazy dog the fox runs";\n\nconst words = text.toLowerCase().split(" ");\nconst counts = {};\n\nfor (const w of words) {\n  counts[w] = (counts[w] || 0) + 1;\n}\n\nconsole.log(counts);`,
+    why:"counts[w] || 0 handles the first time a word is seen (when counts[w] is undefined) by falling back to 0, so += always starts from a real number instead of throwing an error."
+  }
+];
+document.getElementById("challenges-list").append(...challenges.map(ex=>buildExercise(ex,true)));
+</script>
+</body>
+</html>

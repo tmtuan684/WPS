@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js Learning Lab</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161923; --panel-2:#1c202c; --line:#262b39;
+    --text:#e7e5df; --dim:#9498a3; --dim-2:#6b7080;
+    --accent:#6bbf6b; --accent-soft:rgba(107,191,107,.14); --accent-line:rgba(107,191,107,.35);
+    --err:#e8664f; --ok:#6bbf6b;
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    --sans:-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:radial-gradient(1200px 600px at 20% -10%, #171a24 0%, var(--bg) 55%);color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 18px 60px;}
+  .editor{max-width:1120px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);}
+  .titlebar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
+  .dots{display:flex;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .titlebar .name{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-left:4px;}
+  .titlebar .lab-badge{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 10px;border-radius:20px;letter-spacing:.03em;}
+  .tabs{display:flex;overflow-x:auto;background:var(--panel);border-bottom:1px solid var(--line);}
+  .tab{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:11px 18px;border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;position:relative;transition:color .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--text);background:var(--bg);}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);}
+  .tab .dim{color:var(--dim-2);}
+  .pane{display:none;padding:34px 38px 50px;background:var(--bg);}
+  .pane.active{display:block;}
+  h1.hero{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  h1.hero span{color:var(--accent);}
+  .sub{color:var(--dim);font-size:14.5px;margin:0 0 30px;max-width:680px;line-height:1.55;}
+  .notice{border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:12px;padding:9px 14px;border-radius:8px;margin:0 0 26px;max-width:680px;line-height:1.6;}
+  h2.section-h{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:38px 0 16px;display:flex;align-items:center;gap:10px;}
+  h2.section-h:first-of-type{margin-top:0;}
+  h2.section-h::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card h3{margin:0 0 8px;font-size:14.5px;font-family:var(--mono);color:var(--text);}
+  .card p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.55;}
+  .quiz{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;background:var(--panel);}
+  .quiz .q{font-size:14.5px;font-weight:600;margin-bottom:8px;}
+  .quiz .a{display:none;font-size:13.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;line-height:1.6;}
+  .quiz .a.show{display:block;}
+  .reveal-btn{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .reveal-btn:hover{filter:brightness(1.15);}
+  table.ref{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:8px;}
+  table.ref th{text-align:left;font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim-2);padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.ref td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim);}
+  table.ref td.name{font-family:var(--mono);color:var(--text);white-space:nowrap;}
+  table.ref code{font-family:var(--mono);font-size:12px;background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#a6dba6;}
+  .group-title{font-size:13px;color:var(--dim-2);font-family:var(--mono);margin:22px 0 8px;}
+  .group-title:first-child{margin-top:0;}
+  .ex{border:1px solid var(--line);border-radius:12px;margin-bottom:28px;overflow:hidden;background:var(--panel);}
+  .ex-head{padding:16px 20px;border-bottom:1px solid var(--line);}
+  .ex-head h3{margin:0 0 6px;font-size:15.5px;font-family:var(--mono);}
+  .ex-head ol{margin:8px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px;line-height:1.65;}
+  .ex-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  @media (max-width:820px){.ex-body{grid-template-columns:1fr;}}
+  .ex-editor{border-right:1px solid var(--line);background:var(--bg);}
+  @media (max-width:820px){.ex-editor{border-right:none;border-bottom:1px solid var(--line);}}
+  .pane-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim-2);padding:8px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;}
+  textarea.code{width:100%;height:230px;background:var(--bg);color:#d8e0f0;border:none;font-family:var(--mono);font-size:12px;padding:14px;resize:vertical;outline:none;line-height:1.55;}
+  .server-log{background:#0b0d11;color:#c9e6c0;font-family:var(--mono);font-size:11.5px;padding:10px 14px;max-height:70px;overflow:auto;white-space:pre-wrap;line-height:1.5;border-top:1px solid var(--line);}
+  .server-log .err{color:var(--err);}
+  .req-panel{padding:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--line);background:var(--panel);}
+  select.method{font-family:var(--mono);font-size:12px;background:var(--panel-2);color:var(--accent);border:1px solid var(--line);border-radius:6px;padding:6px 8px;}
+  input.path{flex:1;min-width:140px;font-family:var(--mono);font-size:12px;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 10px;}
+  textarea.body{width:100%;height:70px;font-family:var(--mono);font-size:11.5px;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px 10px;resize:vertical;}
+  .resp{padding:14px;font-family:var(--mono);font-size:12px;min-height:150px;}
+  .resp .status{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;margin-bottom:10px;}
+  .resp .status.ok{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);}
+  .resp .status.bad{background:rgba(232,102,79,.14);color:var(--err);border:1px solid rgba(232,102,79,.35);}
+  .resp .status.pending{background:var(--panel-2);color:var(--dim);border:1px solid var(--line);}
+  .resp pre{margin:0;white-space:pre-wrap;word-break:break-word;color:#d8e0f0;}
+  .resp .hdrs{color:var(--dim-2);font-size:11px;margin-bottom:8px;}
+  .ex-foot{display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .btn{font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--text);}
+  .btn.primary{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);}
+  .btn.send{border-color:#7aa7d9aa;background:rgba(122,167,217,.12);color:#7aa7d9;}
+  .btn:hover{filter:brightness(1.2);}
+  .solution{display:none;padding:16px 20px;border-top:1px dashed var(--line);background:var(--panel-2);}
+  .solution.show{display:block;}
+  .solution pre{margin:0 0 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;color:#d8e0f0;line-height:1.6;}
+  .solution .why{font-size:13px;color:var(--dim);line-height:1.6;}
+  .badge{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--dim-2);}
+  .badge.adv{border-color:var(--accent-line);color:var(--accent);}
+  footer.foot{max-width:1120px;margin:22px auto 0;color:var(--dim-2);font-size:12px;font-family:var(--mono);text-align:center;}
+</style>
+</head>
+<body>
+<div class="editor">
+  <div class="titlebar">
+    <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <span class="name">learning-lab / node</span>
+    <span class="lab-badge">NODE.JS</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-pane="review">README<span class="dim">.md</span></div>
+    <div class="tab" data-pane="basics">server<span class="dim">.js</span></div>
+    <div class="tab" data-pane="playground">playground<span class="dim">.js</span></div>
+    <div class="tab" data-pane="challenges">challenges<span class="dim">.js</span></div>
+  </div>
+
+  <section class="pane active" id="pane-review">
+    <h1 class="hero">Node.js <span>Learning Lab</span></h1>
+    <p class="sub">Node.js runs JavaScript outside the browser, most commonly to build servers. Review the core ideas, then check your recall.</p>
+    <h2 class="section-h">Core concepts</h2>
+    <div class="grid" id="review-cards"></div>
+    <h2 class="section-h">Quick self-check</h2>
+    <div id="quiz-list"></div>
+  </section>
+
+  <section class="pane" id="pane-basics">
+    <h1 class="hero">Building a <span>Server</span></h1>
+    <p class="sub">The pieces of Node's built-in http module, the way you'd actually use them.</p>
+    <div id="basics-groups"></div>
+  </section>
+
+  <section class="pane" id="pane-playground">
+    <h1 class="hero">Guided <span>Playground</span></h1>
+    <p class="sub">Write real Node-style server code on the left. There's no real network here &mdash; a sandboxed runtime provides mock <code style="font-family:var(--mono);background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#a6dba6;">http</code>/<code style="font-family:var(--mono);background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#a6dba6;">url</code> modules, so you can run your server, then use the request panel to simulate a browser hitting it and see the real response.</p>
+    <div class="notice">Click "Run server code" first to start the mock server, then send a request with the panel below it.</div>
+    <div id="playground-list"></div>
+  </section>
+
+  <section class="pane" id="pane-challenges">
+    <h1 class="hero">Apply <span>&amp; Build</span></h1>
+    <p class="sub">Intermediate to advanced tasks: routing, JSON APIs, and a small in-memory data store, still on the same mock runtime.</p>
+    <div id="challenges-list"></div>
+  </section>
+</div>
+<footer class="foot">Node.js Learning Lab &mdash; single file, no build step, sandboxed mock runtime (no real network)</footer>
+
+<script>
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("pane-"+t.dataset.pane).classList.add("active");
+  });
+});
+
+const reviewCards=[
+  {t:"What Node.js is",d:"A JavaScript runtime (built on Chrome's V8 engine) that runs JS outside the browser — on servers, in CLIs, in build tools — with access to the file system, network, and OS that browser JS doesn't have."},
+  {t:"Non-blocking I/O",d:"Node handles slow operations (reading a file, a database query, a network request) asynchronously via callbacks/promises, so one process can serve many requests without waiting on each one."},
+  {t:"Modules & require",d:"Code is split into files (modules). require('module-name') loads a built-in module, an npm package, or your own file, and module.exports controls what that file shares."},
+  {t:"npm & package.json","d":"npm is Node's package manager. package.json declares your project's dependencies and scripts, and npm install downloads them into node_modules."},
+  {t:"The http module",d:"Node's built-in module for creating a web server: http.createServer(handler) plus server.listen(port) is literally the minimum needed to accept requests."},
+  {t:"Request & response",d:"Every incoming request gives your handler a req object (method, url, headers, body) to read from and a res object (writeHead, write, end) to send a reply through."}
+];
+const quiz=[
+  {q:"What's the key difference between JavaScript in the browser and in Node.js?",a:"Same language, different environment. Browser JS has access to the DOM and window but not the file system; Node JS has access to the file system, OS, and networking, but no DOM."},
+  {q:"What does require('http') actually give you?",a:"It loads Node's built-in http module and returns an object with functions like createServer — the module system's way of pulling in code you didn't write yourself."},
+  {q:"Why does Node handle many requests at once without multiple threads per request?",a:"I/O operations (reading files, querying databases, network calls) are non-blocking — Node starts the operation, keeps handling other requests, and runs a callback when that operation finishes."},
+  {q:"What is package.json for?",a:"It's the manifest of a Node project: its name, version, dependencies (and their versions), and npm scripts like 'start' or 'test' — it's what npm install reads to know what to download."},
+  {q:"In a raw http server, what do you have to do to read a POST body?",a:"Listen for 'data' events on req to collect chunks as they arrive, then act once the 'end' event fires — the body isn't available all at once like it is in higher-level frameworks."},
+  {q:"What does res.writeHead(200, {'Content-Type': 'application/json'}) do?",a:"It sets the HTTP status code (200 = OK) and response headers before any body is sent, telling the client both how the request went and how to interpret what follows."}
+];
+const rc=document.getElementById("review-cards");
+reviewCards.forEach(c=>{const div=document.createElement("div");div.className="card";div.innerHTML=`<h3>${c.t}</h3><p>${c.d}</p>`;rc.appendChild(div);});
+const ql=document.getElementById("quiz-list");
+quiz.forEach((item,i)=>{
+  const div=document.createElement("div");div.className="quiz";
+  div.innerHTML=`<div class="q">Q${i+1}. ${item.q}</div><button class="reveal-btn">Show answer</button><div class="a">${item.a}</div>`;
+  const btn=div.querySelector(".reveal-btn"),a=div.querySelector(".a");
+  btn.addEventListener("click",()=>{a.classList.toggle("show");btn.textContent=a.classList.contains("show")?"Hide answer":"Show answer";});
+  ql.appendChild(div);
+});
+
+const basicsGroups=[
+  {title:"Setting up",items:[
+    ["require('http')","Loads Node's built-in HTTP module.","const http = require('http');"],
+    ["http.createServer(fn)","Creates a server; fn(req,res) runs for every request.","http.createServer((req,res)=>{...})"],
+    ["server.listen(port)","Starts the server listening for connections.","server.listen(3000, () => console.log('up'));"]
+  ]},
+  {title:"Reading the request",items:[
+    ["req.method","The HTTP verb: GET, POST, PUT, DELETE...","if (req.method === 'GET') {...}"],
+    ["req.url","The path (and query string) that was requested.","req.url // '/users?active=true'"],
+    ["req.headers","An object of request headers, lowercase keys.","req.headers['content-type']"],
+    ["req.on('data', cb)","Fires as chunks of the request body arrive.","req.on('data', chunk => body += chunk);"],
+    ["req.on('end', cb)","Fires once the full body has arrived.","req.on('end', () => { ... });"]
+  ]},
+  {title:"Sending the response",items:[
+    ["res.writeHead(code, headers)","Sets the status code and headers before sending a body.","res.writeHead(200, {'Content-Type':'application/json'});"],
+    ["res.setHeader(k, v)","Sets a single header (alternative to writeHead).","res.setHeader('Content-Type', 'text/plain');"],
+    ["res.write(chunk)","Sends part of the body; can be called more than once.","res.write('loading...');"],
+    ["res.end(chunk?)","Sends the final chunk (optional) and closes the response.","res.end(JSON.stringify({ ok: true }));"]
+  ]},
+  {title:"Routing (manual)",items:[
+    ["if (req.url === '/x')","The simplest routing: compare the path directly.","if (req.url === '/about') {...}"],
+    ["require('url').parse(...)","Splits a URL into pathname and query.","const { pathname, query } = url.parse(req.url, true);"],
+    ["url.split('/')","Manually splitting a path like /users/12 to pull out an id.","const id = req.url.split('/')[2];"],
+    ["404 fallback","Anything that matches no route should return 404.","res.writeHead(404); res.end('Not found');"]
+  ]}
+];
+const bgEl=document.getElementById("basics-groups");
+basicsGroups.forEach(g=>{
+  const h=document.createElement("div");h.className="group-title";h.textContent=g.title;bgEl.appendChild(h);
+  const table=document.createElement("table");table.className="ref";
+  table.innerHTML=`<thead><tr><th>API</th><th>What it does</th><th>Example</th></tr></thead>`;
+  const tbody=document.createElement("tbody");
+  g.items.forEach(([name,desc,ex])=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="name">${name}</td><td>${desc}</td><td><code>${ex.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);bgEl.appendChild(table);
+});
+
+// ---------- Sandboxed mock Node runtime ----------
+function formatVal(v){
+  if (typeof v === "string") return v;
+  if (v === undefined) return "undefined";
+  try { return JSON.stringify(v); } catch(e){ return String(v); }
+}
+function makeSandbox(initialDb){
+  const logs=[];
+  let server=null;
+  const fakeConsole={
+    log:(...a)=>logs.push({t:a.map(formatVal).join(" "), err:false}),
+    error:(...a)=>logs.push({t:"Error: "+a.map(formatVal).join(" "), err:true})
+  };
+  const mockHttp={
+    createServer(handler){
+      const s={ _handler:handler, listen(port, cb){ logs.push({t:`Server listening on port ${port||3000}`, err:false}); if (typeof cb==="function") cb(); } };
+      server=s;
+      return s;
+    }
+  };
+  const mockUrl={
+    parse(urlStr){
+      const [pathname, qs]=String(urlStr).split("?");
+      const query={};
+      if (qs) qs.split("&").forEach(pair=>{
+        const [k,v]=pair.split("=");
+        if (k) query[decodeURIComponent(k)]=decodeURIComponent(v||"");
+      });
+      return { pathname, query, path:urlStr };
+    }
+  };
+  function fakeRequire(name){
+    if (name==="http") return mockHttp;
+    if (name==="url") return mockUrl;
+    throw new Error(`Module '${name}' isn't available in this sandbox. Try 'http' or 'url'.`);
+  }
+  const db = initialDb ? JSON.parse(JSON.stringify(initialDb)) : undefined;
+  return { logs, fakeConsole, fakeRequire, db, getServer:()=>server };
+}
+function runServerCode(code, sandbox, logEl){
+  sandbox.logs.length=0;
+  try{
+    const fn=new Function("require","console","db",'"use strict";\n'+code);
+    fn(sandbox.fakeRequire, sandbox.fakeConsole, sandbox.db);
+  }catch(e){
+    sandbox.logs.push({t:"Uncaught: "+e.message, err:true});
+  }
+  logEl.innerHTML = sandbox.logs.length
+    ? sandbox.logs.map(l=>`<div class="${l.err?'err':''}">${l.t.replace(/</g,"&lt;")}</div>`).join("")
+    : `<div style="color:#6b7080">(no server log yet)</div>`;
+}
+function sendRequest(sandbox, method, path, bodyStr, respEl, logEl){
+  const server=sandbox.getServer();
+  if (!server){
+    respEl.innerHTML=`<span class="status bad">NO SERVER</span><pre>Click "Run server code" first — no server has been created yet.</pre>`;
+    return;
+  }
+  respEl.innerHTML=`<span class="status pending">SENDING…</span>`;
+  let settled=false;
+  const res={
+    statusCode:200, _headers:{}, _body:"",
+    writeHead(code, hdrs){ this.statusCode=code; if (hdrs) Object.assign(this._headers, hdrs); },
+    setHeader(k,v){ this._headers[k]=v; },
+    write(chunk){ this._body+=chunk; },
+    end(chunk){ if (chunk) this._body+=chunk; finish(); }
+  };
+  function finish(){
+    if (settled) return;
+    settled=true;
+    const isOk = res.statusCode < 400;
+    let bodyDisplay=res._body;
+    try{ bodyDisplay=JSON.stringify(JSON.parse(res._body), null, 2); }catch(e){}
+    const hdrLine=Object.entries(res._headers).map(([k,v])=>`${k}: ${v}`).join("  ") || "(no headers set)";
+    respEl.innerHTML=`<span class="status ${isOk?'ok':'bad'}">${res.statusCode}</span><div class="hdrs">${hdrLine}</div><pre>${(bodyDisplay||"(empty body)").replace(/</g,"&lt;")}</pre>`;
+    logEl.innerHTML = sandbox.logs.length
+      ? sandbox.logs.map(l=>`<div class="${l.err?'err':''}">${l.t.replace(/</g,"&lt;")}</div>`).join("")
+      : `<div style="color:#6b7080">(no server log yet)</div>`;
+  }
+  const dataCbs=[], endCbs=[];
+  const req={
+    method, url:path,
+    headers:{ "content-type":"application/json" },
+    on(evt, cb){ if (evt==="data") dataCbs.push(cb); if (evt==="end") endCbs.push(cb); return this; }
+  };
+  try{
+    server._handler(req, res);
+  }catch(e){
+    respEl.innerHTML=`<span class="status bad">ERROR</span><pre>${e.message}</pre>`;
+    return;
+  }
+  setTimeout(()=>{
+    if (bodyStr) dataCbs.forEach(cb=>cb(bodyStr));
+    endCbs.forEach(cb=>cb());
+    setTimeout(()=>{
+      if (!settled){
+        respEl.innerHTML=`<span class="status bad">NO RESPONSE</span><pre>The handler never called res.end() for this request — check your routing conditions.</pre>`;
+      }
+    }, 150);
+  }, 30);
+}
+
+function buildExercise(ex, advanced){
+  const wrap=document.createElement("div");
+  wrap.className="ex";
+  const sandbox=makeSandbox(ex.db);
+  wrap.innerHTML=`
+    <div class="ex-head">
+      <h3>${ex.title} ${advanced?'<span class="badge adv">advanced</span>':'<span class="badge">guided</span>'}</h3>
+      <ol>${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>
+    <div class="ex-body">
+      <div class="ex-editor">
+        <div class="pane-label"><span>server.js</span></div>
+        <textarea class="code" spellcheck="false">${ex.starter}</textarea>
+        <div class="pane-label"><span>server log</span></div>
+        <div class="server-log"><div style="color:#6b7080">(no server log yet)</div></div>
+      </div>
+      <div>
+        <div class="req-panel">
+          <select class="method">
+            <option${ex.method==="GET"?" selected":""}>GET</option>
+            <option${ex.method==="POST"?" selected":""}>POST</option>
+            <option${ex.method==="PUT"?" selected":""}>PUT</option>
+            <option${ex.method==="DELETE"?" selected":""}>DELETE</option>
+          </select>
+          <input class="path" type="text" value="${ex.path||"/"}">
+          <button class="btn send">Send request</button>
+          ${ex.showBody?'<textarea class="body" placeholder=\'{"example":true}\'>'+(ex.bodyExample||"")+'</textarea>':""}
+        </div>
+        <div class="pane-label"><span>response</span></div>
+        <div class="resp"><span class="status pending">NOT SENT</span></div>
+      </div>
+    </div>
+    <div class="ex-foot">
+      <button class="btn primary run">Run server code</button>
+      <button class="btn solution-toggle">Show model solution</button>
+    </div>
+    <div class="solution">
+      <pre>${ex.solution.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+      <div class="why">${ex.why}</div>
+    </div>
+  `;
+  const ta=wrap.querySelector("textarea.code");
+  const logEl=wrap.querySelector(".server-log");
+  const respEl=wrap.querySelector(".resp");
+  wrap.querySelector(".run").addEventListener("click",()=>runServerCode(ta.value, sandbox, logEl));
+  wrap.querySelector(".send").addEventListener("click",()=>{
+    const method=wrap.querySelector(".method").value;
+    const path=wrap.querySelector(".path").value;
+    const bodyEl=wrap.querySelector(".body");
+    const bodyStr=bodyEl?bodyEl.value:"";
+    sendRequest(sandbox, method, path, bodyStr, respEl, logEl);
+  });
+  const solBtn=wrap.querySelector(".solution-toggle");
+  const sol=wrap.querySelector(".solution");
+  solBtn.addEventListener("click",()=>{sol.classList.toggle("show");solBtn.textContent=sol.classList.contains("show")?"Hide model solution":"Show model solution";});
+  return wrap;
+}
+
+const playground=[
+  {
+    title:"1. Hello world server",
+    steps:["Require http","Create a server that responds 'Hello, World!' to every request","Call server.listen(3000)"],
+    method:"GET", path:"/",
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('Hello, World!');\n});\n\nserver.listen(3000);`,
+    why:"This is the minimum shape of every Node HTTP server: createServer takes a function that runs for every request, and that function must eventually call res.end() to finish the response."
+  },
+  {
+    title:"2. Basic routing",
+    steps:["Respond 'Home page' for GET /","Respond 'About page' for GET /about","Respond 404 'Not found' for anything else"],
+    method:"GET", path:"/about",
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.url === '/') {\n    res.end('Home page');\n  } else if (req.url === '/about') {\n    res.end('About page');\n  } else {\n    res.writeHead(404);\n    res.end('Not found');\n  }\n});\n\nserver.listen(3000);`,
+    why:"Without a framework, routing is just comparing req.url yourself. The final else is important — every path that isn't explicitly handled should still get a real response, not silence."
+  },
+  {
+    title:"3. JSON response",
+    steps:["Respond to GET /api/time with JSON: { time: <ISO string> }","Set Content-Type: application/json in the headers"],
+    method:"GET", path:"/api/time",
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.url === '/api/time') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ time: new Date().toISOString() }));\n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    why:"HTTP bodies are always text/bytes — JSON.stringify turns a JS object into that text, and the Content-Type header tells the client to parse it back into an object on their end."
+  },
+  {
+    title:"4. Reading a query string",
+    steps:["Require url","For GET /greet?name=X, parse the query and respond 'Hello, X!'","If name is missing, respond 'Hello, stranger!'"],
+    method:"GET", path:"/greet?name=An",
+    starter:`const http = require('http');\nconst url = require('url');\n\nconst server = http.createServer((req, res) => {\n  const { pathname, query } = url.parse(req.url);\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\nconst url = require('url');\n\nconst server = http.createServer((req, res) => {\n  const { pathname, query } = url.parse(req.url);\n  if (pathname === '/greet') {\n    const name = query.name || 'stranger';\n    res.end(\`Hello, \${name}!\`);\n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    why:"url.parse splits '/greet?name=An' into a pathname ('/greet') to route on and a query object ({name:'An'}) to read parameters from — much safer than manually slicing the string."
+  },
+  {
+    title:"5. Reading a POST body",
+    steps:["For POST /echo, collect the request body using req.on('data'/'end')","Respond with the same body back, with Content-Type application/json"],
+    method:"POST", path:"/echo", showBody:true, bodyExample:'{"msg":"hi"}',
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'POST' && req.url === '/echo') {\n    let body = '';\n    \n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'POST' && req.url === '/echo') {\n    let body = '';\n    req.on('data', chunk => { body += chunk; });\n    req.on('end', () => {\n      res.writeHead(200, { 'Content-Type': 'application/json' });\n      res.end(body);\n    });\n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    why:"Raw Node never hands you the whole body at once — it arrives in chunks over req's 'data' event, and you only know it's complete when 'end' fires. This is the pattern every body-parsing library builds on top of."
+  }
+];
+document.getElementById("playground-list").append(...playground.map(ex=>buildExercise(ex,false)));
+
+const challenges=[
+  {
+    title:"1. GET /users and GET /users/:id",
+    steps:["A db array of users is provided (already loaded into the sandbox as `db`)","GET /users should return the whole array as JSON","GET /users/<id> should return the one user with that id, or 404 if not found"],
+    method:"GET", path:"/users/2",
+    db:[{id:1,name:"An"},{id:2,name:"Binh"},{id:3,name:"Chi"}],
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/users') {\n    \n  } else if (req.method === 'GET' && req.url.startsWith('/users/')) {\n    const id = Number(req.url.split('/')[2]);\n    \n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.setHeader('Content-Type', 'application/json');\n  if (req.method === 'GET' && req.url === '/users') {\n    res.end(JSON.stringify(db));\n  } else if (req.method === 'GET' && req.url.startsWith('/users/')) {\n    const id = Number(req.url.split('/')[2]);\n    const user = db.find(u => u.id === id);\n    if (user) {\n      res.end(JSON.stringify(user));\n    } else {\n      res.writeHead(404);\n      res.end(JSON.stringify({ error: 'Not found' }));\n    }\n    return;\n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    why:"req.url.split('/') is the manual way to pull an id out of a path like '/users/2' — element [0] is empty (before the first slash), [1] is 'users', [2] is the id."
+  },
+  {
+    title:"2. Dispatch table instead of if/else",
+    steps:["Rewrite routing using an object that maps 'METHOD path' strings to handler functions, instead of a long if/else chain","Support GET / and GET /health"],
+    method:"GET", path:"/health",
+    starter:`const http = require('http');\n\nconst routes = {\n  // fill this in\n};\n\nconst server = http.createServer((req, res) => {\n  const key = \`\${req.method} \${req.url}\`;\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst routes = {\n  'GET /': (req, res) => res.end('Home'),\n  'GET /health': (req, res) => {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok' }));\n  }\n};\n\nconst server = http.createServer((req, res) => {\n  const key = \`\${req.method} \${req.url}\`;\n  const handler = routes[key];\n  if (handler) {\n    handler(req, res);\n  } else {\n    res.writeHead(404);\n    res.end('Not found');\n  }\n});\n\nserver.listen(3000);`,
+    why:"A dispatch table turns routing into a lookup instead of a chain of comparisons — it scales far better once you have more than a handful of routes, and it's the idea real routers are built on."
+  },
+  {
+    title:"3. Correct status codes",
+    steps:["GET /secret should return 401 with JSON { error: 'Unauthorized' }","POST /secret should return 405 with JSON { error: 'Method not allowed' } (only GET is allowed on this path)","Any other path returns 404"],
+    method:"GET", path:"/secret",
+    starter:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.setHeader('Content-Type', 'application/json');\n  \n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.setHeader('Content-Type', 'application/json');\n  if (req.url === '/secret' && req.method === 'GET') {\n    res.writeHead(401);\n    res.end(JSON.stringify({ error: 'Unauthorized' }));\n  } else if (req.url === '/secret') {\n    res.writeHead(405);\n    res.end(JSON.stringify({ error: 'Method not allowed' }));\n  } else {\n    res.writeHead(404);\n    res.end(JSON.stringify({ error: 'Not found' }));\n  }\n});\n\nserver.listen(3000);`,
+    why:"Status codes are part of the API's meaning: 401 says 'who are you', 405 says 'wrong verb for this path', 404 says 'nothing here at all' — returning 200 for all three would hide real information from the client."
+  },
+  {
+    title:"4. Mini todo API (GET, POST, DELETE)",
+    steps:["A db array of todos is provided","GET /todos returns the array","POST /todos reads a JSON body ({text}) and adds a new todo with a new id, returns the created todo","DELETE /todos/:id removes that todo and returns { deleted: true }"],
+    method:"POST", path:"/todos", showBody:true, bodyExample:'{"text":"Write tests"}',
+    db:[{id:1,text:"Learn Node",done:false}],
+    starter:`const http = require('http');\n\nlet nextId = 2;\n\nconst server = http.createServer((req, res) => {\n  res.setHeader('Content-Type', 'application/json');\n\n  if (req.method === 'GET' && req.url === '/todos') {\n    \n  } else if (req.method === 'POST' && req.url === '/todos') {\n    let body = '';\n    req.on('data', c => body += c);\n    req.on('end', () => {\n      \n    });\n  } else if (req.method === 'DELETE' && req.url.startsWith('/todos/')) {\n    const id = Number(req.url.split('/')[2]);\n    \n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    solution:`const http = require('http');\n\nlet nextId = 2;\n\nconst server = http.createServer((req, res) => {\n  res.setHeader('Content-Type', 'application/json');\n\n  if (req.method === 'GET' && req.url === '/todos') {\n    res.end(JSON.stringify(db));\n\n  } else if (req.method === 'POST' && req.url === '/todos') {\n    let body = '';\n    req.on('data', c => body += c);\n    req.on('end', () => {\n      const { text } = JSON.parse(body);\n      const todo = { id: nextId++, text, done: false };\n      db.push(todo);\n      res.writeHead(201);\n      res.end(JSON.stringify(todo));\n    });\n\n  } else if (req.method === 'DELETE' && req.url.startsWith('/todos/')) {\n    const id = Number(req.url.split('/')[2]);\n    const index = db.findIndex(t => t.id === id);\n    if (index === -1) {\n      res.writeHead(404);\n      res.end(JSON.stringify({ error: 'Not found' }));\n    } else {\n      db.splice(index, 1);\n      res.end(JSON.stringify({ deleted: true }));\n    }\n\n  } else {\n    res.writeHead(404);\n    res.end();\n  }\n});\n\nserver.listen(3000);`,
+    why:"This is a small REST API end to end: reading (GET), creating (POST with a streamed body and 201 Created), and removing (DELETE with an id parsed from the path) — the same pattern real APIs use, just against an in-memory array instead of a database."
+  }
+];
+document.getElementById("challenges-list").append(...challenges.map(ex=>buildExercise(ex,true)));
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+INFO server started on port 3000
+INFO user 12 logged in
+WARNING slow response time for /api/users
+INFO GET /api/products 200
+ERROR failed to connect to database
+INFO GET /api/orders 200
+WARNING deprecated endpoint /api/v1/legacy used
+INFO user 45 logged in
+INFO POST /api/orders 201
+ERROR unhandled exception in payment handler
+INFO GET /api/products 200
+WARNING high memory usage detected
+INFO user 12 logged out
+INFO GET /api/users 200
+ERROR timeout while calling external API
+INFO server health check passed
+WARNING rate limit approaching for client 88
+INFO GET /api/products 200
+INFO user 77 logged in
+INFO GET /api/orders 200

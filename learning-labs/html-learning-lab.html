@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Learning Lab</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161923; --panel-2:#1c202c; --line:#262b39;
+    --text:#e7e5df; --dim:#9498a3; --dim-2:#6b7080;
+    --accent:#e8664f; --accent-soft:rgba(232,102,79,.14); --accent-line:rgba(232,102,79,.35);
+    --ok:#63c07a; --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    --sans:-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%, #171a24 0%, var(--bg) 55%);
+    color:var(--text); font-family:var(--sans); min-height:100vh; padding:28px 18px 60px;
+  }
+  .editor{max-width:1080px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);}
+  .titlebar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
+  .dots{display:flex;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .titlebar .name{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-left:4px;}
+  .titlebar .lab-badge{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 10px;border-radius:20px;letter-spacing:.03em;}
+  .tabs{display:flex;overflow-x:auto;background:var(--panel);border-bottom:1px solid var(--line);}
+  .tab{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:11px 18px;border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;position:relative;transition:color .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--text);background:var(--bg);}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);}
+  .tab .dim{color:var(--dim-2);}
+  .pane{display:none;padding:34px 38px 50px;background:var(--bg);}
+  .pane.active{display:block;}
+  h1.hero{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  h1.hero span{color:var(--accent);}
+  .sub{color:var(--dim);font-size:14.5px;margin:0 0 30px;max-width:640px;line-height:1.55;}
+  h2.section-h{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:38px 0 16px;display:flex;align-items:center;gap:10px;}
+  h2.section-h:first-of-type{margin-top:0;}
+  h2.section-h::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card h3{margin:0 0 8px;font-size:14.5px;font-family:var(--mono);color:var(--text);}
+  .card p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.55;}
+  .quiz{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;background:var(--panel);}
+  .quiz .q{font-size:14.5px;font-weight:600;margin-bottom:8px;}
+  .quiz .a{display:none;font-size:13.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;line-height:1.6;}
+  .quiz .a.show{display:block;}
+  .reveal-btn{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .reveal-btn:hover{filter:brightness(1.15);}
+  table.ref{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:8px;}
+  table.ref th{text-align:left;font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim-2);padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.ref td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim);}
+  table.ref td.name{font-family:var(--mono);color:var(--text);white-space:nowrap;}
+  table.ref code{font-family:var(--mono);font-size:12px;background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#e0c68f;}
+  .group-title{font-size:13px;color:var(--dim-2);font-family:var(--mono);margin:22px 0 8px;}
+  .group-title:first-child{margin-top:0;}
+  .ex{border:1px solid var(--line);border-radius:12px;margin-bottom:26px;overflow:hidden;background:var(--panel);}
+  .ex-head{padding:16px 20px;border-bottom:1px solid var(--line);}
+  .ex-head h3{margin:0 0 6px;font-size:15.5px;font-family:var(--mono);}
+  .ex-head ol{margin:8px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px;line-height:1.65;}
+  .ex-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  @media (max-width:760px){.ex-body{grid-template-columns:1fr;}}
+  .ex-editor,.ex-preview{min-height:220px;}
+  .ex-editor{border-right:1px solid var(--line);background:var(--bg);}
+  @media (max-width:760px){.ex-editor{border-right:none;border-bottom:1px solid var(--line);}}
+  .pane-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim-2);padding:8px 14px;border-bottom:1px solid var(--line);}
+  textarea.code{width:100%;height:220px;background:var(--bg);color:#d8e0f0;border:none;font-family:var(--mono);font-size:12.5px;padding:14px;resize:vertical;outline:none;line-height:1.55;}
+  iframe.preview{width:100%;height:220px;border:none;background:#fff;}
+  .ex-foot{display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid var(--line);}
+  .btn{font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--text);}
+  .btn.primary{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);}
+  .btn:hover{filter:brightness(1.2);}
+  .solution{display:none;padding:16px 20px;border-top:1px dashed var(--line);background:var(--panel-2);}
+  .solution.show{display:block;}
+  .solution pre{margin:0 0 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:#d8e0f0;line-height:1.6;}
+  .solution .why{font-size:13px;color:var(--dim);line-height:1.6;}
+  .badge{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--dim-2);}
+  .badge.adv{border-color:var(--accent-line);color:var(--accent);}
+  footer.foot{max-width:1080px;margin:22px auto 0;color:var(--dim-2);font-size:12px;font-family:var(--mono);text-align:center;}
+</style>
+</head>
+<body>
+<div class="editor">
+  <div class="titlebar">
+    <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <span class="name">learning-lab / html</span>
+    <span class="lab-badge">HTML</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-pane="review">README<span class="dim">.md</span></div>
+    <div class="tab" data-pane="basics">elements<span class="dim">.html</span></div>
+    <div class="tab" data-pane="playground">playground<span class="dim">.html</span></div>
+    <div class="tab" data-pane="challenges">challenges<span class="dim">.html</span></div>
+  </div>
+
+  <section class="pane active" id="pane-review">
+    <h1 class="hero">HTML <span>Learning Lab</span></h1>
+    <p class="sub">HyperText Markup Language describes the structure and meaning of a web page &mdash; not how it looks. Review the core ideas below, then check your recall.</p>
+    <h2 class="section-h">Core concepts</h2>
+    <div class="grid" id="review-cards"></div>
+    <h2 class="section-h">Quick self-check</h2>
+    <div id="quiz-list"></div>
+  </section>
+
+  <section class="pane" id="pane-basics">
+    <h1 class="hero">Element <span>Reference</span></h1>
+    <p class="sub">The building blocks, grouped by what they're for. Every real page is a combination of these.</p>
+    <div id="basics-groups"></div>
+  </section>
+
+  <section class="pane" id="pane-playground">
+    <h1 class="hero">Guided <span>Playground</span></h1>
+    <p class="sub">Edit the code on the left, see the rendered page on the right. Each task is self-check &mdash; try it yourself before revealing the model solution.</p>
+    <div id="playground-list"></div>
+  </section>
+
+  <section class="pane" id="pane-challenges">
+    <h1 class="hero">Apply <span>&amp; Build</span></h1>
+    <p class="sub">Intermediate to advanced tasks that combine multiple concepts into something closer to real pages.</p>
+    <div id="challenges-list"></div>
+  </section>
+</div>
+<footer class="foot">HTML Learning Lab &mdash; single file, no build step, no dependencies</footer>
+
+<script>
+// ---------- Tab switching ----------
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("pane-"+t.dataset.pane).classList.add("active");
+  });
+});
+
+// ---------- Review data ----------
+const reviewCards=[
+  {t:"What HTML is",d:"A markup language that defines the structure and meaning of content on a page using nested elements, not its visual style."},
+  {t:"Elements & tags",d:"An element is written with an opening tag, content, and a closing tag: <p>text</p>. Some elements are self-closing, like <img> and <br>."},
+  {t:"Attributes",d:"Name/value pairs inside the opening tag that add information or behavior, e.g. <a href=\"...\">, <img src=\"...\" alt=\"...\">."},
+  {t:"The DOM tree",d:"The browser parses HTML into a tree of nodes: elements can be parents, children, or siblings of one another."},
+  {t:"Semantic HTML",d:"Using elements for their meaning (<nav>, <article>, <button>) rather than generic <div>/<span> improves accessibility, SEO, and code clarity."},
+  {t:"Block vs inline",d:"Block elements (like <div>, <p>) start on a new line and take full width; inline elements (like <span>, <a>) flow within text."}
+];
+const quiz=[
+  {q:"What's the difference between an 'element' and a 'tag'?",a:"A tag is the markup itself (e.g. <p> or </p>). An element is the whole unit: the opening tag, its content, and the closing tag together."},
+  {q:"Why prefer <section> or <article> over a generic <div>?",a:"Semantic elements communicate meaning to browsers, screen readers, and search engines. A <div> carries no meaning; <article> tells assistive tech 'this is a self-contained piece of content.'"},
+  {q:"Why does a meaningful <img> need an alt attribute?",a:"Screen readers announce the alt text so users who can't see the image still get the content. It's also shown if the image fails to load, and used by search engines."},
+  {q:"What's the real difference between <ol> and <ul>?",a:"<ol> (ordered list) implies the sequence matters, e.g. numbered steps. <ul> (unordered list) implies the items could appear in any order, e.g. a set of features."},
+  {q:"Why should every form <input> have an associated <label>?",a:"It gives the input an accessible name for screen readers, and clicking the label focuses the input — improving usability for everyone, not just assistive tech users."},
+  {q:"What does <!DOCTYPE html> actually do?",a:"It tells the browser to render the page in standards mode according to the current HTML specification, instead of a legacy 'quirks mode' that emulates old browser bugs."}
+];
+
+const rc=document.getElementById("review-cards");
+reviewCards.forEach(c=>{
+  const div=document.createElement("div");
+  div.className="card";
+  div.innerHTML=`<h3>${c.t}</h3><p>${c.d}</p>`;
+  rc.appendChild(div);
+});
+const ql=document.getElementById("quiz-list");
+quiz.forEach((item,i)=>{
+  const div=document.createElement("div");
+  div.className="quiz";
+  div.innerHTML=`
+    <div class="q">Q${i+1}. ${item.q}</div>
+    <button class="reveal-btn">Show answer</button>
+    <div class="a">${item.a}</div>`;
+  const btn=div.querySelector(".reveal-btn");
+  const a=div.querySelector(".a");
+  btn.addEventListener("click",()=>{
+    a.classList.toggle("show");
+    btn.textContent = a.classList.contains("show") ? "Hide answer" : "Show answer";
+  });
+  ql.appendChild(div);
+});
+
+// ---------- Basics reference ----------
+const basicsGroups=[
+  {title:"Structure",items:[
+    ["<html>","Root element wrapping the whole document.","<html lang=\"en\">...</html>"],
+    ["<head>","Metadata not shown on the page: title, charset, links to CSS.","<head><title>My Page</title></head>"],
+    ["<body>","Everything visible on the page lives here.","<body>...</body>"],
+    ["<header>","Introductory content for a page or section: logo, title, nav.","<header><h1>Site</h1></header>"],
+    ["<nav>","A block of primary navigation links.","<nav><a href=\"#\">Home</a></nav>"],
+    ["<main>","The dominant, unique content of the page (one per page).","<main>...</main>"],
+    ["<section>","A thematic grouping of content, usually with a heading.","<section><h2>About</h2></section>"],
+    ["<article>","Self-contained content that could stand alone (a post, a card).","<article><h2>Post title</h2></article>"],
+    ["<footer>","Closing content: copyright, links, contact info.","<footer>&copy; 2026</footer>"]
+  ]},
+  {title:"Text content",items:[
+    ["<h1>–<h6>","Headings in order of importance; one <h1> per page.","<h1>Page title</h1>"],
+    ["<p>","A paragraph of text.","<p>Some text.</p>"],
+    ["<a>","A hyperlink to another page or location.","<a href=\"/about\">About</a>"],
+    ["<span>","A generic inline wrapper, for styling/scripting a small piece of text.","<span class=\"tag\">New</span>"],
+    ["<strong> / <em>","Marks text as important / emphasized (also affects meaning for screen readers).","<strong>Warning</strong>"],
+    ["<ul>/<ol>/<li>","Unordered / ordered lists and their items.","<ul><li>Item</li></ul>"],
+    ["<blockquote>","A quoted block from another source, optionally with cite.","<blockquote cite=\"...\">Quote</blockquote>"],
+    ["<code>","Inline code or a filename.","<code>npm install</code>"]
+  ]},
+  {title:"Media",items:[
+    ["<img>","Embeds an image; always needs alt text.","<img src=\"cat.jpg\" alt=\"A cat\">"],
+    ["<figure>/<figcaption>","Groups media with its caption.","<figure><img ...><figcaption>Caption</figcaption></figure>"],
+    ["<video>","Embeds a video with optional controls.","<video src=\"a.mp4\" controls></video>"],
+    ["<audio>","Embeds an audio clip.","<audio src=\"a.mp3\" controls></audio>"],
+    ["<iframe>","Embeds another page/document inline.","<iframe src=\"map.html\"></iframe>"]
+  ]},
+  {title:"Forms",items:[
+    ["<form>","Wraps a set of controls to be submitted together.","<form action=\"/submit\" method=\"post\">"],
+    ["<label>","Accessible caption for a form control, linked via for/id.","<label for=\"email\">Email</label>"],
+    ["<input>","A form field; type= decides its behavior (text, email, checkbox...).","<input id=\"email\" type=\"email\" required>"],
+    ["<button>","A clickable control; type=submit/button/reset.","<button type=\"submit\">Send</button>"],
+    ["<select>","A dropdown of choices, made of <option> children.","<select><option>A</option></select>"],
+    ["<textarea>","A multi-line text field.","<textarea rows=\"4\"></textarea>"],
+    ["<fieldset>/<legend>","Groups related controls with a caption.","<fieldset><legend>Contact</legend></fieldset>"]
+  ]},
+  {title:"Tables",items:[
+    ["<table>","Wraps tabular data.","<table>...</table>"],
+    ["<thead>/<tbody>","Separates the header row(s) from the body rows.","<thead><tr>...</tr></thead>"],
+    ["<tr>","A table row.","<tr><td>Cell</td></tr>"],
+    ["<th>","A header cell; use scope=\"col\"/\"row\" for accessibility.","<th scope=\"col\">Name</th>"],
+    ["<td>","A regular data cell.","<td>42</td>"]
+  ]}
+];
+const bg=document.getElementById("basics-groups");
+basicsGroups.forEach(g=>{
+  const h=document.createElement("div");
+  h.className="group-title";
+  h.textContent=g.title;
+  bg.appendChild(h);
+  const table=document.createElement("table");
+  table.className="ref";
+  table.innerHTML=`<thead><tr><th>Element</th><th>Purpose</th><th>Example</th></tr></thead>`;
+  const tbody=document.createElement("tbody");
+  g.items.forEach(([name,desc,ex])=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="name">${name}</td><td>${desc}</td><td><code>${ex.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  bg.appendChild(table);
+});
+
+// ---------- Exercise builder (shared shape for playground + challenges) ----------
+function buildExercise(ex, advanced){
+  const wrap=document.createElement("div");
+  wrap.className="ex";
+  wrap.innerHTML=`
+    <div class="ex-head">
+      <h3>${ex.title} ${advanced?'<span class="badge adv">advanced</span>':'<span class="badge">guided</span>'}</h3>
+      <ol>${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>
+    <div class="ex-body">
+      <div class="ex-editor">
+        <div class="pane-label">your code</div>
+        <textarea class="code" spellcheck="false">${ex.starter}</textarea>
+      </div>
+      <div class="ex-preview">
+        <div class="pane-label">live preview</div>
+        <iframe class="preview"></iframe>
+      </div>
+    </div>
+    <div class="ex-foot">
+      <button class="btn primary run">Run</button>
+      <button class="btn solution-toggle">Show model solution</button>
+    </div>
+    <div class="solution">
+      <pre>${ex.solution.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+      <div class="why">${ex.why}</div>
+    </div>
+  `;
+  const ta=wrap.querySelector("textarea");
+  const frame=wrap.querySelector("iframe");
+  const run=()=>{ frame.srcdoc = ta.value; };
+  wrap.querySelector(".run").addEventListener("click",run);
+  ta.addEventListener("input",()=>{}); // manual run keeps it predictable for beginners
+  run();
+  const solBtn=wrap.querySelector(".solution-toggle");
+  const sol=wrap.querySelector(".solution");
+  solBtn.addEventListener("click",()=>{
+    sol.classList.toggle("show");
+    solBtn.textContent = sol.classList.contains("show") ? "Hide model solution" : "Show model solution";
+  });
+  return wrap;
+}
+
+// ---------- Playground exercises ----------
+const playground=[
+  {
+    title:"1. Semantic article page",
+    steps:["Build a page with a <header> containing an <h1>","Add a <main> with one <article> that has its own <h2> and two <p> paragraphs","Add a <footer> with a copyright line"],
+    starter:`<header>\n  \n</header>\n<main>\n  \n</main>\n<footer>\n  \n</footer>`,
+    solution:`<header>\n  <h1>My Blog</h1>\n</header>\n<main>\n  <article>\n    <h2>Learning HTML</h2>\n    <p>HTML describes structure, not style.</p>\n    <p>Semantic tags make that structure meaningful.</p>\n  </article>\n</main>\n<footer>\n  <p>&copy; 2026 My Blog</p>\n</footer>`,
+    why:"header/main/footer are the three big landmark regions of most pages. article marks the post as a self-contained piece of content — useful if this page ever lists multiple posts."
+  },
+  {
+    title:"2. Accessible contact form",
+    steps:["Create a <form>","Add a labeled text input for name and a labeled email input (type=\"email\", required)","Add a submit <button>"],
+    starter:`<form>\n  \n</form>`,
+    solution:`<form action="/contact" method="post">\n  <label for="name">Name</label>\n  <input id="name" name="name" type="text" required>\n\n  <label for="email">Email</label>\n  <input id="email" name="email" type="email" required>\n\n  <button type="submit">Send</button>\n</form>`,
+    why:"Each label's for attribute matches the input's id, linking them so screen readers announce the field's purpose and clicking the label focuses the input."
+  },
+  {
+    title:"3. Navigation menu",
+    steps:["Create a <nav>","Inside it, add an unordered list of 4 links (Home, About, Projects, Contact)"],
+    starter:`<nav>\n  \n</nav>`,
+    solution:`<nav>\n  <ul>\n    <li><a href="/">Home</a></li>\n    <li><a href="/about">About</a></li>\n    <li><a href="/projects">Projects</a></li>\n    <li><a href="/contact">Contact</a></li>\n  </ul>\n</nav>`,
+    why:"Wrapping links in a list (not bare <a> tags) lets screen readers announce 'list of 4 items' — giving users a sense of scope before they navigate it."
+  },
+  {
+    title:"4. Accessible data table",
+    steps:["Build a table of 3 students with columns Name and Grade","Use <th scope=\"col\"> for the header row"],
+    starter:`<table>\n  \n</table>`,
+    solution:`<table>\n  <thead>\n    <tr>\n      <th scope="col">Name</th>\n      <th scope="col">Grade</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr><td>An</td><td>A</td></tr>\n    <tr><td>Binh</td><td>B+</td></tr>\n    <tr><td>Chi</td><td>A-</td></tr>\n  </tbody>\n</table>`,
+    why:"scope=\"col\" tells assistive tech that each header describes the whole column below it, so a screen reader can announce 'Grade: A' for each row instead of just 'A'."
+  }
+];
+const pl=document.getElementById("playground-list");
+playground.forEach(ex=>pl.appendChild(buildExercise(ex,false)));
+
+// ---------- Challenge exercises ----------
+const challenges=[
+  {
+    title:"1. Full landing page",
+    steps:["Combine header (with nav), main (with two sections), and footer into one page","Section 1: an 'About' section with a heading and paragraph","Section 2: a 'Services' section with an unordered list of 3 services"],
+    starter:`<!-- build the whole page structure here -->\n`,
+    solution:`<header>\n  <h1>Studio</h1>\n  <nav>\n    <a href="#about">About</a>\n    <a href="#services">Services</a>\n  </nav>\n</header>\n<main>\n  <section id="about">\n    <h2>About</h2>\n    <p>We build small, focused web tools.</p>\n  </section>\n  <section id="services">\n    <h2>Services</h2>\n    <ul>\n      <li>Web design</li>\n      <li>Front-end development</li>\n      <li>Accessibility audits</li>\n    </ul>\n  </section>\n</main>\n<footer>\n  <p>&copy; 2026 Studio</p>\n</footer>`,
+    why:"This is the shape of most real marketing pages: one header, several labeled sections inside main, one footer. The nav links use #id anchors that match each section's id."
+  },
+  {
+    title:"2. Accessible modal markup",
+    steps:["Write the markup for a dialog box (no JS needed, just structure)","Give it role=\"dialog\" and aria-labelledby pointing at its heading id","Include a heading, a paragraph, and a close <button>"],
+    starter:`<div>\n  \n</div>`,
+    solution:`<div role="dialog" aria-labelledby="dialog-title" aria-modal="true">\n  <h2 id="dialog-title">Delete item?</h2>\n  <p>This action can't be undone.</p>\n  <button type="button">Cancel</button>\n  <button type="button">Delete</button>\n</div>`,
+    why:"role=\"dialog\" and aria-modal tell assistive tech this content is a modal. aria-labelledby gives it an accessible name by pointing to the visible heading, instead of duplicating the text."
+  },
+  {
+    title:"3. Multi-field validated form",
+    steps:["Build a signup form with fieldset/legend grouping","Fields: username (required, minlength 3), email (type=email, required), password (type=password, required, minlength 8)","Add a submit button"],
+    starter:`<form>\n  \n</form>`,
+    solution:`<form action="/signup" method="post">\n  <fieldset>\n    <legend>Create account</legend>\n\n    <label for="username">Username</label>\n    <input id="username" name="username" type="text" required minlength="3">\n\n    <label for="email">Email</label>\n    <input id="email" name="email" type="email" required>\n\n    <label for="password">Password</label>\n    <input id="password" name="password" type="password" required minlength="8">\n\n    <button type="submit">Sign up</button>\n  </fieldset>\n</form>`,
+    why:"Built-in validation attributes (required, minlength, type=email) let the browser catch obvious mistakes before any JavaScript runs, and fieldset/legend announces the group's purpose to screen readers."
+  },
+  {
+    title:"4. Blog post with figure & citation",
+    steps:["Write an <article> with a title, a <figure>+<figcaption> image block, a <blockquote> with a cite attribute, and a <time> element for the publish date"],
+    starter:`<article>\n  \n</article>`,
+    solution:`<article>\n  <h2>Why Semantics Matter</h2>\n  <time datetime="2026-08-06">August 6, 2026</time>\n\n  <figure>\n    <img src="diagram.png" alt="Diagram of the DOM tree">\n    <figcaption>The DOM represents HTML as a tree.</figcaption>\n  </figure>\n\n  <p>Semantic HTML is structure that carries meaning.</p>\n\n  <blockquote cite="https://developer.mozilla.org/">\n    <p>Use the element that most accurately represents the content.</p>\n  </blockquote>\n</article>`,
+    why:"<time datetime=\"...\"> gives machines an unambiguous date even if the visible text is casual. cite on blockquote records the source without displaying it, keeping attribution machine-readable."
+  }
+];
+const cl=document.getElementById("challenges-list");
+challenges.forEach(ex=>cl.appendChild(buildExercise(ex,true)));
+</script>
+</body>
+</html>

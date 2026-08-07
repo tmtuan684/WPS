@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Learning Lab</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161923; --panel-2:#1c202c; --line:#262b39;
+    --text:#e7e5df; --dim:#9498a3; --dim-2:#6b7080;
+    --accent:#3fbfae; --accent-soft:rgba(63,191,174,.14); --accent-line:rgba(63,191,174,.35);
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    --sans:-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:radial-gradient(1200px 600px at 20% -10%, #171a24 0%, var(--bg) 55%);color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 18px 60px;}
+  .editor{max-width:1080px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);}
+  .titlebar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
+  .dots{display:flex;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .titlebar .name{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-left:4px;}
+  .titlebar .lab-badge{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 10px;border-radius:20px;letter-spacing:.03em;}
+  .tabs{display:flex;overflow-x:auto;background:var(--panel);border-bottom:1px solid var(--line);}
+  .tab{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:11px 18px;border-right:1px solid var(--line);cursor:pointer;white-space:nowrap;position:relative;transition:color .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--text);background:var(--bg);}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);}
+  .tab .dim{color:var(--dim-2);}
+  .pane{display:none;padding:34px 38px 50px;background:var(--bg);}
+  .pane.active{display:block;}
+  h1.hero{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  h1.hero span{color:var(--accent);}
+  .sub{color:var(--dim);font-size:14.5px;margin:0 0 30px;max-width:640px;line-height:1.55;}
+  h2.section-h{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:38px 0 16px;display:flex;align-items:center;gap:10px;}
+  h2.section-h:first-of-type{margin-top:0;}
+  h2.section-h::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card h3{margin:0 0 8px;font-size:14.5px;font-family:var(--mono);color:var(--text);}
+  .card p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.55;}
+  .quiz{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;background:var(--panel);}
+  .quiz .q{font-size:14.5px;font-weight:600;margin-bottom:8px;}
+  .quiz .a{display:none;font-size:13.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;line-height:1.6;}
+  .quiz .a.show{display:block;}
+  .reveal-btn{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .reveal-btn:hover{filter:brightness(1.15);}
+  table.ref{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:8px;}
+  table.ref th{text-align:left;font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim-2);padding:8px 10px;border-bottom:1px solid var(--line);}
+  table.ref td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim);}
+  table.ref td.name{font-family:var(--mono);color:var(--text);white-space:nowrap;}
+  table.ref code{font-family:var(--mono);font-size:12px;background:var(--panel-2);padding:1px 6px;border-radius:4px;color:#8fd6c9;}
+  .group-title{font-size:13px;color:var(--dim-2);font-family:var(--mono);margin:22px 0 8px;}
+  .group-title:first-child{margin-top:0;}
+  .ex{border:1px solid var(--line);border-radius:12px;margin-bottom:26px;overflow:hidden;background:var(--panel);}
+  .ex-head{padding:16px 20px;border-bottom:1px solid var(--line);}
+  .ex-head h3{margin:0 0 6px;font-size:15.5px;font-family:var(--mono);}
+  .ex-head ol{margin:8px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px;line-height:1.65;}
+  .ex-body{display:grid;grid-template-columns:.85fr 1fr;gap:0;}
+  @media (max-width:760px){.ex-body{grid-template-columns:1fr;}}
+  .ex-left{border-right:1px solid var(--line);}
+  @media (max-width:760px){.ex-left{border-right:none;border-bottom:1px solid var(--line);}}
+  .pane-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim-2);padding:8px 14px;border-bottom:1px solid var(--line);}
+  pre.fixed-html{margin:0;background:var(--bg);color:#8fa0c0;font-family:var(--mono);font-size:11.5px;padding:12px 14px;overflow:auto;max-height:110px;border-bottom:1px solid var(--line);line-height:1.55;}
+  textarea.code{width:100%;height:150px;background:var(--bg);color:#d8e0f0;border:none;font-family:var(--mono);font-size:12.5px;padding:14px;resize:vertical;outline:none;line-height:1.55;}
+  iframe.preview{width:100%;height:260px;border:none;background:#fff;}
+  .ex-foot{display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid var(--line);}
+  .btn{font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--text);}
+  .btn.primary{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);}
+  .btn:hover{filter:brightness(1.2);}
+  .solution{display:none;padding:16px 20px;border-top:1px dashed var(--line);background:var(--panel-2);}
+  .solution.show{display:block;}
+  .solution pre{margin:0 0 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:#d8e0f0;line-height:1.6;}
+  .solution .why{font-size:13px;color:var(--dim);line-height:1.6;}
+  .badge{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--dim-2);}
+  .badge.adv{border-color:var(--accent-line);color:var(--accent);}
+  footer.foot{max-width:1080px;margin:22px auto 0;color:var(--dim-2);font-size:12px;font-family:var(--mono);text-align:center;}
+</style>
+</head>
+<body>
+<div class="editor">
+  <div class="titlebar">
+    <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <span class="name">learning-lab / css</span>
+    <span class="lab-badge">CSS</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-pane="review">README<span class="dim">.md</span></div>
+    <div class="tab" data-pane="basics">selectors<span class="dim">.css</span></div>
+    <div class="tab" data-pane="playground">playground<span class="dim">.css</span></div>
+    <div class="tab" data-pane="challenges">challenges<span class="dim">.css</span></div>
+  </div>
+
+  <section class="pane active" id="pane-review">
+    <h1 class="hero">CSS <span>Learning Lab</span></h1>
+    <p class="sub">Cascading Style Sheets control how HTML looks: layout, color, spacing, typography. Review the core ideas, then check your recall.</p>
+    <h2 class="section-h">Core concepts</h2>
+    <div class="grid" id="review-cards"></div>
+    <h2 class="section-h">Quick self-check</h2>
+    <div id="quiz-list"></div>
+  </section>
+
+  <section class="pane" id="pane-basics">
+    <h1 class="hero">Selector <span>Reference</span></h1>
+    <p class="sub">How to target the elements you want to style, from broad to precise.</p>
+    <div id="basics-groups"></div>
+  </section>
+
+  <section class="pane" id="pane-playground">
+    <h1 class="hero">Guided <span>Playground</span></h1>
+    <p class="sub">The HTML is fixed for each task &mdash; write the CSS on the left and watch the preview update. Self-check: try it, then reveal the model solution.</p>
+    <div id="playground-list"></div>
+  </section>
+
+  <section class="pane" id="pane-challenges">
+    <h1 class="hero">Apply <span>&amp; Build</span></h1>
+    <p class="sub">Intermediate to advanced layout tasks combining flexbox, grid, and interaction states.</p>
+    <div id="challenges-list"></div>
+  </section>
+</div>
+<footer class="foot">CSS Learning Lab &mdash; single file, no build step, no dependencies</footer>
+
+<script>
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("pane-"+t.dataset.pane).classList.add("active");
+  });
+});
+
+const reviewCards=[
+  {t:"What CSS is",d:"A language of rules — selector { property: value; } — that describes how matched HTML elements should be presented."},
+  {t:"The cascade",d:"When multiple rules match the same element, the browser resolves conflicts using source order, specificity, and !important, in that priority."},
+  {t:"Specificity",d:"IDs beat classes, classes beat element types. A more specific selector wins even if it appears earlier in the file."},
+  {t:"The box model",d:"Every element is a box: content, then padding, then border, then margin, from the inside out."},
+  {t:"Display types",d:"display controls how a box behaves in layout: block, inline, inline-block, flex, grid, none."},
+  {t:"Inheritance",d:"Some properties (like color, font-family) pass down from parent to child automatically; layout properties (like width, border) do not."}
+];
+const quiz=[
+  {q:"Between a class selector and an ID selector on the same element, which wins?",a:"The ID selector wins — IDs have higher specificity than classes, regardless of which rule appears later in the stylesheet."},
+  {q:"What's the difference between margin and padding?",a:"Padding is space inside the border, between the border and the content. Margin is space outside the border, between this element and its neighbors."},
+  {q:"Why does box-sizing: border-box matter?",a:"By default, width/height only apply to content, so padding and border make the box bigger than the width you set. border-box makes width/height include padding and border, which is far more predictable."},
+  {q:"What's the core difference between flexbox and grid?",a:"Flexbox is one-dimensional — it lays items out along a single row or column. Grid is two-dimensional — it lays items into rows and columns at once."},
+  {q:"Do color and font-family need to be repeated on every child element?",a:"No — they're inherited properties, so setting them on a parent (e.g. body) applies them to all descendants unless a child overrides them."},
+  {q:"What does the :hover pseudo-class do?",a:"It applies a rule only while the user's pointer is over the element, which is how CSS creates interactive feedback without JavaScript."}
+];
+const rc=document.getElementById("review-cards");
+reviewCards.forEach(c=>{const div=document.createElement("div");div.className="card";div.innerHTML=`<h3>${c.t}</h3><p>${c.d}</p>`;rc.appendChild(div);});
+const ql=document.getElementById("quiz-list");
+quiz.forEach((item,i)=>{
+  const div=document.createElement("div");div.className="quiz";
+  div.innerHTML=`<div class="q">Q${i+1}. ${item.q}</div><button class="reveal-btn">Show answer</button><div class="a">${item.a}</div>`;
+  const btn=div.querySelector(".reveal-btn"),a=div.querySelector(".a");
+  btn.addEventListener("click",()=>{a.classList.toggle("show");btn.textContent=a.classList.contains("show")?"Hide answer":"Show answer";});
+  ql.appendChild(div);
+});
+
+const basicsGroups=[
+  {title:"Basic selectors",items:[
+    ["type","Matches every element of that tag.","p { color: #333; }"],
+    [".class","Matches elements with that class.",".card { padding: 16px; }"],
+    ["#id","Matches the one element with that id.","#header { height: 60px; }"],
+    ["*","Matches everything (universal selector).","* { box-sizing: border-box; }"],
+    ["[attr]","Matches elements that have that attribute.","input[required] { border-color: red; }"]
+  ]},
+  {title:"Combinators",items:[
+    ["A B","Descendant: B anywhere inside A.","nav a { color: white; }"],
+    ["A > B","Direct child: B is an immediate child of A.","ul > li { list-style: none; }"],
+    ["A + B","Adjacent sibling: B immediately after A.","h2 + p { margin-top: 0; }"],
+    ["A ~ B","General sibling: any B after A, same parent.","h2 ~ p { color: #666; }"]
+  ]},
+  {title:"Pseudo-classes & elements",items:[
+    [":hover",  "While the pointer is over the element.","button:hover { opacity: .8; }"],
+    [":focus",  "While the element has keyboard focus.","input:focus { outline: 2px solid blue; }"],
+    [":first-child","Matches if it's the first child of its parent.","li:first-child { margin-top: 0; }"],
+    [":nth-child(n)","Matches by position among siblings.","tr:nth-child(even) { background: #f5f5f5; }"],
+    ["::before / ::after","Inserts generated content before/after an element.",".required::after { content: \" *\"; }"]
+  ]},
+  {title:"Box model",items:[
+    ["width / height","Sets the content box size (or the full box, with border-box).","width: 320px;"],
+    ["padding","Space between content and border.","padding: 12px 16px;"],
+    ["border","Line drawn around the padding edge.","border: 1px solid #ccc;"],
+    ["margin","Space outside the border, between elements.","margin: 0 auto;"],
+    ["box-sizing","Whether width/height include padding+border.","box-sizing: border-box;"]
+  ]},
+  {title:"Layout & display",items:[
+    ["display: flex","Lays children out in a single row or column.","display: flex; gap: 12px;"],
+    ["display: grid","Lays children into a 2D grid of rows/columns.","display: grid; grid-template-columns: 1fr 1fr;"],
+    ["position: relative","Offsets the element from its normal position, without removing it from flow.","position: relative; top: 4px;"],
+    ["position: absolute","Removes it from flow, positions relative to nearest positioned ancestor.","position: absolute; right: 0;"],
+    ["position: sticky","Acts relative until a scroll threshold, then sticks.","position: sticky; top: 0;"]
+  ]}
+];
+const bgEl=document.getElementById("basics-groups");
+basicsGroups.forEach(g=>{
+  const h=document.createElement("div");h.className="group-title";h.textContent=g.title;bgEl.appendChild(h);
+  const table=document.createElement("table");table.className="ref";
+  table.innerHTML=`<thead><tr><th>Selector / property</th><th>What it does</th><th>Example</th></tr></thead>`;
+  const tbody=document.createElement("tbody");
+  g.items.forEach(([name,desc,ex])=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="name">${name}</td><td>${desc}</td><td><code>${ex.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);bgEl.appendChild(table);
+});
+
+// ---------- CSS exercise builder: fixed HTML + editable CSS + live preview ----------
+function buildExercise(ex, advanced){
+  const wrap=document.createElement("div");
+  wrap.className="ex";
+  wrap.innerHTML=`
+    <div class="ex-head">
+      <h3>${ex.title} ${advanced?'<span class="badge adv">advanced</span>':'<span class="badge">guided</span>'}</h3>
+      <ol>${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>
+    <div class="ex-body">
+      <div class="ex-left">
+        <div class="pane-label">fixed html</div>
+        <pre class="fixed-html">${ex.html.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+        <div class="pane-label">your css</div>
+        <textarea class="code" spellcheck="false">${ex.starterCss}</textarea>
+      </div>
+      <div>
+        <div class="pane-label">live preview</div>
+        <iframe class="preview"></iframe>
+      </div>
+    </div>
+    <div class="ex-foot">
+      <button class="btn primary run">Run</button>
+      <button class="btn solution-toggle">Show model solution</button>
+    </div>
+    <div class="solution">
+      <pre>${ex.solutionCss.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+      <div class="why">${ex.why}</div>
+    </div>
+  `;
+  const ta=wrap.querySelector("textarea");
+  const frame=wrap.querySelector("iframe");
+  const run=()=>{ frame.srcdoc = `<style>body{margin:16px;font-family:sans-serif;}${ta.value}</style>${ex.html}`; };
+  wrap.querySelector(".run").addEventListener("click",run);
+  run();
+  const solBtn=wrap.querySelector(".solution-toggle");
+  const sol=wrap.querySelector(".solution");
+  solBtn.addEventListener("click",()=>{sol.classList.toggle("show");solBtn.textContent=sol.classList.contains("show")?"Hide model solution":"Show model solution";});
+  return wrap;
+}
+
+const playground=[
+  {
+    title:"1. Style a card component",
+    steps:["Give .card a white-ish background, padding, rounded corners and a subtle border","Make the .card-title bold and slightly larger"],
+    html:`<div class="card"><div class="card-title">Weekly Report</div><p>Everything is on track.</p></div>`,
+    starterCss:`.card {\n  \n}\n.card-title {\n  \n}`,
+    solutionCss:`.card {\n  background: #fafafa;\n  padding: 16px 18px;\n  border-radius: 10px;\n  border: 1px solid #e0e0e0;\n}\n.card-title {\n  font-weight: 700;\n  font-size: 1.1rem;\n  margin-bottom: 6px;\n}`,
+    why:"This is the standard 'card' recipe: a light background, breathing-room padding, and a soft border/radius instead of a hard black border."
+  },
+  {
+    title:"2. Center a box with flexbox",
+    steps:["Make .stage a flex container","Center .box both horizontally and vertically inside it"],
+    html:`<div class="stage"><div class="box">Centered</div></div>`,
+    starterCss:`.stage {\n  height: 180px;\n  border: 1px dashed #999;\n  \n}\n.box {\n  padding: 10px 16px;\n  background: #333;\n  color: white;\n}`,
+    solutionCss:`.stage {\n  height: 180px;\n  border: 1px dashed #999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.box {\n  padding: 10px 16px;\n  background: #333;\n  color: white;\n}`,
+    why:"justify-content centers along the main axis (horizontal by default), align-items centers along the cross axis (vertical) — together they solve centering in both directions."
+  },
+  {
+    title:"3. Responsive nav bar",
+    steps:["Make .nav a flex row with space between the logo and the links","Add gap between the individual links"],
+    html:`<div class="nav"><div class="logo">Brand</div><div class="links"><a href="#">Home</a><a href="#">About</a><a href="#">Contact</a></div></div>`,
+    starterCss:`.nav {\n  padding: 12px 16px;\n  background: #222;\n  color: white;\n  \n}\n.links {\n  \n}\n.links a { color: white; text-decoration: none; }`,
+    solutionCss:`.nav {\n  padding: 12px 16px;\n  background: #222;\n  color: white;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.links {\n  display: flex;\n  gap: 16px;\n}\n.links a { color: white; text-decoration: none; }`,
+    why:"space-between pushes the logo and the link group to opposite ends. A nested flex container on .links then spaces the individual links evenly with gap."
+  },
+  {
+    title:"4. Button with hover state",
+    steps:["Style .btn with padding, a background color and rounded corners","Add a :hover rule that darkens the background and adds a pointer cursor"],
+    html:`<button class="btn">Continue</button>`,
+    starterCss:`.btn {\n  \n}`,
+    solutionCss:`.btn {\n  padding: 10px 18px;\n  background: #3fbfae;\n  color: white;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n}\n.btn:hover {\n  background: #33a294;\n}`,
+    why:":hover is a state selector — it only applies while the pointer is over the element, giving instant visual feedback without any JavaScript."
+  }
+];
+document.getElementById("playground-list").append(...playground.map(ex=>buildExercise(ex,false)));
+
+const challenges=[
+  {
+    title:"1. Responsive 3-column grid",
+    steps:["Use CSS grid to lay out .gallery into 3 equal columns with a gap","Make columns wrap to 1 column under 600px using a media query"],
+    html:`<div class="gallery"><div class="tile">1</div><div class="tile">2</div><div class="tile">3</div></div>`,
+    starterCss:`.tile { background:#3fbfae; color:white; padding:24px; text-align:center; border-radius:8px; }\n.gallery {\n  \n}`,
+    solutionCss:`.tile { background:#3fbfae; color:white; padding:24px; text-align:center; border-radius:8px; }\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n}\n@media (max-width: 600px) {\n  .gallery { grid-template-columns: 1fr; }\n}`,
+    why:"repeat(3, 1fr) creates three equal-width tracks. The media query overrides that to a single column on narrow viewports — grid and responsive design working together."
+  },
+  {
+    title:"2. Card grid with hover lift",
+    steps:["Lay .cards out as a responsive grid using auto-fill and minmax","Add a hover effect that lifts each .card slightly with a shadow, transitioned smoothly"],
+    html:`<div class="cards"><div class="card">A</div><div class="card">B</div><div class="card">C</div><div class="card">D</div></div>`,
+    starterCss:`.card { background:#1c202c; color:white; padding:20px; border-radius:10px; text-align:center; }\n.cards {\n  \n}`,
+    solutionCss:`.card {\n  background:#1c202c; color:white; padding:20px; border-radius:10px; text-align:center;\n  transition: transform .15s ease, box-shadow .15s ease;\n}\n.card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 10px 20px rgba(0,0,0,.25);\n}\n.cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));\n  gap: 14px;\n}`,
+    why:"auto-fill + minmax(120px, 1fr) lets the grid decide how many columns fit, without a media query. transition makes the :hover state change smoothly instead of snapping."
+  },
+  {
+    title:"3. Sticky header with scroll shadow",
+    steps:["Make .header stick to the top of the page while scrolling using position: sticky","Give it a background so content doesn't show through while stuck"],
+    html:`<div class="header">Site Header</div><div class="content"><p>Scroll to test stickiness. Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p><p>Line.</p></div>`,
+    starterCss:`.header { padding: 14px; color: white; }\n.content { padding: 12px; height: 500px; overflow-y: auto; }`,
+    solutionCss:`.header {\n  padding: 14px;\n  color: white;\n  background: #222;\n  position: sticky;\n  top: 0;\n  z-index: 1;\n}\n.content { padding: 12px; height: 500px; overflow-y: auto; }`,
+    why:"position: sticky behaves like relative until the scroll position crosses the top: 0 threshold, then it 'sticks' to the top of its scrolling container — no JavaScript needed."
+  },
+  {
+    title:"4. Theme colors with custom properties",
+    steps:["Define --brand and --bg custom properties on :root","Use var(--brand) and var(--bg) instead of hardcoded colors in .panel"],
+    html:`<div class="panel"><h3>Settings</h3><p>Using themeable colors.</p></div>`,
+    starterCss:`:root {\n  \n}\n.panel {\n  padding: 18px;\n  border-radius: 10px;\n}`,
+    solutionCss:`:root {\n  --brand: #3fbfae;\n  --bg: #101418;\n}\n.panel {\n  padding: 18px;\n  border-radius: 10px;\n  background: var(--bg);\n  color: var(--brand);\n  border: 1px solid var(--brand);\n}`,
+    why:"Custom properties (CSS variables) let you define a color once and reuse it everywhere with var(). Change the value in :root and every usage updates — the basis of theming and dark mode."
+  }
+];
+document.getElementById("challenges-list").append(...challenges.map(ex=>buildExercise(ex,true)));
+</script>
+</body>
+</html>

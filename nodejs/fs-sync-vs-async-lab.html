@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sync vs Async in fs — Node.js Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --panel:#000054;
+    --panel-2:#40407F;      /* navy tinted 75% */
+    --border:rgba(227,229,224,.18);
+    --text:#FFFFFF;
+    --text-dim:#E3E5E0;
+    --text-faint:rgba(227,229,224,.55);
+    --amber:#FAC800;        /* primary accent: gold */
+    --amber-soft:rgba(250,200,0,.14);
+    --green:#8080AA;        /* navy tinted 50% — stands in for the "positive/teaching" accent, no green in palette */
+    --green-soft:rgba(128,128,170,.16);
+    --red:#E61E2A;
+    --red-soft:rgba(230,30,42,.14);
+    --blue:#40407F;         /* navy tinted 75%, reused for code-keyword highlight */
+    --radius:8px;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    --display:'Cinzel',serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important} }
+
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.6;
+    display:flex; min-height:100vh;
+  }
+  ::selection{ background:var(--amber-soft); color:var(--amber); }
+  a{ color:var(--amber); }
+  code, .mono{ font-family:var(--mono); }
+
+  :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; border-radius:4px; }
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:250px; flex-shrink:0; background:var(--panel);
+    border-right:1px solid var(--border);
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:18px 0 40px;
+  }
+  .sidebar-brand{
+    display:flex; align-items:center; gap:8px;
+    padding:0 18px 16px; margin-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  .sidebar-brand .dot{ width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+  .sidebar-brand span{ font-family:var(--mono); font-weight:600; font-size:13px; color:var(--text-dim); letter-spacing:.02em; }
+  .nav-group-label{
+    font-family:var(--display); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.16em;
+    color:var(--text-faint); padding:14px 18px 6px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:9px;
+    padding:7px 18px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim);
+    text-decoration:none; cursor:pointer; border-left:2px solid transparent;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .nav-item:hover{ background:var(--panel-2); color:var(--text); }
+  .nav-item.active{ background:var(--amber-soft); color:var(--amber); border-left-color:var(--amber); }
+  .nav-item .icon{ opacity:.75; font-size:12px; width:14px; text-align:center; }
+
+  /* ---------- Main ---------- */
+  #main{ flex:1; min-width:0; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:64px 48px 40px; max-width:920px;
+    border-bottom:1px solid var(--border);
+  }
+  .hero .eyebrow{ font-family:var(--display); font-weight:600; letter-spacing:.18em; color:var(--green); font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:14px; }
+  .hero h1{
+    font-family:var(--display); font-weight:700; font-size:clamp(28px,4vw,44px);
+    margin:0 0 14px; line-height:1.15; color:var(--text);
+  }
+  .hero h1 .accent{ color:var(--amber); }
+  .hero p.lede{ font-size:16px; color:var(--text-dim); max-width:58ch; margin:0 0 28px; }
+
+  .boot-window{ margin-top:8px; }
+
+  /* ---------- Terminal window chrome (signature element) ---------- */
+  .term{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:9px 12px; background:var(--panel-2); border-bottom:1px solid var(--border);
+  }
+  .term-dot{ width:10px; height:10px; border-radius:50%; }
+  .term-dot.r{ background:#E61E2A44; border:1px solid #E61E2A88; }
+  .term-dot.y{ background:#FAC80044; border:1px solid #FAC80088; }
+  .term-dot.g{ background:#8080AA44; border:1px solid #8080AA88; }
+  .term-title{ font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-left:6px; }
+  .term-body{ padding:16px 18px; font-family:var(--mono); font-size:13px; min-height:40px; white-space:pre-wrap; word-break:break-word; }
+  .term-body .cursor{ display:inline-block; width:7px; height:14px; background:var(--amber); vertical-align:middle; animation:blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0 } }
+
+  /* ---------- Sections ---------- */
+  section.lesson{ padding:52px 48px; max-width:920px; border-bottom:1px solid var(--border); }
+  section.lesson:last-of-type{ border-bottom:none; }
+  .lesson-eyebrow{ font-family:var(--display); font-weight:600; font-size:12px; color:var(--text-faint); letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; }
+  .lesson h2{ font-family:var(--display); font-weight:700; font-size:28px; margin:0 0 10px; color:var(--text); letter-spacing:.01em; }
+  .lesson p.intro{ color:var(--text-dim); max-width:65ch; margin:0 0 22px; }
+  .lesson h3{ font-family:var(--display); font-weight:600; font-size:15px; color:var(--amber); margin:28px 0 10px; text-transform:uppercase; letter-spacing:.08em;}
+
+  .teach-note{
+    background:var(--green-soft); border-left:3px solid var(--green);
+    border-radius:0 6px 6px 0; padding:12px 16px; font-size:13.5px; color:var(--text);
+    margin:18px 0;
+  }
+  .teach-note b{ color:var(--green); font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:4px;}
+
+  .pitfall-note{
+    background:var(--red-soft); border-left:3px solid var(--red);
+    border-radius:0 6px 6px 0; padding:12px 16px; font-size:13.5px; color:var(--text);
+    margin:18px 0;
+  }
+  .pitfall-note b{ color:var(--red); font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:4px;}
+
+  pre.code-static{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:12.5px; color:#E3E5E0;
+  }
+  pre.code-static .c{ color:var(--text-faint); font-style:italic; }
+  pre.code-static .k{ color:var(--blue); }
+  pre.code-static .s{ color:var(--green); }
+
+  /* ---------- Playground widgets ---------- */
+  .playground{ margin-top:16px; }
+  .pg-editor{
+    width:100%; background:#000000; color:#FFFFFF; border:1px solid var(--border);
+    border-radius:var(--radius) var(--radius) 0 0; font-family:var(--mono); font-size:12.5px;
+    padding:14px 16px; resize:vertical; min-height:110px; line-height:1.6;
+  }
+  .pg-toolbar{
+    display:flex; align-items:center; gap:10px; justify-content:space-between;
+    background:var(--panel-2); border:1px solid var(--border); border-top:none;
+    padding:8px 12px;
+  }
+  .pg-toolbar .hint{ font-size:11.5px; color:var(--text-faint); font-family:var(--mono); }
+  button.run-btn{
+    background:var(--amber); color:#000054; border:none; border-radius:6px;
+    font-family:var(--mono); font-weight:600; font-size:12.5px; padding:7px 16px;
+    cursor:pointer; transition:filter .15s, transform .05s;
+  }
+  button.run-btn:hover{ filter:brightness(1.1); }
+  button.run-btn:active{ transform:scale(.97); }
+  button.run-btn.secondary{ background:transparent; color:var(--text-dim); border:1px solid var(--border); }
+  .pg-output{
+    background:#000000; border:1px solid var(--border); border-top:none;
+    border-radius:0 0 var(--radius) var(--radius);
+    padding:14px 16px; font-family:var(--mono); font-size:12.5px; min-height:36px;
+    white-space:pre-wrap; word-break:break-word; color:var(--text-dim);
+  }
+  .pg-output .ok{ color:var(--green); }
+  .pg-output .err{ color:var(--red); }
+  .pg-output .dim{ color:var(--text-faint); }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:760px){ .two-col{ grid-template-columns:1fr; } }
+  .file-label{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:6px; display:block; }
+
+  /* file tree for fs playground */
+  .file-tree{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    padding:12px 14px; font-family:var(--mono); font-size:12.5px; min-height:70px; color:var(--text-dim);
+  }
+  .file-tree .empty{ color:var(--text-faint); font-style:italic; }
+  .file-tree .row{ display:flex; gap:8px; padding:2px 0; }
+  .file-tree .row .name{ color:var(--text); }
+  .file-tree .row .meta{ color:var(--text-faint); font-size:11px; }
+  .file-tree .row .icon-dir{ color:var(--amber); }
+  .file-tree .row .icon-file{ color:var(--blue); }
+
+  /* quiz */
+  .quiz{ background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-top:20px; }
+  .quiz .q{ font-size:13.5px; color:var(--text); margin-bottom:10px; font-weight:600; }
+  .quiz label{
+    display:flex; align-items:center; gap:9px; padding:6px 0; font-size:13px; color:var(--text-dim); cursor:pointer;
+  }
+  .quiz .feedback{ margin-top:10px; font-size:13px; font-family:var(--mono); display:none; padding:8px 10px; border-radius:6px; }
+  .quiz .feedback.correct{ display:block; background:var(--green-soft); color:var(--green); }
+  .quiz .feedback.wrong{ display:block; background:var(--red-soft); color:var(--red); }
+
+  /* async timeline */
+  .timeline-wrap{ background:#000000; border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-top:14px; }
+  .tl-row{ display:flex; align-items:center; gap:12px; margin:10px 0; }
+  .tl-label{ width:96px; font-family:var(--mono); font-size:12px; color:var(--text-dim); flex-shrink:0; }
+  .tl-track{ flex:1; height:20px; background:var(--panel-2); border-radius:5px; overflow:hidden; position:relative; }
+  .tl-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--amber), var(--green)); border-radius:5px; transition:width linear; }
+  .tl-done{ width:60px; font-family:var(--mono); font-size:11px; color:var(--text-faint); flex-shrink:0; }
+
+  /* npm terminal typing */
+  .npm-term .term-body{ min-height:120px; }
+
+  /* http diagram */
+  .http-diagram{ display:flex; align-items:center; justify-content:center; gap:40px; padding:36px 10px; flex-wrap:wrap; }
+  .http-box{
+    font-family:var(--mono); font-size:13px; text-align:center; padding:18px 26px;
+    border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text);
+    min-width:130px;
+  }
+  .http-box .label{ color:var(--text-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+  .http-arrow{ position:relative; width:120px; height:2px; background:var(--border); flex-shrink:0; }
+  .http-packet{
+    position:absolute; top:-7px; left:0; width:16px; height:16px; border-radius:50%;
+    background:var(--amber); opacity:0; box-shadow:0 0 10px var(--amber);
+  }
+  @media (max-width:640px){ .http-arrow{ width:2px; height:60px; } }
+
+  footer{ padding:40px 48px 60px; color:var(--text-faint); font-size:12.5px; max-width:920px; }
+
+  @media (max-width:900px){
+    body{ flex-direction:column; }
+    #sidebar{ width:100%; height:auto; position:sticky; top:0; z-index:20; padding:10px 0; }
+    #sidebar .nav-group-label{ display:none; }
+    #sidebar .nav-list{ display:flex; overflow-x:auto; gap:4px; padding:0 12px; }
+    .nav-item{ border-left:none; border-bottom:2px solid transparent; white-space:nowrap; }
+    .nav-item.active{ border-left:none; border-bottom-color:var(--amber); }
+    .hero, section.lesson, footer{ padding-left:22px; padding-right:22px; }
+  }
+
+  /* ---------- Heartbeat widget (sidebar) ---------- */
+  .heartbeat{
+    margin:0 18px 14px; padding:10px 12px; border-radius:6px;
+    background:var(--panel-2); border:1px solid var(--border);
+    font-family:var(--mono);
+  }
+  .heartbeat .hb-row{ display:flex; align-items:baseline; justify-content:space-between; }
+  .heartbeat .hb-label{ font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint); }
+  .heartbeat .hb-value{ font-size:20px; color:var(--amber); font-weight:700; }
+  .heartbeat .hb-sub{ font-size:10.5px; color:var(--text-faint); margin-top:4px; }
+  .heartbeat .hb-pulse{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--amber); margin-right:6px; animation:none; }
+
+  /* ---------- Timeline bars (Section 04) ---------- */
+  .timeline-wrap{ background:#000000; border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-top:14px; }
+  .tl-row{ display:flex; align-items:center; gap:12px; margin:10px 0; }
+  .tl-label{ width:110px; font-family:var(--mono); font-size:12px; color:var(--text-dim); flex-shrink:0; }
+  .tl-track{ flex:1; height:20px; background:var(--panel-2); border-radius:5px; overflow:hidden; position:relative; }
+  .tl-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--amber), var(--red)); border-radius:5px; transition:width linear; }
+  .tl-done{ width:76px; font-family:var(--mono); font-size:11px; color:var(--text-faint); flex-shrink:0; }
+
+  /* ---------- Scenario quiz (Section 05) ---------- */
+  .scenario{ background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin:14px 0; }
+  .scenario .sc-text{ font-size:13.5px; color:var(--text); margin-bottom:12px; }
+  .scenario .sc-buttons{ display:flex; gap:10px; }
+  .sc-btn{ flex:1; background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+  .sc-btn:hover{ border-color:var(--amber); color:var(--amber); }
+  .scenario .sc-feedback{ margin-top:12px; font-size:13px; padding:10px 12px; border-radius:6px; display:none; }
+  .scenario .sc-feedback.correct{ display:block; background:var(--green-soft); color:var(--text); border-left:3px solid var(--green); }
+  .scenario .sc-feedback.wrong{ display:block; background:var(--red-soft); color:var(--text); border-left:3px solid var(--red); }
+  .scenario .sc-feedback b{ display:block; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .scenario .sc-feedback.correct b{ color:var(--green); }
+  .scenario .sc-feedback.wrong b{ color:var(--red); }
+
+  /* ---------- Cheat sheet table ---------- */
+  table.cheat{ width:100%; border-collapse:collapse; margin-top:14px; font-size:13px; }
+  table.cheat th{ font-family:var(--display); font-weight:600; text-align:left; padding:10px 12px; background:var(--panel-2); color:var(--amber); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  table.cheat td{ padding:10px 12px; border-top:1px solid var(--border); color:var(--text-dim); vertical-align:top; }
+  table.cheat tr:hover td{ color:var(--text); }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-brand"><span class="dot"></span><span>fs-sync-vs-async</span></div>
+
+  <div class="heartbeat">
+    <div class="hb-row">
+      <span class="hb-label">Heartbeat</span>
+      <span class="hb-value"><span class="hb-pulse"></span><span id="hbCount">0</span></span>
+    </div>
+    <div class="hb-sub">Ticks every 100ms. Watch this while running any demo below.</div>
+  </div>
+
+  <div class="nav-group-label">Explorer</div>
+  <div class="nav-list">
+    <a class="nav-item" data-target="s-intro"><span class="icon">◆</span>00-intro.md</a>
+    <a class="nav-item" data-target="s-sync"><span class="icon">▹</span>01-readFileSync.js</a>
+    <a class="nav-item" data-target="s-callback"><span class="icon">▹</span>02-readFile-callback.js</a>
+    <a class="nav-item" data-target="s-promise"><span class="icon">▹</span>03-readFile-promises.js</a>
+    <a class="nav-item" data-target="s-scale"><span class="icon">▹</span>04-why-it-matters.js</a>
+    <a class="nav-item" data-target="s-decide"><span class="icon">▹</span>05-when-to-use-which.md</a>
+  </div>
+</nav>
+
+<main id="main">
+
+  <div class="hero">
+    <div class="eyebrow">Interactive Lab · fs: Sync vs Async</div>
+    <h1>Watch <span class="accent">blocking</span> happen —<br>don't just read about it.</h1>
+    <p class="lede">This lab uses a real, ticking heartbeat counter in the sidebar. <code>fs.readFileSync</code> below performs a genuine busy-wait — it actually freezes this page's JavaScript thread for a few seconds, the same way it would freeze an entire Node.js server. <code>fs.readFile</code> and <code>fs.promises.readFile</code> don't. Watch the heartbeat, not just the code.</p>
+    <div class="term">
+      <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">boot sequence</span></div>
+      <div class="term-body" id="bootTerm"></div>
+    </div>
+  </div>
+
+  <!-- ================= 00 INTRO ================= -->
+  <section class="lesson" id="s-intro">
+    <div class="lesson-eyebrow">00 · Orientation</div>
+    <h2>One thread, two ways to wait</h2>
+    <p class="intro">Node.js runs your JavaScript on a single thread. When that thread is busy, <b>nothing else can happen</b> — no other request, no timer, no I/O callback. The entire question of "sync vs async" comes down to one thing: does an operation give the thread back while it waits, or does it hold onto it?</p>
+
+    <div class="two-col">
+      <div>
+        <h3>Synchronous</h3>
+        <pre class="code-static">const data = fs.readFileSync(path);
+<span class="c">// thread is stuck here until</span>
+<span class="c">// the read completes — nothing</span>
+<span class="c">// else can run in the meantime</span>
+console.log(data);</pre>
+      </div>
+      <div>
+        <h3>Asynchronous</h3>
+        <pre class="code-static">fs.readFile(path, (err, data) => {
+  console.log(data);
+});
+<span class="c">// thread moves on immediately —</span>
+<span class="c">// the callback fires later, once</span>
+<span class="c">// the read finishes in the background</span></pre>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <b>How to use this lab</b>
+      Sections 01–03 all read the exact same simulated file, with the exact same simulated disk latency (~2.2s) — only the method changes. Keep an eye on the heartbeat counter in the sidebar each time you click Run. It's the whole lesson.
+    </div>
+    <div class="teach-note" style="margin-top:10px;">
+      <b>Teaching note</b>
+      In Node, a blocked thread freezes the entire server — every connected client, not just one browser tab. This lab can only freeze itself (one page), but it's the identical mechanism: JavaScript is single-threaded both in the browser and in Node.
+    </div>
+  </section>
+
+  <!-- ================= 01 SYNC ================= -->
+  <section class="lesson" id="s-sync">
+    <div class="lesson-eyebrow">01 · Run it and watch the heartbeat</div>
+    <h2>fs.readFileSync — blocking</h2>
+    <p class="intro">Click Run, then immediately look at the heartbeat counter in the sidebar. It will freeze for about 2.2 seconds — not because anything is wrong, but because <code>readFileSync</code> holds the thread hostage until the read finishes.</p>
+
+    <div class="playground">
+      <span class="file-label">01-readFileSync.js</span>
+      <textarea class="pg-editor" id="syncEditor" spellcheck="false" style="min-height:150px;">console.log('About to call fs.readFileSync...');
+const data = fs.readFileSync('large-log.txt');
+console.log('Got the file. Length:', data.length, 'chars');
+console.log('Check the sidebar — the heartbeat did not move while this ran.');</textarea>
+      <div class="pg-toolbar">
+        <span class="hint">node 01-readFileSync.js — this will freeze the page for ~2.2s</span>
+        <button class="run-btn" onclick="runSync()">Run ▸</button>
+      </div>
+      <div class="pg-output" id="syncOutput"><span class="dim">Output will appear here.</span></div>
+    </div>
+
+    <div class="pitfall-note">
+      <b>You might not see the first line appear right away</b>
+      Since the thread is fully blocked — including rendering — the browser may not even paint "About to call fs.readFileSync..." to the screen until <i>after</i> the whole 2.2s freeze ends. Everything can appear to show up at once. That's not a bug in this lab; it's the same reason a real blocked Node server can't even flush a "still working..." log line to a client until it unblocks.
+    </div>
+
+    <div class="quiz" data-answer="b">
+      <div class="q">Quick check: while <code>fs.readFileSync</code> is running, what can the heartbeat interval (a <code>setInterval</code> ticking every 100ms) do?</div>
+      <label><input type="radio" name="q1" value="a">It keeps ticking normally, since timers run separately</label>
+      <label><input type="radio" name="q1" value="b">Nothing — it can't fire until the blocking call finishes and the thread is free again</label>
+      <label><input type="radio" name="q1" value="c">It ticks twice as fast to catch up</label>
+      <div class="feedback"></div>
+    </div>
+  </section>
+
+  <!-- ================= 02 CALLBACK ================= -->
+  <section class="lesson" id="s-callback">
+    <div class="lesson-eyebrow">02 · Run it and watch the heartbeat</div>
+    <h2>fs.readFile — non-blocking (callback)</h2>
+    <p class="intro">Same file, same ~2.2s simulated read time. This time, watch the heartbeat keep ticking the entire way through — and notice the last <code>console.log</code> below prints <i>before</i> the file is even done reading.</p>
+
+    <div class="playground">
+      <span class="file-label">02-readFile-callback.js</span>
+      <textarea class="pg-editor" id="callbackEditor" spellcheck="false" style="min-height:170px;">console.log('Calling fs.readFile...');
+
+fs.readFile('large-log.txt', (err, data) => {
+  if (err) { console.error(err.message); return; }
+  console.log('Callback fired! Length:', data.length, 'chars');
+  console.log('The heartbeat kept ticking the whole time — check the sidebar.');
+});
+
+console.log('This line runs immediately — before the file is done reading.');</textarea>
+      <div class="pg-toolbar">
+        <span class="hint">node 02-readFile-callback.js</span>
+        <button class="run-btn" onclick="runCallback()">Run ▸</button>
+      </div>
+      <div class="pg-output" id="callbackOutput"><span class="dim">Output will appear here.</span></div>
+    </div>
+
+    <div class="teach-note">
+      <b>Try this</b>
+      Predict the print order before clicking Run. Most people expect the two "log" lines to print in the order they're written — but "This line runs immediately" prints <i>before</i> "Callback fired!", every time.
+    </div>
+  </section>
+
+  <!-- ================= 03 PROMISES ================= -->
+  <section class="lesson" id="s-promise">
+    <div class="lesson-eyebrow">03 · Run it and watch the heartbeat</div>
+    <h2>fs.promises.readFile — non-blocking (async/await)</h2>
+    <p class="intro">Same file, same latency, same non-blocking behavior as Section 02 — just written in a style that reads top-to-bottom. <code>await</code> pauses <i>this function</i>, not the whole thread.</p>
+
+    <div class="playground">
+      <span class="file-label">03-readFile-promises.js</span>
+      <textarea class="pg-editor" id="promiseEditor" spellcheck="false" style="min-height:190px;">async function main() {
+  console.log('Calling fs.promises.readFile...');
+  const data = await fsPromises.readFile('large-log.txt');
+  console.log('Got it! Length:', data.length, 'chars');
+  console.log('Heartbeat kept ticking the whole time — check the sidebar.');
+}
+
+main();
+console.log('This still runs before main() finishes — await only pauses main(), not the program.');</textarea>
+      <div class="pg-toolbar">
+        <span class="hint">node 03-readFile-promises.js</span>
+        <button class="run-btn" onclick="runPromise()">Run ▸</button>
+      </div>
+      <div class="pg-output" id="promiseOutput"><span class="dim">Output will appear here.</span></div>
+    </div>
+
+    <div class="teach-note">
+      <b>Teaching note</b>
+      This is a good moment to reconnect to Section 01's freeze. Ask: "If <code>await</code> only pauses one function, why did the plain synchronous version freeze <i>everything</i>?" — the answer is that <code>readFileSync</code> has no equivalent of "pausing just this function"; it can only pause the entire thread, because it was never designed to give control back at all.
+    </div>
+  </section>
+
+  <!-- ================= 04 WHY IT MATTERS AT SCALE ================= -->
+  <section class="lesson" id="s-scale">
+    <div class="lesson-eyebrow">04 · Watch it run</div>
+    <h2>Why this matters more with multiple requests</h2>
+    <p class="intro">Imagine a tiny server where 3 clients each request a file read, arriving at almost the same moment. Run both modes below and compare the total time and the pattern of completion.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:0;">If the server uses readFileSync</h3>
+        <pre class="code-static">app.get('/file', (req, res) => {
+  <span class="c">// blocks ALL other clients</span>
+  <span class="c">// until this one's read finishes</span>
+  const data = fs.readFileSync(path);
+  res.send(data);
+});</pre>
+      </div>
+      <div>
+        <h3 style="margin-top:0;">If the server uses fs.promises</h3>
+        <pre class="code-static">app.get('/file', async (req, res) => {
+  <span class="c">// other clients keep being served</span>
+  <span class="c">// while this read is in progress</span>
+  const data = await fsPromises.readFile(path);
+  res.send(data);
+});</pre>
+      </div>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="tl-row"><div class="tl-label">Client A (900ms)</div><div class="tl-track"><div class="tl-fill" id="tlA"></div></div><div class="tl-done" id="tlADone"></div></div>
+      <div class="tl-row"><div class="tl-label">Client B (1300ms)</div><div class="tl-track"><div class="tl-fill" id="tlB"></div></div><div class="tl-done" id="tlBDone"></div></div>
+      <div class="tl-row"><div class="tl-label">Client C (700ms)</div><div class="tl-track"><div class="tl-fill" id="tlC"></div></div><div class="tl-done" id="tlCDone"></div></div>
+      <div class="pg-toolbar" style="margin-top:10px; border-radius:6px; border:1px solid var(--border);">
+        <span class="hint" id="scaleStatus">Ready.</span>
+        <div style="display:flex; gap:8px;">
+          <button class="run-btn" style="background:var(--red); color:#FFFFFF;" onclick="runScaleDemo('sync')">Run as Sync server ▸</button>
+          <button class="run-btn" onclick="runScaleDemo('async')">Run as Async server ▸</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <b>What to look for</b>
+      In "Sync" mode, the bars run strictly one after another — Client B's bar doesn't even start until Client A's finishes, and total time is the <i>sum</i> of all three. In "Async" mode, all three bars start together and run concurrently, so total time is roughly the <i>slowest single</i> request, not the sum.
+    </div>
+  </section>
+
+  <!-- ================= 05 DECISION GUIDE ================= -->
+  <section class="lesson" id="s-decide">
+    <div class="lesson-eyebrow">05 · Practice deciding</div>
+    <h2>When to actually use each</h2>
+    <p class="intro">Sync isn't "wrong" — it's wrong <i>in the wrong context</i>. For each scenario below, decide: would you reach for a <code>Sync</code> method or an async one (callback/promises)?</p>
+
+    <div id="scenarioContainer"></div>
+
+    <h3>Cheat sheet</h3>
+    <table class="cheat">
+      <tr><th>Use Sync when…</th><th>Use Async when…</th></tr>
+      <tr>
+        <td>It's a one-off CLI tool or build script that runs top-to-bottom and exits</td>
+        <td>Code runs inside a web server handling multiple requests/users</td>
+      </tr>
+      <tr>
+        <td>You're at startup/module-load time, before anything else depends on responsiveness (e.g. reading a config file once when the process boots)</td>
+        <td>Anything that could run concurrently with other work — HTTP handlers, WebSocket events, background jobs sharing the process</td>
+      </tr>
+      <tr>
+        <td>Strict ordering matters and blocking is actually the simplest correct way to express "do this, then that" (e.g. simple migration/setup scripts)</td>
+        <td>You care about throughput or responsiveness under load — even a single slow sync call can stall every other client</td>
+      </tr>
+      <tr>
+        <td>The file is small and the operation is genuinely quick, so blocking is momentary and low-risk</td>
+        <td>The file could be large, remote, or slow (network-mounted disks, big uploads) — sync risk scales with how long the block lasts</td>
+      </tr>
+    </table>
+  </section>
+
+  <footer>
+    fs: Sync vs Async — companion to the Node.js Learning Lab. The blocking demonstrated in Sections 01 and 04 is real JavaScript single-thread behavior, not a visual simulation.
+  </footer>
+</main>
+
+<script>
+/* ============================================================
+   Shared helpers
+   ============================================================ */
+function fmtLogArg(a){
+  if (typeof a === 'string') return a;
+  try { return JSON.stringify(a); } catch(e){ return String(a); }
+}
+function makeConsole(outEl){
+  return {
+    log: (...args) => {
+      const line = document.createElement('div');
+      line.textContent = args.map(fmtLogArg).join(' ');
+      outEl.appendChild(line);
+    },
+    error: (...args) => {
+      const line = document.createElement('div');
+      line.className = 'err';
+      line.textContent = args.map(fmtLogArg).join(' ');
+      outEl.appendChild(line);
+    }
+  };
+}
+
+/* ============================================================
+   Sidebar nav — active state + smooth scroll
+   ============================================================ */
+(function nav(){
+  const items = Array.from(document.querySelectorAll('.nav-item'));
+  const sections = items.map(i => document.getElementById(i.dataset.target));
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      document.getElementById(item.dataset.target).scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const idx = sections.indexOf(entry.target);
+      if (entry.isIntersecting && idx !== -1){
+        items.forEach(i => i.classList.remove('active'));
+        items[idx].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+})();
+
+/* ============================================================
+   Quiz widget (radio-based, Section 01)
+   ============================================================ */
+document.querySelectorAll('.quiz').forEach(quiz => {
+  const answer = quiz.dataset.answer;
+  const feedback = quiz.querySelector('.feedback');
+  quiz.querySelectorAll('input[type=radio]').forEach(input => {
+    input.addEventListener('change', () => {
+      const correct = input.value === answer;
+      feedback.textContent = correct ? '✓ Correct.' : '✗ Not quite — try again.';
+      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    });
+  });
+});
+
+/* ============================================================
+   Boot sequence (hero) — cosmetic typing animation
+   ============================================================ */
+(function boot(){
+  const el = document.getElementById('bootTerm');
+  const lines = [
+    { t: '$ node --version' },
+    { t: 'v22.11.0', dim:true },
+    { t: '$ node 01-readFileSync.js' },
+    { t: 'Watch the heartbeat counter in the sidebar. →', dim:true }
+  ];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced){ el.textContent = lines.map(l=>l.t).join('\n'); return; }
+  let i = 0, out = '';
+  function typeLine(){
+    if (i >= lines.length){ el.innerHTML = out + '<span class="cursor"></span>'; return; }
+    const { t } = lines[i];
+    let c = 0;
+    const iv = setInterval(() => {
+      c++;
+      el.innerHTML = out + t.slice(0,c) + '<span class="cursor"></span>';
+      if (c >= t.length){
+        clearInterval(iv);
+        out += t + '\n';
+        i++;
+        setTimeout(typeLine, 260);
+      }
+    }, 16);
+  }
+  typeLine();
+})();
+
+/* ============================================================
+   Heartbeat — the whole point of this lab
+   ============================================================ */
+let hbTicks = 0;
+setInterval(() => {
+  hbTicks++;
+  const el = document.getElementById('hbCount');
+  if (el) el.textContent = hbTicks;
+}, 100);
+
+/* ============================================================
+   Virtual fs — readFileSync genuinely busy-waits (real blocking);
+   readFile / fsPromises.readFile use real setTimeout (non-blocking)
+   ============================================================ */
+const vfsFiles = {
+  'large-log.txt': {
+    content: '2026-07-31T00:00:00Z INFO server started\n'.repeat(120),
+    latency: 2200
+  }
+};
+
+const fs = {
+  readFileSync(path){
+    const f = vfsFiles[path];
+    if (!f) throw new Error("ENOENT: no such file or directory, open '" + path + "'");
+    const start = Date.now();
+    while (Date.now() - start < f.latency) {
+      /* busy-wait: this is a REAL blocking loop, simulating slow disk I/O.
+         It genuinely occupies the JS thread — nothing else can run. */
+    }
+    return f.content;
+  },
+  readFile(path, callback){
+    const f = vfsFiles[path];
+    setTimeout(() => {
+      if (!f) { callback(new Error("ENOENT: no such file or directory, open '" + path + "'")); return; }
+      callback(null, f.content);
+    }, f ? f.latency : 200);
+  }
+};
+
+const fsPromises = {
+  readFile(path){
+    return new Promise((resolve, reject) => {
+      const f = vfsFiles[path];
+      setTimeout(() => {
+        if (!f) reject(new Error("ENOENT: no such file or directory, open '" + path + "'"));
+        else resolve(f.content);
+      }, f ? f.latency : 200);
+    });
+  }
+};
+
+/* ============================================================
+   Section 01 — readFileSync (blocking)
+   ============================================================ */
+function runSync(){
+  const outEl = document.getElementById('syncOutput');
+  outEl.innerHTML = '';
+  const con = makeConsole(outEl);
+  try {
+    Function('fs', 'console', document.getElementById('syncEditor').value)(fs, con);
+  } catch (err) {
+    con.error(err.message);
+  }
+}
+
+/* ============================================================
+   Section 02 — readFile (callback, non-blocking)
+   ============================================================ */
+function runCallback(){
+  const outEl = document.getElementById('callbackOutput');
+  outEl.innerHTML = '';
+  const con = makeConsole(outEl);
+  try {
+    Function('fs', 'console', document.getElementById('callbackEditor').value)(fs, con);
+  } catch (err) {
+    con.error(err.message);
+  }
+}
+
+/* ============================================================
+   Section 03 — fs.promises.readFile (async/await, non-blocking)
+   ============================================================ */
+function runPromise(){
+  const outEl = document.getElementById('promiseOutput');
+  outEl.innerHTML = '';
+  const con = makeConsole(outEl);
+  try {
+    Function('fs', 'fsPromises', 'console', document.getElementById('promiseEditor').value)(fs, fsPromises, con);
+  } catch (err) {
+    con.error(err.message);
+  }
+}
+
+/* ============================================================
+   Section 04 — concurrent-clients timeline
+   ============================================================ */
+function runScaleDemo(mode){
+  const status = document.getElementById('scaleStatus');
+  const clients = [
+    { key: 'A', ms: 900 },
+    { key: 'B', ms: 1300 },
+    { key: 'C', ms: 700 }
+  ];
+
+  clients.forEach(c => {
+    const fill = document.getElementById('tl' + c.key);
+    const done = document.getElementById('tl' + c.key + 'Done');
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    done.textContent = '';
+    void fill.offsetWidth;
+  });
+
+  status.textContent = 'Running as ' + mode + ' server...';
+
+  let cumulative = 0;
+  let maxEnd = 0;
+  clients.forEach(c => {
+    const fill = document.getElementById('tl' + c.key);
+    const done = document.getElementById('tl' + c.key + 'Done');
+    const startDelay = mode === 'sync' ? cumulative : 0;
+    const endTime = startDelay + c.ms;
+    maxEnd = Math.max(maxEnd, endTime);
+
+    setTimeout(() => {
+      fill.style.transition = 'width ' + c.ms + 'ms linear';
+      requestAnimationFrame(() => { fill.style.width = '100%'; });
+    }, startDelay);
+
+    setTimeout(() => {
+      done.textContent = '✓ ' + (endTime / 1000).toFixed(1) + 's';
+    }, endTime);
+
+    if (mode === 'sync') cumulative += c.ms;
+  });
+
+  setTimeout(() => {
+    status.textContent = 'All 3 clients done (' + mode + ' server) — total: ' + (maxEnd / 1000).toFixed(1) + 's';
+  }, maxEnd + 80);
+}
+
+/* ============================================================
+   Section 05 — decision scenarios
+   ============================================================ */
+const scenarios = [
+  {
+    text: "A CLI tool that reads a single config.json file once when it starts, then does its work.",
+    answer: 'sync',
+    reason: "One-off, at startup, no concurrent clients waiting — blocking briefly here is harmless and simpler to write."
+  },
+  {
+    text: "An Express route handler that reads a user's uploaded file and sends it back in the response.",
+    answer: 'async',
+    reason: "This runs inside a server handling multiple users — blocking here would stall every other request while one file is read."
+  },
+  {
+    text: "A build script that reads several source files in a fixed order before bundling them.",
+    answer: 'sync',
+    reason: "Order matters, it runs once per build (not once per user request), and there's no other concurrent work being starved."
+  },
+  {
+    text: "A chat server reading message history from disk every time any user opens a conversation.",
+    answer: 'async',
+    reason: "Many users could trigger this at once — sync here means every other chat freezes while one history loads."
+  },
+  {
+    text: "A one-time database migration script that must read and process files strictly in sequence.",
+    answer: 'sync',
+    reason: "Single execution, strict order required, no concurrent requests to protect — sync keeps the logic simple and correct."
+  },
+  {
+    text: "A web server's health-check endpoint that reads a status file on every ping from a load balancer.",
+    answer: 'async',
+    reason: "It's inside a server that may be handling other traffic simultaneously — even a quick sync read adds up under frequent concurrent pings."
+  }
+];
+
+function renderScenarios(){
+  const container = document.getElementById('scenarioContainer');
+  scenarios.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'scenario';
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'sc-text';
+    textDiv.textContent = (i + 1) + '. ' + s.text;
+
+    const btnRow = document.createElement('div');
+    btnRow.className = 'sc-buttons';
+
+    const feedback = document.createElement('div');
+    feedback.className = 'sc-feedback';
+
+    ['sync', 'async'].forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'sc-btn';
+      btn.textContent = choice === 'sync' ? 'Sync' : 'Async';
+      btn.addEventListener('click', () => {
+        const correct = choice === s.answer;
+        const label = document.createElement('b');
+        label.textContent = correct ? 'Correct' : ('Not quite — recommended: ' + s.answer);
+        feedback.innerHTML = '';
+        feedback.appendChild(label);
+        feedback.appendChild(document.createTextNode(s.reason));
+        feedback.className = 'sc-feedback ' + (correct ? 'correct' : 'wrong');
+      });
+      btnRow.appendChild(btn);
+    });
+
+    div.appendChild(textDiv);
+    div.appendChild(btnRow);
+    div.appendChild(feedback);
+    container.appendChild(div);
+  });
+}
+renderScenarios();
+</script>
+
+</body>
+</html>

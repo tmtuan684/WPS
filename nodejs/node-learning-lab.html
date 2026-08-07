@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js Learning Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --panel:#000054;
+    --panel-2:#40407F;      /* navy tinted 75% */
+    --border:rgba(227,229,224,.18);
+    --text:#FFFFFF;
+    --text-dim:#E3E5E0;
+    --text-faint:rgba(227,229,224,.55);
+    --amber:#FAC800;        /* primary accent: gold */
+    --amber-soft:rgba(250,200,0,.14);
+    --green:#8080AA;        /* navy tinted 50% — stands in for the "positive/teaching" accent, no green in palette */
+    --green-soft:rgba(128,128,170,.16);
+    --red:#E61E2A;
+    --red-soft:rgba(230,30,42,.14);
+    --blue:#40407F;         /* navy tinted 75%, reused for code-keyword highlight */
+    --radius:8px;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    --display:'Cinzel',serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important} }
+
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.6;
+    display:flex; min-height:100vh;
+  }
+  ::selection{ background:var(--amber-soft); color:var(--amber); }
+  a{ color:var(--amber); }
+  code, .mono{ font-family:var(--mono); }
+
+  :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; border-radius:4px; }
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:250px; flex-shrink:0; background:var(--panel);
+    border-right:1px solid var(--border);
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:18px 0 40px;
+  }
+  .sidebar-brand{
+    display:flex; align-items:center; gap:8px;
+    padding:0 18px 16px; margin-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  .sidebar-brand .dot{ width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+  .sidebar-brand span{ font-family:var(--mono); font-weight:600; font-size:13px; color:var(--text-dim); letter-spacing:.02em; }
+  .nav-group-label{
+    font-family:var(--display); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.16em;
+    color:var(--text-faint); padding:14px 18px 6px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:9px;
+    padding:7px 18px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim);
+    text-decoration:none; cursor:pointer; border-left:2px solid transparent;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .nav-item:hover{ background:var(--panel-2); color:var(--text); }
+  .nav-item.active{ background:var(--amber-soft); color:var(--amber); border-left-color:var(--amber); }
+  .nav-item .icon{ opacity:.75; font-size:12px; width:14px; text-align:center; }
+
+  /* ---------- Main ---------- */
+  #main{ flex:1; min-width:0; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:64px 48px 40px; max-width:920px;
+    border-bottom:1px solid var(--border);
+  }
+  .hero .eyebrow{ font-family:var(--display); font-weight:600; letter-spacing:.18em; color:var(--green); font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:14px; }
+  .hero h1{
+    font-family:var(--display); font-weight:700; font-size:clamp(28px,4vw,44px);
+    margin:0 0 14px; line-height:1.15; color:var(--text);
+  }
+  .hero h1 .accent{ color:var(--amber); }
+  .hero p.lede{ font-size:16px; color:var(--text-dim); max-width:58ch; margin:0 0 28px; }
+
+  .boot-window{ margin-top:8px; }
+
+  /* ---------- Terminal window chrome (signature element) ---------- */
+  .term{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:9px 12px; background:var(--panel-2); border-bottom:1px solid var(--border);
+  }
+  .term-dot{ width:10px; height:10px; border-radius:50%; }
+  .term-dot.r{ background:#E61E2A44; border:1px solid #E61E2A88; }
+  .term-dot.y{ background:#FAC80044; border:1px solid #FAC80088; }
+  .term-dot.g{ background:#8080AA44; border:1px solid #8080AA88; }
+  .term-title{ font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-left:6px; }
+  .term-body{ padding:16px 18px; font-family:var(--mono); font-size:13px; min-height:40px; white-space:pre-wrap; word-break:break-word; }
+  .term-body .cursor{ display:inline-block; width:7px; height:14px; background:var(--amber); vertical-align:middle; animation:blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0 } }
+
+  /* ---------- Sections ---------- */
+  section.lesson{ padding:52px 48px; max-width:920px; border-bottom:1px solid var(--border); }
+  section.lesson:last-of-type{ border-bottom:none; }
+  .lesson-eyebrow{ font-family:var(--display); font-weight:600; font-size:12px; color:var(--text-faint); letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; }
+  .lesson h2{ font-family:var(--display); font-weight:700; font-size:28px; margin:0 0 10px; color:var(--text); letter-spacing:.01em; }
+  .lesson p.intro{ color:var(--text-dim); max-width:65ch; margin:0 0 22px; }
+  .lesson h3{ font-family:var(--display); font-weight:600; font-size:15px; color:var(--amber); margin:28px 0 10px; text-transform:uppercase; letter-spacing:.08em;}
+
+  .teach-note{
+    background:var(--green-soft); border-left:3px solid var(--green);
+    border-radius:0 6px 6px 0; padding:12px 16px; font-size:13.5px; color:var(--text);
+    margin:18px 0;
+  }
+  .teach-note b{ color:var(--green); font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:4px;}
+
+  .pitfall-note{
+    background:var(--red-soft); border-left:3px solid var(--red);
+    border-radius:0 6px 6px 0; padding:12px 16px; font-size:13.5px; color:var(--text);
+    margin:18px 0;
+  }
+  .pitfall-note b{ color:var(--red); font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:4px;}
+
+  pre.code-static{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:12.5px; color:#E3E5E0;
+  }
+  pre.code-static .c{ color:var(--text-faint); font-style:italic; }
+  pre.code-static .k{ color:var(--blue); }
+  pre.code-static .s{ color:var(--green); }
+
+  /* ---------- Playground widgets ---------- */
+  .playground{ margin-top:16px; }
+  .pg-editor{
+    width:100%; background:#000000; color:#FFFFFF; border:1px solid var(--border);
+    border-radius:var(--radius) var(--radius) 0 0; font-family:var(--mono); font-size:12.5px;
+    padding:14px 16px; resize:vertical; min-height:110px; line-height:1.6;
+  }
+  .pg-toolbar{
+    display:flex; align-items:center; gap:10px; justify-content:space-between;
+    background:var(--panel-2); border:1px solid var(--border); border-top:none;
+    padding:8px 12px;
+  }
+  .pg-toolbar .hint{ font-size:11.5px; color:var(--text-faint); font-family:var(--mono); }
+  button.run-btn{
+    background:var(--amber); color:#000054; border:none; border-radius:6px;
+    font-family:var(--mono); font-weight:600; font-size:12.5px; padding:7px 16px;
+    cursor:pointer; transition:filter .15s, transform .05s;
+  }
+  button.run-btn:hover{ filter:brightness(1.1); }
+  button.run-btn:active{ transform:scale(.97); }
+  button.run-btn.secondary{ background:transparent; color:var(--text-dim); border:1px solid var(--border); }
+  .pg-output{
+    background:#000000; border:1px solid var(--border); border-top:none;
+    border-radius:0 0 var(--radius) var(--radius);
+    padding:14px 16px; font-family:var(--mono); font-size:12.5px; min-height:36px;
+    white-space:pre-wrap; word-break:break-word; color:var(--text-dim);
+  }
+  .pg-output .ok{ color:var(--green); }
+  .pg-output .err{ color:var(--red); }
+  .pg-output .dim{ color:var(--text-faint); }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:760px){ .two-col{ grid-template-columns:1fr; } }
+  .file-label{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:6px; display:block; }
+
+  /* file tree for fs playground */
+  .file-tree{
+    background:#000000; border:1px solid var(--border); border-radius:var(--radius);
+    padding:12px 14px; font-family:var(--mono); font-size:12.5px; min-height:70px; color:var(--text-dim);
+  }
+  .file-tree .empty{ color:var(--text-faint); font-style:italic; }
+  .file-tree .row{ display:flex; gap:8px; padding:2px 0; }
+  .file-tree .row .name{ color:var(--text); }
+  .file-tree .row .meta{ color:var(--text-faint); font-size:11px; }
+  .file-tree .row .icon-dir{ color:var(--amber); }
+  .file-tree .row .icon-file{ color:var(--blue); }
+
+  /* quiz */
+  .quiz{ background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-top:20px; }
+  .quiz .q{ font-size:13.5px; color:var(--text); margin-bottom:10px; font-weight:600; }
+  .quiz label{
+    display:flex; align-items:center; gap:9px; padding:6px 0; font-size:13px; color:var(--text-dim); cursor:pointer;
+  }
+  .quiz .feedback{ margin-top:10px; font-size:13px; font-family:var(--mono); display:none; padding:8px 10px; border-radius:6px; }
+  .quiz .feedback.correct{ display:block; background:var(--green-soft); color:var(--green); }
+  .quiz .feedback.wrong{ display:block; background:var(--red-soft); color:var(--red); }
+
+  /* async timeline */
+  .timeline-wrap{ background:#000000; border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-top:14px; }
+  .tl-row{ display:flex; align-items:center; gap:12px; margin:10px 0; }
+  .tl-label{ width:96px; font-family:var(--mono); font-size:12px; color:var(--text-dim); flex-shrink:0; }
+  .tl-track{ flex:1; height:20px; background:var(--panel-2); border-radius:5px; overflow:hidden; position:relative; }
+  .tl-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--amber), var(--green)); border-radius:5px; transition:width linear; }
+  .tl-done{ width:60px; font-family:var(--mono); font-size:11px; color:var(--text-faint); flex-shrink:0; }
+
+  /* npm terminal typing */
+  .npm-term .term-body{ min-height:120px; }
+
+  /* http diagram */
+  .http-diagram{ display:flex; align-items:center; justify-content:center; gap:40px; padding:36px 10px; flex-wrap:wrap; }
+  .http-box{
+    font-family:var(--mono); font-size:13px; text-align:center; padding:18px 26px;
+    border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text);
+    min-width:130px;
+  }
+  .http-box .label{ color:var(--text-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+  .http-arrow{ position:relative; width:120px; height:2px; background:var(--border); flex-shrink:0; }
+  .http-packet{
+    position:absolute; top:-7px; left:0; width:16px; height:16px; border-radius:50%;
+    background:var(--amber); opacity:0; box-shadow:0 0 10px var(--amber);
+  }
+  @media (max-width:640px){ .http-arrow{ width:2px; height:60px; } }
+
+  footer{ padding:40px 48px 60px; color:var(--text-faint); font-size:12.5px; max-width:920px; }
+
+  @media (max-width:900px){
+    body{ flex-direction:column; }
+    #sidebar{ width:100%; height:auto; position:sticky; top:0; z-index:20; padding:10px 0; }
+    #sidebar .nav-group-label{ display:none; }
+    #sidebar .nav-list{ display:flex; overflow-x:auto; gap:4px; padding:0 12px; }
+    .nav-item{ border-left:none; border-bottom:2px solid transparent; white-space:nowrap; }
+    .nav-item.active{ border-left:none; border-bottom-color:var(--amber); }
+    .hero, section.lesson, footer{ padding-left:22px; padding-right:22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-brand"><span class="dot"></span><span>node-learning-lab</span></div>
+  <div class="nav-group-label">Explorer</div>
+  <div class="nav-list">
+    <a class="nav-item" data-target="s-intro"><span class="icon">◆</span>00-intro.md</a>
+    <a class="nav-item" data-target="s-repl"><span class="icon">▹</span>01-repl.js</a>
+    <a class="nav-item" data-target="s-argv"><span class="icon">▹</span>02-process-argv.js</a>
+    <a class="nav-item" data-target="s-modules"><span class="icon">▹</span>03-modules.js</a>
+    <a class="nav-item" data-target="s-fs"><span class="icon">▹</span>04-fs-playground.js</a>
+    <a class="nav-item" data-target="s-async"><span class="icon">▹</span>05-async-timeline.js</a>
+    <a class="nav-item" data-target="s-npm"><span class="icon">▹</span>06-npm-install.sh</a>
+    <a class="nav-item" data-target="s-http"><span class="icon">▹</span>07-http-server.js</a>
+  </div>
+</nav>
+
+<main id="main">
+
+  <div class="hero">
+    <div class="eyebrow">Interactive Lab · Node.js Fundamentals</div>
+    <h1>Learn Node.js by <span class="accent">running</span> it —<br>right here in the browser.</h1>
+    <p class="lede">Node's real APIs (<code>fs</code>, <code>process</code>, <code>require</code>) only exist in an actual terminal, so this lab simulates a small Node runtime in JavaScript: a virtual file system, a fake module registry, a mock <code>process.argv</code>. Every "Run" button below actually executes your code against it.</p>
+    <div class="boot-window">
+      <div class="term">
+        <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">boot sequence</span></div>
+        <div class="term-body" id="bootTerm"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 00 INTRO ================= -->
+  <section class="lesson" id="s-intro">
+    <div class="lesson-eyebrow">00 · Orientation</div>
+    <h2>What is Node.js?</h2>
+    <p class="intro">Node.js is a JavaScript <b>runtime</b> built on Chrome's V8 engine that runs JS outside the browser — on servers, in CLI tools, even inside desktop apps like VS Code. Same language, a very different set of capabilities.</p>
+
+    <div class="two-col">
+      <div>
+        <h3>In the browser</h3>
+        <pre class="code-static">document.querySelector('#app')
+window.location.href
+fetch('/api/data')</pre>
+      </div>
+      <div>
+        <h3>In Node.js</h3>
+        <pre class="code-static">require('fs').readFileSync(...)
+process.argv
+require('http').createServer(...)</pre>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <b>Teaching note</b>
+      Node can't touch the DOM; the browser can't touch the disk. That symmetry is worth stating explicitly in class — it's the single sentence that makes the rest of this module make sense.
+    </div>
+
+    <div class="teach-note" style="margin-top:10px;">
+      <b>How to use this lab</b>
+      Work through the sidebar top to bottom — 01 through 07 follow the same sequence as the fs learning notes (Sync → Callback → Promises, etc). Each section is a self-contained "terminal window" you can experiment in.
+    </div>
+  </section>
+
+  <!-- ================= 01 REPL ================= -->
+  <section class="lesson" id="s-repl">
+    <div class="lesson-eyebrow">01 · Try it yourself</div>
+    <h2>The Node REPL</h2>
+    <p class="intro">The REPL (Read–Eval–Print Loop) is Node's interactive shell — type an expression, get an answer immediately. Try it below. This is a real JS evaluator, with one deliberate exception: <code>document</code> and <code>window</code> are blocked, exactly like real Node.</p>
+
+    <div class="term">
+      <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">node</span></div>
+      <div class="term-body" id="replLog">Welcome to Node.js v22.
+Type ".help" for more information.
+</div>
+      <div style="display:flex; align-items:center; gap:8px; padding:0 18px 16px; font-family:var(--mono); font-size:13px;">
+        <span style="color:var(--green);">&gt;</span>
+        <input id="replInput" type="text" placeholder="try: 2 + 2, or document"
+          style="flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:var(--mono); font-size:13px;">
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <b>Try these</b>
+      <code>2 ** 10</code> &nbsp;·&nbsp; <code>[1,2,3].map(x =&gt; x*2)</code> &nbsp;·&nbsp; <code>typeof require</code> &nbsp;·&nbsp; <code>document</code> &nbsp;·&nbsp; <code>.help</code>
+    </div>
+
+    <div class="quiz" data-answer="b">
+      <div class="q">Quick check: why does typing <code>document</code> in the real Node REPL throw an error?</div>
+      <label><input type="radio" name="q1" value="a"> Node has a bug and hasn't implemented it yet</label>
+      <label><input type="radio" name="q1" value="b"> <code>document</code> is part of the browser's DOM API, which doesn't exist outside a browser</label>
+      <label><input type="radio" name="q1" value="c"> You need to <code>require('document')</code> first</label>
+      <div class="feedback"></div>
+    </div>
+  </section>
+
+  <!-- ================= 02 ARGV ================= -->
+  <section class="lesson" id="s-argv">
+    <div class="lesson-eyebrow">02 · Try it yourself</div>
+    <h2>process.argv</h2>
+    <p class="intro"><code>process.argv</code> is how a Node script reads arguments typed on the command line. Type a command below (as if in a real terminal), then write code that reads it.</p>
+
+    <div class="term">
+      <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">simulated shell</span></div>
+      <div class="term-body" style="display:flex; align-items:center; gap:8px;">
+        <span style="color:var(--green);">$</span>
+        <input id="argvInput" type="text" value="node index.js John 25"
+          style="flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:var(--mono); font-size:13px;">
+      </div>
+    </div>
+
+    <div class="playground">
+      <span class="file-label">index.js — reads process.argv, which is injected below</span>
+      <textarea class="pg-editor" id="argvEditor" spellcheck="false">const name = process.argv[2];
+const age = process.argv[3];
+
+if (name) {
+  console.log(`Name: ${name}`);
+  console.log(`Age: ${age}`);
+} else {
+  console.log('No name provided.');
+}</textarea>
+      <div class="pg-toolbar">
+        <span class="hint" id="argvPreview">process.argv → (updates as you edit the command above)</span>
+        <button class="run-btn" onclick="runArgv()">Run ▸</button>
+      </div>
+      <div class="pg-output" id="argvOutput">Output will appear here.</div>
+    </div>
+  </section>
+
+  <!-- ================= 03 MODULES ================= -->
+  <section class="lesson" id="s-modules">
+    <div class="lesson-eyebrow">03 · Try it yourself</div>
+    <h2>Modules — require() &amp; module.exports</h2>
+    <p class="intro">Edit both files, then Run. <code>app.js</code> calls <code>require('./mathUtils')</code>, which is resolved against whatever <code>mathUtils.js</code> currently exports.</p>
+
+    <div class="two-col">
+      <div>
+        <span class="file-label">mathUtils.js</span>
+        <textarea class="pg-editor" id="modFile" spellcheck="false" style="min-height:160px;">function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  return a - b;
+}
+
+module.exports = { add, subtract };</textarea>
+      </div>
+      <div>
+        <span class="file-label">app.js</span>
+        <textarea class="pg-editor" id="appFile" spellcheck="false" style="min-height:160px;">const { add, subtract } = require('./mathUtils');
+
+console.log('add(2, 3) =', add(2, 3));
+console.log('subtract(10, 4) =', subtract(10, 4));</textarea>
+      </div>
+    </div>
+    <div class="pg-toolbar" style="border-radius:0 0 var(--radius) var(--radius); border-top:1px solid var(--border);">
+      <span class="hint">node app.js</span>
+      <button class="run-btn" onclick="runModules()">Run ▸</button>
+    </div>
+    <div class="pg-output" id="modOutput">Output will appear here.</div>
+
+    <div class="pitfall-note">
+      <b>Try breaking it</b>
+      Delete <code>subtract</code> from <code>module.exports</code> in <code>mathUtils.js</code> but leave the call in <code>app.js</code>. Run it — you'll get <code>subtract is not a function</code>, the exact error students hit when they forget to export something.
+    </div>
+  </section>
+
+  <!-- ================= 04 FS ================= -->
+  <section class="lesson" id="s-fs">
+    <div class="lesson-eyebrow">04 · Try it yourself</div>
+    <h2>The fs module — virtual file system</h2>
+    <p class="intro">This <code>fs</code> object is a simulation — it stores files in memory instead of on a real disk — but the method names and behavior match Node exactly. Watch the file tree update live as you run code.</p>
+
+    <div class="two-col">
+      <div>
+        <span class="file-label">script.js</span>
+        <textarea class="pg-editor" id="fsEditor" spellcheck="false" style="min-height:190px;">fs.mkdirSync('notes', { recursive: true });
+fs.writeFileSync('notes/todo.txt', 'Buy groceries\nWalk the dog\n');
+fs.appendFileSync('notes/todo.txt', 'Review PRs\n');
+
+const content = fs.readFileSync('notes/todo.txt', 'utf8');
+console.log(content);
+
+console.log('Files in notes/:', fs.readdirSync('notes'));</textarea>
+        <div class="pg-toolbar">
+          <span class="hint">virtual fs — resets on page reload</span>
+          <div style="display:flex; gap:8px;">
+            <button class="run-btn secondary" onclick="resetVfs()">Reset FS</button>
+            <button class="run-btn" onclick="runFs()">Run ▸</button>
+          </div>
+        </div>
+        <div class="pg-output" id="fsOutput">Output will appear here.</div>
+      </div>
+      <div>
+        <span class="file-label">Virtual file tree</span>
+        <div class="file-tree" id="fsTree"><span class="empty">(empty — nothing written yet)</span></div>
+        <div class="teach-note" style="margin-top:14px;">
+          <b>Try these</b>
+          <code>fs.existsSync('notes')</code> · <code>fs.statSync('notes/todo.txt').size</code> · <code>fs.unlinkSync('notes/todo.txt')</code> · <code>fs.rmSync('notes', {'{'} recursive: true {'}'})</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz" data-answer="c">
+      <div class="q">Quick check: what does <code>fs.appendFileSync()</code> do differently from <code>fs.writeFileSync()</code>?</div>
+      <label><input type="radio" name="q2" value="a">It writes faster</label>
+      <label><input type="radio" name="q2" value="b">It creates a backup copy first</label>
+      <label><input type="radio" name="q2" value="c">It adds to the end of the file instead of overwriting it</label>
+      <div class="feedback"></div>
+    </div>
+  </section>
+
+  <!-- ================= 05 ASYNC ================= -->
+  <section class="lesson" id="s-async">
+    <div class="lesson-eyebrow">05 · Watch it run</div>
+    <h2>Async file reads — why order isn't top-to-bottom</h2>
+    <p class="intro">Three files of different sizes are read with <code>fs.readFile()</code> (non-blocking). Predict the order the "Done reading" messages will print, then hit Start and watch real timers confirm it.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:0;">Callback style</h3>
+        <pre class="code-static"><span class="c">// small.txt, medium.txt, large.txt</span>
+fs.readFile('small.txt', cb);
+fs.readFile('medium.txt', cb);
+fs.readFile('large.txt', cb);
+
+console.log('Started reading files.');</pre>
+      </div>
+      <div>
+        <h3 style="margin-top:0;">async/await + Promise.all</h3>
+        <pre class="code-static">await Promise.all([
+  fs.readFile('small.txt'),
+  fs.readFile('medium.txt'),
+  fs.readFile('large.txt'),
+]);
+<span class="c">// all three run concurrently</span></pre>
+      </div>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="tl-row"><div class="tl-label">small.txt</div><div class="tl-track"><div class="tl-fill" id="tlSmall"></div></div><div class="tl-done" id="tlSmallDone"></div></div>
+      <div class="tl-row"><div class="tl-label">medium.txt</div><div class="tl-track"><div class="tl-fill" id="tlMedium"></div></div><div class="tl-done" id="tlMediumDone"></div></div>
+      <div class="tl-row"><div class="tl-label">large.txt</div><div class="tl-track"><div class="tl-fill" id="tlLarge"></div></div><div class="tl-done" id="tlLargeDone"></div></div>
+      <div class="pg-toolbar" style="margin-top:10px; border-radius:6px; border:1px solid var(--border);">
+        <span class="hint" id="tlStatus">Ready.</span>
+        <button class="run-btn" onclick="runTimeline()">Start ▸</button>
+      </div>
+      <div class="pg-output" id="tlLog" style="margin-top:10px; border-radius:6px;">Started reading files.</div>
+    </div>
+
+    <div class="teach-note">
+      <b>Teaching note</b>
+      Have students say their predicted print order out loud before clicking Start. Most predict small → medium → large in program order without realizing "started reading" logs first — this animation makes the non-blocking behavior visible instead of abstract.
+    </div>
+  </section>
+
+  <!-- ================= 06 NPM ================= -->
+  <section class="lesson" id="s-npm">
+    <div class="lesson-eyebrow">06 · Watch it run</div>
+    <h2>npm — installing &amp; using a package</h2>
+    <p class="intro"><code>npm</code> (Node Package Manager) downloads reusable code from the npm registry into <code>node_modules/</code>. Click below to simulate installing <code>chalk</code>, a real package used to colour terminal output.</p>
+
+    <div class="term npm-term">
+      <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">terminal</span></div>
+      <div class="term-body" id="npmTerm">$ <span class="cursor"></span></div>
+    </div>
+    <div class="pg-toolbar" style="border-radius:0 0 var(--radius) var(--radius); border-top:none; border:1px solid var(--border); margin-top:-1px;">
+      <span class="hint">npm install chalk@4</span>
+      <button class="run-btn" onclick="runNpmInstall()">Install ▸</button>
+    </div>
+
+    <h3>Now use it</h3>
+    <div class="playground">
+      <span class="file-label">colours.js — a simulated `chalk` is available below</span>
+      <textarea class="pg-editor" id="npmEditor" spellcheck="false">console.log(chalk.green('Success! Package installed.'));
+console.log(chalk.red('This would print in red.'));
+console.log(chalk.yellow('Warning: pin chalk@4 for require()!'));</textarea>
+      <div class="pg-toolbar">
+        <span class="hint">node colours.js</span>
+        <button class="run-btn" onclick="runNpmDemo()">Run ▸</button>
+      </div>
+      <div class="pg-output" id="npmOutput">Install the package above first, then Run.</div>
+    </div>
+
+    <div class="pitfall-note">
+      <b>Real-world gotcha</b>
+      The <i>real</i> latest <code>chalk</code> (v6) is ESM-only — <code>require('chalk')</code> won't error, but <code>chalk.green</code> won't exist either (it's nested under <code>.default</code>). Install <code>chalk@4</code> specifically to keep the classic API this demo shows.
+    </div>
+  </section>
+
+  <!-- ================= 07 HTTP ================= -->
+  <section class="lesson" id="s-http">
+    <div class="lesson-eyebrow">07 · Watch it run</div>
+    <h2>A simple HTTP server</h2>
+    <p class="intro">This one genuinely can't run in a browser tab — it needs a real terminal listening on a real port. Here's the code, plus a click-through diagram of what happens on each request.</p>
+
+    <pre class="code-static"><span class="c">// server.js — run this with: node server.js</span>
+<span class="k">const</span> http = require(<span class="s">'http'</span>);
+
+<span class="k">const</span> server = http.createServer((req, res) =&gt; {
+  res.statusCode = 200;
+  res.setHeader(<span class="s">'Content-Type'</span>, <span class="s">'text/plain'</span>);
+  res.end(<span class="s">'Hello World\n'</span>);
+});
+
+server.listen(3000, <span class="s">'127.0.0.1'</span>, () =&gt; {
+  console.log(<span class="s">'Server running at http://127.0.0.1:3000/'</span>);
+});</pre>
+
+    <div class="http-diagram">
+      <div class="http-box"><div class="label">Client</div>browser</div>
+      <div class="http-arrow"><div class="http-packet" id="pkt1"></div></div>
+      <div class="http-box"><div class="label">Server</div>node server.js</div>
+      <div class="http-arrow"><div class="http-packet" id="pkt2"></div></div>
+      <div class="http-box"><div class="label">Response</div>"Hello World"</div>
+    </div>
+    <div class="pg-toolbar" style="border-radius:6px; border:1px solid var(--border); justify-content:center;">
+      <button class="run-btn" onclick="runHttpDemo()">Send request ▸</button>
+    </div>
+    <div class="pg-output" id="httpLog" style="margin-top:10px; border-radius:6px; text-align:center;">Click "Send request" to see one request/response cycle.</div>
+
+    <div class="teach-note">
+      <b>Teaching note</b>
+      Node handles this on a single thread using the same non-blocking model as the fs example above — it can start handling a second request before the first one finishes, instead of spawning a new thread per connection. Worth connecting back to Section 05 explicitly.
+    </div>
+  </section>
+
+  <footer>
+    Node.js Learning Lab — a companion to the fs / async / npm learning notes. All code shown outside the simulator (Section 07) is real, unmodified Node.js meant to run in an actual terminal.
+  </footer>
+</main>
+
+<script>
+/* ============================================================
+   Shared helpers
+   ============================================================ */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function fmtLogArg(a){
+  if (typeof a === 'string') return a;
+  try { return JSON.stringify(a, null, 0); } catch(e){ return String(a); }
+}
+function makeConsole(outEl){
+  outEl.innerHTML = '';
+  return {
+    log: (...args) => {
+      const line = document.createElement('div');
+      line.textContent = args.map(fmtLogArg).join(' ');
+      outEl.appendChild(line);
+    },
+    error: (...args) => {
+      const line = document.createElement('div');
+      line.className = 'err';
+      line.textContent = args.map(fmtLogArg).join(' ');
+      outEl.appendChild(line);
+    }
+  };
+}
+function outputEmptyIfBlank(outEl, placeholder){
+  if (!outEl.textContent.trim()) outEl.innerHTML = '<span class="dim">' + placeholder + '</span>';
+}
+
+/* ============================================================
+   Boot sequence (hero)
+   ============================================================ */
+(function boot(){
+  const el = document.getElementById('bootTerm');
+  const lines = [
+    { t: '$ node --version', pause: 300 },
+    { t: 'v22.11.0', pause: 250, dim:true },
+    { t: '$ node index.js', pause: 300 },
+    { t: 'Welcome to the Node.js Learning Lab.', pause: 200, dim:true },
+    { t: 'Scroll down, or pick a file on the left. →', pause: 0, dim:true }
+  ];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced){
+    el.textContent = lines.map(l=>l.t).join('\n');
+    return;
+  }
+  let i = 0, out = '';
+  function typeLine(){
+    if (i >= lines.length){ el.innerHTML = out + '<span class="cursor"></span>'; return; }
+    const { t, pause } = lines[i];
+    let c = 0;
+    el.innerHTML = out + '<span class="cursor"></span>';
+    const iv = setInterval(() => {
+      c++;
+      el.innerHTML = out + escapeHtml(t.slice(0,c)) + '<span class="cursor"></span>';
+      if (c >= t.length){
+        clearInterval(iv);
+        out += escapeHtml(t) + '\n';
+        i++;
+        setTimeout(typeLine, pause);
+      }
+    }, 18);
+  }
+  typeLine();
+})();
+
+/* ============================================================
+   Sidebar nav — active state + smooth scroll
+   ============================================================ */
+(function nav(){
+  const items = Array.from(document.querySelectorAll('.nav-item'));
+  const sections = items.map(i => document.getElementById(i.dataset.target));
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      document.getElementById(item.dataset.target).scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const idx = sections.indexOf(entry.target);
+      if (entry.isIntersecting && idx !== -1){
+        items.forEach(i => i.classList.remove('active'));
+        items[idx].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+})();
+
+/* ============================================================
+   Quiz widgets
+   ============================================================ */
+document.querySelectorAll('.quiz').forEach(quiz => {
+  const answer = quiz.dataset.answer;
+  const feedback = quiz.querySelector('.feedback');
+  quiz.querySelectorAll('input[type=radio]').forEach(input => {
+    input.addEventListener('change', () => {
+      const correct = input.value === answer;
+      feedback.textContent = correct ? '✓ Correct.' : '✗ Not quite — try again.';
+      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    });
+  });
+});
+
+/* ============================================================
+   01 — REPL
+   ============================================================ */
+(function repl(){
+  const input = document.getElementById('replInput');
+  const log = document.getElementById('replLog');
+  const blocked = ['document','window','navigator','localStorage','alert'];
+
+  function println(text, cls){
+    const div = document.createElement('div');
+    if (cls) div.className = cls;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const expr = input.value;
+    if (!expr.trim()) return;
+    println('> ' + expr);
+    input.value = '';
+
+    if (expr.trim() === '.help'){
+      println('.exit    Exit the REPL\n.help    Show this help\n.clear   Clear the console', 'dim');
+      return;
+    }
+    if (expr.trim() === '.clear'){
+      log.innerHTML = '';
+      return;
+    }
+    const hit = blocked.find(word => new RegExp('\\b' + word + '\\b').test(expr));
+    if (hit){
+      println('Uncaught ReferenceError: ' + hit + ' is not defined', 'err');
+      return;
+    }
+    try {
+      const result = Function('"use strict"; return (' + expr + ')')();
+      println(result === undefined ? 'undefined' : (typeof result === 'string' ? "'" + result + "'" : JSON.stringify(result)));
+    } catch (err) {
+      println('Uncaught ' + err.name + ': ' + err.message, 'err');
+    }
+  });
+})();
+
+/* ============================================================
+   02 — process.argv
+   ============================================================ */
+function parseArgv(cmd){
+  const parts = (cmd.match(/"[^"]*"|'[^']*'|\S+/g) || []).map(s => s.replace(/^["']|["']$/g,''));
+  return ['/usr/bin/node', '/home/user/index.js', ...parts.slice(2)];
+}
+(function argvPreview(){
+  const input = document.getElementById('argvInput');
+  const preview = document.getElementById('argvPreview');
+  function update(){
+    preview.textContent = 'process.argv → ' + JSON.stringify(parseArgv(input.value));
+  }
+  input.addEventListener('input', update);
+  update();
+})();
+function runArgv(){
+  const cmd = document.getElementById('argvInput').value;
+  const argv = parseArgv(cmd);
+  const code = document.getElementById('argvEditor').value;
+  const outEl = document.getElementById('argvOutput');
+  const con = makeConsole(outEl);
+  try {
+    Function('process','console', code)({ argv }, con);
+  } catch (err) {
+    con.error(err.name + ': ' + err.message);
+  }
+  outputEmptyIfBlank(outEl, '(no output)');
+}
+
+/* ============================================================
+   03 — Modules
+   ============================================================ */
+function runModules(){
+  const modCode = document.getElementById('modFile').value;
+  const appCode = document.getElementById('appFile').value;
+  const outEl = document.getElementById('modOutput');
+  const con = makeConsole(outEl);
+  try {
+    const moduleObj = { exports: {} };
+    Function('module','exports','console', modCode)(moduleObj, moduleObj.exports, con);
+    function fakeRequire(path){
+      if (path === './mathUtils' || path === './mathUtils.js') return moduleObj.exports;
+      throw new Error("Cannot find module '" + path + "'");
+    }
+    Function('require','console', appCode)(fakeRequire, con);
+  } catch (err) {
+    con.error(err.name + ': ' + err.message);
+  }
+  outputEmptyIfBlank(outEl, '(no output)');
+}
+
+/* ============================================================
+   04 — fs playground (virtual file system)
+   ============================================================ */
+let vfiles = {};   // path -> content string
+let vdirs = new Set(); // directory paths
+
+function vNormalize(p){
+  return p.replace(/^\.\//,'').replace(/\/+$/,'');
+}
+function vParentExists(p){
+  const parts = p.split('/');
+  parts.pop();
+  if (parts.length === 0) return true;
+  return vdirs.has(parts.join('/'));
+}
+const vfs = {
+  mkdirSync(p, opts){
+    p = vNormalize(p);
+    if (!opts || !opts.recursive) {
+      if (!vParentExists(p)) throw Object.assign(new Error("ENOENT: no such file or directory, mkdir '"+p+"'"), {code:'ENOENT'});
+      if (vdirs.has(p)) throw Object.assign(new Error("EEXIST: file already exists, mkdir '"+p+"'"), {code:'EEXIST'});
+      vdirs.add(p);
+      return;
+    }
+    const parts = p.split('/');
+    let cur = '';
+    for (const part of parts){ cur = cur ? cur + '/' + part : part; vdirs.add(cur); }
+  },
+  writeFileSync(p, data){
+    p = vNormalize(p);
+    if (!vParentExists(p)) throw Object.assign(new Error("ENOENT: no such file or directory, open '"+p+"'"), {code:'ENOENT'});
+    vfiles[p] = String(data);
+  },
+  appendFileSync(p, data){
+    p = vNormalize(p);
+    vfiles[p] = (vfiles[p] || '') + String(data);
+  },
+  readFileSync(p, enc){
+    p = vNormalize(p);
+    if (!(p in vfiles)) throw Object.assign(new Error("ENOENT: no such file or directory, open '"+p+"'"), {code:'ENOENT'});
+    return vfiles[p];
+  },
+  existsSync(p){
+    p = vNormalize(p);
+    return (p in vfiles) || vdirs.has(p);
+  },
+  readdirSync(p){
+    p = vNormalize(p);
+    if (!vdirs.has(p) && p !== '') throw Object.assign(new Error("ENOENT: no such file or directory, scandir '"+p+"'"), {code:'ENOENT'});
+    const prefix = p ? p + '/' : '';
+    const seen = new Set();
+    [...Object.keys(vfiles), ...vdirs].forEach(entry => {
+      if (entry.startsWith(prefix) && entry !== p){
+        const rest = entry.slice(prefix.length);
+        const top = rest.split('/')[0];
+        if (top) seen.add(top);
+      }
+    });
+    return [...seen].sort();
+  },
+  unlinkSync(p){
+    p = vNormalize(p);
+    if (!(p in vfiles)) throw Object.assign(new Error("ENOENT: no such file or directory, unlink '"+p+"'"), {code:'ENOENT'});
+    delete vfiles[p];
+  },
+  rmSync(p, opts){
+    p = vNormalize(p);
+    if (opts && opts.recursive){
+      Object.keys(vfiles).forEach(f => { if (f === p || f.startsWith(p+'/')) delete vfiles[f]; });
+      [...vdirs].forEach(d => { if (d === p || d.startsWith(p+'/')) vdirs.delete(d); });
+    } else {
+      delete vfiles[p];
+    }
+  },
+  statSync(p){
+    p = vNormalize(p);
+    const isDir = vdirs.has(p);
+    const isFile = p in vfiles;
+    if (!isDir && !isFile) throw Object.assign(new Error("ENOENT: no such file or directory, stat '"+p+"'"), {code:'ENOENT'});
+    return {
+      isFile: () => isFile,
+      isDirectory: () => isDir,
+      size: isFile ? vfiles[p].length : 0
+    };
+  },
+  renameSync(oldP, newP){
+    oldP = vNormalize(oldP); newP = vNormalize(newP);
+    if (!(oldP in vfiles)) throw Object.assign(new Error("ENOENT: no such file or directory, rename '"+oldP+"'"), {code:'ENOENT'});
+    vfiles[newP] = vfiles[oldP];
+    delete vfiles[oldP];
+  }
+};
+function renderFsTree(){
+  const el = document.getElementById('fsTree');
+  const allDirs = [...vdirs].sort();
+  const allFiles = Object.keys(vfiles).sort();
+  if (allDirs.length === 0 && allFiles.length === 0){
+    el.innerHTML = '<span class="empty">(empty — nothing written yet)</span>';
+    return;
+  }
+  let html = '';
+  allDirs.forEach(d => {
+    const depth = d.split('/').length - 1;
+    html += '<div class="row" style="padding-left:'+(depth*14)+'px"><span class="icon-dir">📁</span><span class="name">'+escapeHtml(d.split('/').pop())+'/</span></div>';
+  });
+  allFiles.forEach(f => {
+    const depth = f.split('/').length - 1;
+    const size = vfiles[f].length;
+    html += '<div class="row" style="padding-left:'+(depth*14)+'px"><span class="icon-file">📄</span><span class="name">'+escapeHtml(f.split('/').pop())+'</span><span class="meta">'+size+'B</span></div>';
+  });
+  el.innerHTML = html;
+}
+function runFs(){
+  const code = document.getElementById('fsEditor').value;
+  const outEl = document.getElementById('fsOutput');
+  const con = makeConsole(outEl);
+  try {
+    Function('fs','console', code)(vfs, con);
+  } catch (err) {
+    con.error((err.code ? err.code+': ' : '') + err.message);
+  }
+  outputEmptyIfBlank(outEl, '(no output)');
+  renderFsTree();
+}
+function resetVfs(){
+  vfiles = {}; vdirs = new Set();
+  renderFsTree();
+  document.getElementById('fsOutput').innerHTML = '<span class="dim">Virtual file system reset.</span>';
+}
+renderFsTree();
+
+/* ============================================================
+   05 — Async timeline
+   ============================================================ */
+function runTimeline(){
+  const status = document.getElementById('tlStatus');
+  const logEl = document.getElementById('tlLog');
+  logEl.textContent = 'Started reading files.';
+  status.textContent = 'Running...';
+
+  const files = [
+    { key:'Small', ms: 500 },
+    { key:'Medium', ms: 1400 },
+    { key:'Large', ms: 2600 }
+  ];
+  files.forEach(f => {
+    const fill = document.getElementById('tl'+f.key);
+    const done = document.getElementById('tl'+f.key+'Done');
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    done.textContent = '';
+    void fill.offsetWidth;
+    fill.style.transition = 'width ' + f.ms + 'ms linear';
+    requestAnimationFrame(() => { fill.style.width = '100%'; });
+    setTimeout(() => {
+      done.textContent = '✓ ' + (f.ms/1000).toFixed(1) + 's';
+      const line = document.createElement('div');
+      line.className = 'ok';
+      line.textContent = 'Done reading ' + f.key.toLowerCase() + '.txt';
+      logEl.appendChild(line);
+      if (f.key === 'Large') status.textContent = 'Complete — note the print order above vs. program order in the code.';
+    }, f.ms);
+  });
+}
+
+/* ============================================================
+   06 — npm install simulation
+   ============================================================ */
+let npmInstalled = false;
+function runNpmInstall(){
+  const term = document.getElementById('npmTerm');
+  const lines = [
+    '$ npm install chalk@4',
+    '⠋ Resolving packages...',
+    '⠙ Fetching chalk@4.1.2 from registry.npmjs.org',
+    '⠹ Installing...',
+    '',
+    '+ chalk@4.1.2',
+    'added 3 packages in 1.2s'
+  ];
+  term.innerHTML = '';
+  let i = 0;
+  function next(){
+    if (i >= lines.length){
+      term.innerHTML += '\n$ <span class="cursor"></span>';
+      npmInstalled = true;
+      return;
+    }
+    term.innerHTML += (i>0?'\n':'') + escapeHtml(lines[i]);
+    i++;
+    setTimeout(next, i < 4 ? 260 : 120);
+  }
+  next();
+}
+function runNpmDemo(){
+  const code = document.getElementById('npmEditor').value;
+  const outEl = document.getElementById('npmOutput');
+  if (!npmInstalled){
+    outEl.innerHTML = '<span class="err">Error: Cannot find module \'chalk\' — click Install above first.</span>';
+    return;
+  }
+  outEl.innerHTML = '';
+  const chalk = {
+    green: t => '<span style="color:#8080AA">' + escapeHtml(t) + '</span>',
+    red: t => '<span style="color:#E61E2A">' + escapeHtml(t) + '</span>',
+    yellow: t => '<span style="color:#FAC800">' + escapeHtml(t) + '</span>',
+    cyan: t => '<span style="color:#40407F">' + escapeHtml(t) + '</span>'
+  };
+  const con = {
+    log: (...args) => {
+      const div = document.createElement('div');
+      div.innerHTML = args.join(' ');
+      outEl.appendChild(div);
+    }
+  };
+  try {
+    Function('chalk','console', code)(chalk, con);
+  } catch (err) {
+    outEl.innerHTML += '<div class="err">' + escapeHtml(err.name + ': ' + err.message) + '</div>';
+  }
+}
+
+/* ============================================================
+   07 — HTTP request/response animation
+   ============================================================ */
+function runHttpDemo(){
+  const log = document.getElementById('httpLog');
+  const p1 = document.getElementById('pkt1');
+  const p2 = document.getElementById('pkt2');
+  log.textContent = 'Client sends: GET / HTTP/1.1';
+  [p1,p2].forEach(p => { p.style.transition='none'; p.style.left='0%'; p.style.opacity='1'; });
+  void p1.offsetWidth;
+  p1.style.transition = 'left 500ms ease';
+  requestAnimationFrame(() => { p1.style.left = 'calc(100% - 16px)'; });
+  setTimeout(() => {
+    log.textContent = 'Server: res.end("Hello World")';
+    p2.style.transition = 'left 500ms ease';
+    requestAnimationFrame(() => { p2.style.left = 'calc(100% - 16px)'; });
+  }, 550);
+  setTimeout(() => {
+    log.innerHTML = '<span class="ok">200 OK — "Hello World" received by client</span>';
+    [p1,p2].forEach(p => p.style.opacity = '0');
+  }, 1150);
+}
+</script>
+</body>
+</html>
