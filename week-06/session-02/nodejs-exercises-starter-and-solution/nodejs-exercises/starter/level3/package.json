@@ -1,0 +1,11 @@
+{
+  "name": "level3-exercises",
+  "version": "1.0.0",
+  "description": "Exercises 3.5 and 3.6",
+  "main": "wordCount.js",
+  "scripts": {
+    "wordcount": "node wordCount.js notes.txt",
+    "notes": "node notesApp.js"
+  },
+  "dependencies": {}
+}

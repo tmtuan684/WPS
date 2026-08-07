@@ -1,0 +1,4 @@
+Node.js is a JavaScript runtime built on Chrome's V8 engine.
+Node.js is asynchronous and event-driven. Node.js is single-threaded
+but highly scalable thanks to its non-blocking I/O model. Many
+companies use Node.js to build fast, scalable network applications.
