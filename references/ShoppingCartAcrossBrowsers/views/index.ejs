@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Shop — Welcome</title>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+
+<body class="bg-light">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">My Shop</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item">
+            <a class="nav-link" href="/products">Products</a>
+          </li>
+          <li class="nav-item">
+            <% 
+              // compute cart item count safely (works if cart is object {id:qty} or array of items)
+              let itemCount = 0;
+              if (typeof session !== 'undefined' && session && session.cart) {
+                if (Array.isArray(session.cart)) {
+                  // cart as array of { product, quantity }
+                  itemCount = session.cart.reduce((s, it) => s + (it.quantity || 0), 0);
+                } else {
+                  // cart as object { productId: qty }
+                  itemCount = Object.values(session.cart).reduce((s, q) => s + (Number(q) || 0), 0);
+                }
+              }
+            %>
+            <a class="nav-link" href="/cart">
+              Cart
+              <% if (itemCount > 0) { %>
+                <span class="badge bg-warning text-dark ms-1"><%= itemCount %></span>
+              <% } %>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="container py-5">
+    <div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+      <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold">Welcome to My Shop</h1>
+        <p class="col-md-8 fs-5 text-muted">
+          Browse carefully selected items and manage your shopping cart with sessions and cookies.
+          Quick demo for learning how sessions persist a cart during browsing.
+        </p>
+
+        <div class="mt-4">
+          <a href="/products" class="btn btn-primary btn-lg me-3">Browse Products</a>
+          <a href="/cart" class="btn btn-outline-secondary btn-lg">
+            View Cart
+            <% if (itemCount > 0) { %>
+              <span class="badge bg-warning text-dark ms-2"><%= itemCount %></span>
+            <% } %>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick features row -->
+    <div class="row text-center">
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Session-backed Cart</h5>
+            <p class="card-text text-muted">Cart state is kept on the server using express-session.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Remember Option</h5>
+            <p class="card-text text-muted">Optionally extend the session cookie to remember the cart.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Easy Demo</h5>
+            <p class="card-text text-muted">Designed to pair with the Products and Cart pages in this demo app.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mb-5">
+    <div class="row">
+      <div class="col-md-8">
+        <h3>How to use</h3>
+        <ol>
+          <li>Click <strong>Browse Products</strong> to see items and add them to your cart.</li>
+          <li>Open <strong>Cart</strong> to update quantities or checkout.</li>
+          <li>Use the "Remember" option on product add to extend session cookie lifetime.</li>
+        </ol>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Quick Links</h5>
+            <p class="mb-2">
+              <a href="/products" class="btn btn-sm btn-outline-primary w-100 mb-2">Products</a>
+            </p>
+            <p>
+              <a href="/cart" class="btn btn-sm btn-outline-secondary w-100">Cart <%= itemCount ? `(${itemCount})` : '' %></a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-white py-3 border-top">
+    <div class="container text-center text-muted">
+      © <%= new Date().getFullYear() %> Developed by Tuan Tran — Demo for sessions & cookies
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
