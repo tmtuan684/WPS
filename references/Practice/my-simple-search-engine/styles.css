@@ -1,0 +1,37 @@
+/* Use Font Elms Sans*/
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Elms Sans', serif;
+    padding-top: 100px;
+    color: rgb(9, 9, 110);
+}
+
+#search {
+    font-family: 'Elms Sans', serif;
+    font-size: 20px;
+    width: 600px;
+    height: 40px; 
+    border-radius: 40px;
+    padding-left: 40px;
+}
+button {
+    font-family: 'Elms Sans', sans-serif;
+    font-size: 20px;
+    margin-top: 40px;
+    width: 200px;
+    height: 40px;
+    border-radius: 30px;
+}
+button:hover {
+    border: 2px solid rgb(68, 139, 206);
+}
+button:active {
+    background-color: rgb(68, 139, 206);
+    color: white;
+}

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<!-- saved from url=(0116)file:///Users/tmt/Local%20Documents/Projects/WPS/week-05/form-validation/regular-expression/regex-in-javascript.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Regex in JavaScript — From Zero</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --paper:#eef2f1; --grid:#dbe3e1; --ink:#1b2430; --ink-soft:#4a5568;
+    --amber:#e8a33d; --amber-soft:#fbe8c8; --green:#2f9e63; --green-soft:#dcf3e6;
+    --red:#d6455c; --red-soft:#fbdfe3; --panel:#ffffff; --violet:#6a5fd6; --violet-soft:#e6e3fb;
+    --console:#161d27; --console-text:#9fe3b8; --console-dim:#5f7185;
+  }
+  * {box-sizing: border-box; }
+  body {
+    margin:0;
+    background:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px),var(--paper);background-size:28px 28px;color:var(--ink);
+    font-family:'Inter', sans-serif;padding:40px 20px 80px;}
+  .wrap {
+    max-width:920px;
+    margin:0 auto;
+  }
+  .eyebrow {
+    font-family:'JetBrains Mono', 
+    monospace;font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--violet);display:inline-block;animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  h1{font-family:'Space Grotesk', sans-serif;font-size:38px;line-height:1.1;margin:0 0 16px;letter-spacing:-.01em;}
+  .hero p{font-size:15.5px;line-height:1.65;color:var(--ink-soft);max-width:680px;margin:0 0 10px;}
+  .hero strong{color:var(--ink);}
+  .thesis{margin-top:22px;border-left:3px solid var(--violet);padding:12px 18px;background:var(--panel);font-family:'JetBrains Mono', monospace;font-size:13px;color:var(--ink-soft);line-height:1.7;}
+
+  .module{background:var(--panel);border:1px solid var(--grid);border-radius:10px;margin-bottom:28px;overflow:hidden;}
+  .tab-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--grid);background:#f7f9f8;}
+  .tab-title{font-family:'JetBrains Mono', monospace;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:10px;}
+  .tab-title .num{background:var(--ink);color:#fff;font-size:11px;font-weight:600;width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;}
+  .module-body{padding:20px 24px 24px;}
+  .module h2{font-family:'Space Grotesk', sans-serif;font-size:19px;margin:0 0 6px;}
+  .module .concept{font-size:13.5px;color:var(--ink-soft);line-height:1.65;margin:0 0 14px;}
+  .module .concept code{background:#f0f0f0;padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#7a3ea0;}
+
+  .cheat{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .cheat span{font-family:'JetBrains Mono', monospace;font-size:12px;background:var(--violet-soft);color:var(--violet);padding:4px 9px;border-radius:6px;font-weight:600;}
+
+  /* playground */
+  .pg{border:1.5px solid var(--grid);border-radius:9px;overflow:hidden;}
+  .pg-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--grid);background:#fbfcfc;}
+  .pg-slash{font-family:'JetBrains Mono', monospace;color:var(--violet);font-size:15px;padding:0 4px 0 12px;font-weight:700;}
+  .pg-pattern{flex:1;border:none;background:transparent;font-family:'JetBrains Mono', monospace;font-size:14.5px;padding:11px 4px;outline:none;color:var(--ink);}
+  .pg-flags{width:56px;border:none;border-left:1px solid var(--grid);background:transparent;font-family:'JetBrains Mono', monospace;font-size:14.5px;padding:11px 8px;outline:none;color:var(--violet);font-weight:700;}
+  .pg-test{width:100%;border:none;background:#fff;font-family:'JetBrains Mono', monospace;font-size:14px;padding:14px 14px;outline:none;resize:vertical;min-height:44px;color:var(--ink);}
+  .pg-result{padding:12px 14px;background:#fdfdfc;border-top:1px solid var(--grid);font-family:'JetBrains Mono', monospace;font-size:14px;line-height:1.9;min-height:22px;word-break:break-word;}
+  .pg-result mark{background:var(--green-soft);color:var(--green);border-radius:3px;padding:0 2px;font-weight:700;}
+  .pg-status{padding:8px 14px;font-family:'JetBrains Mono', monospace;font-size:11.5px;border-top:1px solid var(--grid);display:flex;justify-content:space-between;}
+  .pg-status .ok{color:var(--green);font-weight:700;}
+  .pg-status .err{color:var(--red);font-weight:700;}
+  .pg-status .muted{color:var(--ink-soft);}
+
+  /* exercises */
+  .exercises{margin-top:54px;}
+  .exercises h2{font-family:'Space Grotesk', sans-serif;font-size:25px;margin-bottom:6px;}
+  .exercises > p{color:var(--ink-soft);font-size:14.5px;margin-top:0;margin-bottom:24px;}
+  .level{background:var(--panel);border:1px solid var(--grid);border-radius:10px;margin-bottom:16px;overflow:hidden;}
+  .level-head{padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--grid);background:#f7f9f8;}
+  .level-head .badge{font-family:'JetBrains Mono', monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.03em;}
+  .level:nth-of-type(1) .badge{background:var(--green-soft);color:var(--green);}
+  .level:nth-of-type(2) .badge{background:var(--amber-soft);color:#a06a12;}
+  .level:nth-of-type(3) .badge{background:var(--violet-soft);color:var(--violet);}
+  .level:nth-of-type(4) .badge{background:var(--red-soft);color:var(--red);}
+  .level-head h3{font-family:'Space Grotesk', sans-serif;font-size:16px;margin:0;}
+  .level ol{margin:0;padding:16px 20px 18px 40px;}
+  .level li{font-size:13.5px;line-height:1.75;color:var(--ink);margin-bottom:8px;}
+  .level li code{background:#f0f0f0;padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#7a3ea0;}
+
+  /* applications */
+  .apps{margin-top:54px;}
+  .apps h2{font-family:'Space Grotesk', sans-serif;font-size:25px;margin-bottom:6px;}
+  .apps > p{color:var(--ink-soft);font-size:14.5px;margin-top:0;margin-bottom:24px;}
+  .app-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:720px){.app-grid{grid-template-columns:1fr;}}
+  .app-card{background:var(--panel);border:1px solid var(--grid);border-radius:10px;padding:18px 20px;}
+  .app-card h3{font-family:'Space Grotesk', sans-serif;font-size:15.5px;margin:0 0 6px;}
+  .app-card p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px;}
+  .app-card pre{background:var(--console);color:var(--console-text);font-family:'JetBrains Mono', monospace;font-size:11.5px;padding:12px;border-radius:7px;overflow-x:auto;margin:0;line-height:1.6;}
+  .app-card .comment{color:var(--console-dim);}
+
+  footer{margin-top:50px;font-family:'JetBrains Mono', monospace;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--grid);padding-top:18px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow"><span class="dot"></span>REGULAR EXPRESSIONS IN JAVASCRIPT</div>
+    <h1>Regex is just a tiny pattern language.</h1>
+    <p>A regular expression describes a <strong>shape</strong> a string should match — not the exact characters. In JS you write one either as a <strong>literal</strong>, <code>/abc/</code>, or built dynamically with <code>new RegExp("abc")</code>. Every playground below is live: type a pattern on the left, test text underneath, and watch matches highlight in real time.</p>
+    <div class="thesis">core methods you'll use constantly: <code>regex.test(str)</code> → true/false · <code>str.match(regex)</code> → array of matches or null · <code>str.replace(regex, replacement)</code> → new string · <code>regex.exec(str)</code> → one match at a time, with capture groups.</div>
+  </div>
+
+  <!-- MODULE 1: literal characters -->
+  <div class="module">
+    <div class="tab-bar"><div class="tab-title"><span class="num">1</span>Literal characters — the simplest pattern</div></div>
+    <div class="module-body">
+      <h2>Matching exact text</h2>
+      <p class="concept">The plainest regex just spells out the characters it wants, in order. <code>/cat/</code> matches the exact substring "cat" anywhere inside a string — it does <em>not</em> need to match the whole string.</p>
+      <div class="pg" data-pg="" data-default-pattern="cat" data-default-flags="g" data-default-test="The cat sat on the mat. A catalog fell too.">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="cat" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="g" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">The cat sat on the mat. A catalog fell too.</textarea>
+    <div class="pg-result">The <mark>cat</mark> sat on the mat.</div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">1 match</span></span><span class="err"></span></div>
+  </div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: character classes + quantifiers -->
+  <div class="module">
+    <div class="tab-bar"><div class="tab-title"><span class="num">2</span>Character classes &amp; quantifiers</div></div>
+    <div class="module-body">
+      <h2>Matching a <em>kind</em> of character, and how many</h2>
+      <p class="concept">Instead of one exact letter, a character class matches any character from a set. Quantifiers say how many times to repeat the thing before them.</p>
+      <div class="cheat">
+        <span>\d = digit</span><span>\w = word char</span><span>\s = whitespace</span><span>. = any char</span>
+        <span>+ = 1 or more</span><span>* = 0 or more</span><span>? = 0 or 1</span><span>{n,m} = n to m times</span>
+      </div>
+      <div class="pg" data-pg="" data-default-pattern="\d{3}-\d{4}" data-default-flags="g" data-default-test="Call the office at 823-1090 or the hotline 823-9999, not 12-34.">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="\d{3}-\d{4}" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="g" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">Call the office at 823-1090 or the hotline 823-9999, not 12-34.</textarea>
+    <div class="pg-result">Call the office at <mark>823-1090</mark> or the hotline <mark>823-9999</mark>, not 12-34.</div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">2 matches</span></span><span class="err"></span></div>
+  </div>
+    </div>
+  </div>
+
+  <!-- MODULE 3: anchors + boundaries -->
+  <div class="module">
+    <div class="tab-bar"><div class="tab-title"><span class="num">3</span>Anchors — <code style="font-family:inherit">^</code>, <code style="font-family:inherit">$</code>, <code style="font-family:inherit">\b</code></div></div>
+    <div class="module-body">
+      <h2>Matching a position, not a character</h2>
+      <p class="concept"><code>^</code> anchors to the start of the string, <code>$</code> to the end, and <code>\b</code> to a word boundary (between a word character and a non-word character). Without anchors, "cat" also matches inside "category" — try adding <code>\b</code> around it below.</p>
+      <div class="cheat"><span>^ = start</span><span>$ = end</span><span>\b = word boundary</span><span>^...$ = whole-string match</span></div>
+      <div class="pg" data-pg="" data-default-pattern="\bcat\b" data-default-flags="g" data-default-test="cat catalog concatenate cat&#39;s category cat">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="\bcat\b" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="g" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">cat catalog concatenate cat's category cat</textarea>
+    <div class="pg-result"><mark>cat</mark> catalog concatenate <mark>cat</mark>'s category <mark>cat</mark></div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">3 matches</span></span><span class="err"></span></div>
+  </div>
+    </div>
+  </div>
+
+  <!-- MODULE 4: groups, alternation, capture, replace -->
+  <div class="module">
+    <div class="tab-bar"><div class="tab-title"><span class="num">4</span>Groups, alternation &amp; capturing</div></div>
+    <div class="module-body">
+      <h2>Grouping pieces together, and pulling data out</h2>
+      <p class="concept">Parentheses <code>( )</code> group a sub-pattern and also <strong>capture</strong> whatever matched, so you can reuse it — e.g. in <code>str.replace()</code> with <code>$1</code>, <code>$2</code>. The pipe <code>|</code> means "or".</p>
+      <div class="cheat"><span>(a|b) = a or b</span><span>(...) = capture group</span><span>$1 $2 = captured text in replace()</span></div>
+      <div class="pg" data-pg="" data-default-pattern="(\w+)@(\w+)\.com" data-default-flags="g" data-default-test="Contact tuan@rmit.com or support@vendor.com for help.">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="(\w+)@(\w+)\.com" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="g" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">Contact tuan@rmit.com or support@vendor.com for help.</textarea>
+    <div class="pg-result">Contact <mark>tuan@rmit.com</mark> or <mark>support@vendor.com</mark> for help.</div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">2 matches</span></span><span class="err"></span></div>
+  </div>
+      <p class="concept" style="margin-top:14px;">Try this in the console tab of your browser to see capture groups reused in a replacement — swapping "First Last" to "Last, First":</p>
+      <pre style="background:var(--console);color:var(--console-text);font-family:&#39;JetBrains Mono&#39;,monospace;font-size:12px;padding:12px;border-radius:7px;margin:0;">"Tuan Nguyen".replace(/(\w+) (\w+)/, "$2, $1")
+<span style="color:var(--console-dim)">// → "Nguyen, Tuan"</span></pre>
+    </div>
+  </div>
+
+  <!-- MODULE 5: real patterns -->
+  <div class="module">
+    <div class="tab-bar"><div class="tab-title"><span class="num">5</span>Putting it together — real-world patterns</div></div>
+    <div class="module-body">
+      <h2>Email, phone, hex color</h2>
+      <p class="concept">These combine everything above. Edit the pattern or test text and see how "good enough for a form" patterns behave — and where they get fooled.</p>
+      <div class="cheat"><span>email</span></div>
+      <div class="pg" data-pg="" data-default-pattern="^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$" data-default-flags="" data-default-test="tuan.nguyen@rmit.edu.vn">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">tuan.nguyen@rmit.edu.vn</textarea>
+    <div class="pg-result">tuan.nguyen@rmit.edu.vn</div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--red);font-weight:700;">0 matches</span></span><span class="err"></span></div>
+  </div>
+      <div class="cheat" style="margin-top:16px;"><span>VN phone number (10 digits, starts with 0)</span></div>
+      <div class="pg" data-pg="" data-default-pattern="^0\d{9}$" data-default-flags="" data-default-test="0912345678">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="^0\d{9}$" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">0912345678</textarea>
+    <div class="pg-result"><mark>0912345678</mark></div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">1 match</span></span><span class="err"></span></div>
+  </div>
+      <div class="cheat" style="margin-top:16px;"><span>hex color code</span></div>
+      <div class="pg" data-pg="" data-default-pattern="^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$" data-default-flags="" data-default-test="#1b2430">
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">#1b2430</textarea>
+    <div class="pg-result"><mark>#1b2430</mark></div>
+    <div class="pg-status"><span class="count muted"><span style="color:var(--green);font-weight:700;">1 match</span></span><span class="err"></span></div>
+  </div>
+    </div>
+  </div>
+
+  <div class="exercises">
+    <h2>Practice exercises</h2>
+    <p>Use the playground modules above (or your own scratch file) to build and test each pattern before checking it against sample strings you invent yourself — a pattern that "looks right" often has surprising edge cases.</p>
+
+    <div class="level">
+      <div class="level-head"><span class="badge">LEVEL 1</span><h3>Literals &amp; classes</h3></div>
+      <ol>
+        <li>Write a regex that matches the exact word "error" anywhere in a string, and test it with <code>.test()</code> against 3 sentences you write, at least one containing "errors" (plural) — does it still match? Why?</li>
+        <li>Write a regex matching any 4-digit year, e.g. "2026", using <code>\d{4}</code>.</li>
+        <li>Write a regex matching one or more digits in a row (a whole number of any length) using <code>\d+</code>, and use <code>str.match()</code> to pull every number out of the sentence <code>"I have 3 cats, 12 fish, and 1 dog."</code></li>
+        <li>Write a regex matching a single uppercase letter followed by any number of lowercase letters (a capitalized word), e.g. matches "Hanoi" but not "hanoi" or "HANOI".</li>
+      </ol>
+    </div>
+
+    <div class="level">
+      <div class="level-head"><span class="badge">LEVEL 2</span><h3>Anchors &amp; quantifiers</h3></div>
+      <ol>
+        <li>Write a regex that matches a string containing <em>only</em> digits from start to end (use <code>^</code> and <code>$</code>) — this is how you'd check "is this entire field a number" rather than "does it contain a number somewhere".</li>
+        <li>Write a regex validating a username: must start with a letter, then 2–14 more letters/digits/underscores, whole string. (Hint: combine <code>^</code>, a class for the first character, <code>\w{2,14}</code>, and <code>$</code>.)</li>
+        <li>Write a regex that finds whole-word matches of "run" but not inside "running" or "runner", using <code>\b</code> on both sides.</li>
+        <li>Write a regex matching an optional "+84" or "0" at the start of a Vietnamese phone number, followed by 9 digits. (Hint: <code>(\+84|0)</code> then <code>\d{9}</code>.)</li>
+      </ol>
+    </div>
+
+    <div class="level">
+      <div class="level-head"><span class="badge">LEVEL 3</span><h3>Groups &amp; transformation</h3></div>
+      <ol>
+        <li>Write a regex with two capture groups to split a date string like <code>"2026-07-25"</code> into year, month, day — then use <code>match()</code> or <code>exec()</code> to log each piece separately.</li>
+        <li>Use <code>str.replace()</code> with a capture group to turn every occurrence of <code>"$100"</code>, <code>"$25"</code>, etc. into <code>"100 USD"</code>, <code>"25 USD"</code> in a sentence containing several dollar amounts.</li>
+        <li>Write a regex using alternation <code>(png|jpg|jpeg|gif)</code> anchored to the end of a filename (<code>$</code>) to check whether a filename has an image extension. Test it against <code>"photo.png"</code>, <code>"notes.txt"</code>, and <code>"archive.tar.gz"</code>.</li>
+        <li>Write a password-strength checker (no external libraries) using four separate small regexes — one each for length, uppercase, digit, and symbol — and combine the boolean results, similar to the strength meter from the earlier form-validation lesson.</li>
+      </ol>
+    </div>
+
+    <div class="level">
+      <div class="level-head"><span class="badge">LEVEL 4</span><h3>Challenge</h3></div>
+      <ol>
+        <li>Write a single regex with the <code>g</code> flag that extracts every hashtag (e.g. <code>#javascript</code>, <code>#webdev</code>) from a block of sample social-media-style text, returning them as an array.</li>
+        <li>Write a "redact credit card" function: given a string containing a 16-digit card number (possibly with spaces or dashes between groups of 4), replace all but the last 4 digits with <code>*</code>, keeping the original grouping/spacing.</li>
+        <li>Write a simple Markdown-to-HTML converter for just <strong>bold</strong> text: replace every <code>**text**</code> with <code>&lt;strong&gt;text&lt;/strong&gt;</code> using one capture group and <code>replace()</code>.</li>
+        <li><strong>Reflection:</strong> write 3–4 sentences on when a regex becomes "too clever" — a case where a simple string method (<code>includes()</code>, <code>split()</code>, <code>startsWith()</code>) or a few lines of plain JS would be more readable than a dense pattern.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="apps">
+    <h2>Simple applications</h2>
+    <p>Four small, realistic uses of everything above — each is a self-contained function you could drop into a real project.</p>
+    <div class="app-grid">
+      <div class="app-card">
+        <h3>1. Form field validation</h3>
+        <p>The direct continuation of the form-validation lesson: reuse the exact email/phone/password patterns from module 5 above inside an <code>input</code> event handler.</p>
+        <pre>function isValidEmail(v) {
+  <span class="comment">// same pattern as module 5</span>
+  return /^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$/.test(v);
+}</pre>
+      </div>
+      <div class="app-card">
+        <h3>2. Extracting data from text</h3>
+        <p>Pull every date out of a block of free text, e.g. parsing "meeting notes" for scheduled dates.</p>
+        <pre>const text = "Due 2026-08-01, review 2026-08-15.";
+const dates = text.match(/\d{4}-\d{2}-\d{2}/g);
+<span class="comment">// → ["2026-08-01", "2026-08-15"]</span></pre>
+      </div>
+      <div class="app-card">
+        <h3>3. Search &amp; replace / masking</h3>
+        <p>Normalize inconsistent whitespace, or mask sensitive data before logging it.</p>
+        <pre>"Hello    world,   Tuan"
+  .replace(/\s+/g, " ");
+<span class="comment">// → "Hello world, Tuan"</span>
+
+"0912345678".replace(/\d(?=\d{4})/g, "*");
+<span class="comment">// → "******5678"</span></pre>
+      </div>
+      <div class="app-card">
+        <h3>4. Splitting &amp; tokenizing</h3>
+        <p>Split a messy, human-typed list on any mix of commas, semicolons, and extra spaces.</p>
+        <pre>"apple,  banana; cherry ,durian"
+  .split(/\s*[,;]\s*/);
+<span class="comment">// → ["apple","banana","cherry","durian"]</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <footer>regex-in-javascript.html · vanilla HTML/CSS/JS · live playgrounds use RegExp under the hood</footer>
+</div>
+
+<script>
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.querySelectorAll('[data-pg]').forEach(container => {
+  const pattern0 = container.getAttribute('data-default-pattern') || '';
+  const flags0 = container.getAttribute('data-default-flags') || '';
+  const test0 = container.getAttribute('data-default-test') || '';
+
+  container.innerHTML = `
+    <div class="pg-row">
+      <span class="pg-slash">/</span>
+      <input class="pg-pattern" type="text" value="${escapeHtml(pattern0)}" spellcheck="false">
+      <span class="pg-slash">/</span>
+      <input class="pg-flags" type="text" value="${escapeHtml(flags0)}" spellcheck="false">
+    </div>
+    <textarea class="pg-test" rows="2" spellcheck="false">${escapeHtml(test0)}</textarea>
+    <div class="pg-result"></div>
+    <div class="pg-status"><span class="count muted"></span><span class="err"></span></div>
+  `;
+
+  const patternInput = container.querySelector('.pg-pattern');
+  const flagsInput = container.querySelector('.pg-flags');
+  const testInput = container.querySelector('.pg-test');
+  const result = container.querySelector('.pg-result');
+  const count = container.querySelector('.count');
+  const errEl = container.querySelector('.err');
+
+  function run(){
+    const pat = patternInput.value;
+    const flags = flagsInput.value.replace(/[^gimsuy]/g,'');
+    const text = testInput.value;
+    errEl.textContent = '';
+    let re;
+    try{
+      re = new RegExp(pat, flags.includes('g') ? flags : flags + 'g');
+    }catch(e){
+      errEl.textContent = 'invalid regex: ' + e.message;
+      result.innerHTML = escapeHtml(text);
+      count.textContent = '';
+      return;
+    }
+    if(pat === ''){
+      result.innerHTML = escapeHtml(text) || '<span style="color:var(--ink-soft)">(empty test string)</span>';
+      count.textContent = 'no pattern yet';
+      return;
+    }
+    let html = '';
+    let lastIndex = 0;
+    let m;
+    let n = 0;
+    re.lastIndex = 0;
+    while((m = re.exec(text)) !== null){
+      n++;
+      html += escapeHtml(text.slice(lastIndex, m.index));
+      html += '<mark>' + escapeHtml(m[0] || '') + '</mark>';
+      lastIndex = m.index + (m[0].length || 1);
+      re.lastIndex = lastIndex;
+      if(n > 500) break;
+    }
+    html += escapeHtml(text.slice(lastIndex));
+    result.innerHTML = html || '<span style="color:var(--ink-soft)">(empty)</span>';
+    count.innerHTML = n === 0
+      ? '<span style="color:var(--red);font-weight:700;">0 matches</span>'
+      : `<span style="color:var(--green);font-weight:700;">${n} match${n>1?'es':''}</span>`;
+  }
+
+  [patternInput, flagsInput, testInput].forEach(el => el.addEventListener('input', run));
+  run();
+});
+</script>
+
+
+</body></html>

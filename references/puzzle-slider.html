@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Puzzle slider</title>
+    <style>
+        /* ---------- Basic page styling ---------- */
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
+
+        /* ---------- Header ---------- */
+        header {
+            max-width: 360px;
+            margin: 24px auto 0 auto;
+            padding: 12px 16px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        /* ---------- Board ---------- */
+        /* The board is a flex container. We tell it to wrap its items
+           so that after 3 cells it moves to the next line, forming
+           a 3x3 grid using nothing but flexbox. */
+        #board {
+            width: 360px;           /* fixed width = 3 columns of 120px */
+            margin: 24px auto;
+            display: flex;
+            flex-wrap: wrap;        /* allows the 9 cells to wrap into 3 rows */
+            gap: 6px;               /* spacing between tiles */
+            justify-content: center;
+        }
+
+        /* Each cell takes up roughly 1/3 of the board width so that
+           only 3 cells fit per row before wrapping. */
+        .cell {
+            box-sizing: border-box;
+            flex: 0 0 calc((100% - 12px) / 3); /* 3 per row, accounting for 2 gaps */
+            aspect-ratio: 1 / 1;      /* keeps tiles perfectly square */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 2rem;
+            border-radius: 0.5rem;
+            border: 1px solid #ccc;
+            background-color: #037df7;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.3s;
+        }
+
+        .cell:hover {
+            background-color: #e70606;
+        }
+
+        .cell-empty {
+            background-color: transparent;
+            border: 1px dashed #ccc;
+            color: transparent;
+            cursor: default;
+        }
+
+        /* ---------- Result message ---------- */
+        #result {
+            max-width: 360px;
+            margin: 16px auto;
+            padding: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2e7d32;
+            background-color: #e8f5e9;
+            border: 1px solid #2e7d32;
+            border-radius: 0.5rem;
+        }
+
+        /* Utility class used to hide the result box until the game is won */
+        .d-none {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p>Slide the number pieces to available space to arrange them in ascending order</p>
+    </header>
+    <div id="board"></div>
+    <div id="result" class="d-none"></div>
+    <script>
+        /* puzzle-slider.js */
+
+/** Global variables */
+num = shuffle();
+emptycellIndex = undefined;
+board = document.getElementById('board');
+result = document.getElementById('result');
+
+/* Game Logic */
+/** Shuffle the board ensuring it is solvable */
+function shuffle() {
+    let a = [1,2,3,4,5,6,7,8,0];
+    do {
+        // Fisher–Yates shuffle: randomize the array in place
+        for (let i = a.length - 1; i > 0; i--) {
+            const r = Math.floor(Math.random() * (i + 1));
+            [a[i], a[r]] = [a[r], a[i]];
+        }
+    } while (!isSolvable(a) || isWin(a)); // repeat if unsolvable or already solved
+  return a;
+}
+/** Check if the board arrangement is solvable 
+     Knowledge: An inversion is a pair of tiles (a,b) that are in the wrong order when you look at the board as a flat 1D array.
+    For an odd-sized board, a board with an odd number of inversion is unsolvable
+*/
+function isSolvable(board) {
+    var inversion = 0;
+    for(let i = 0; i < board.length-1; i++) {
+        if (board[i] > board[i+1]) {
+            inversion++;    
+        }
+    }
+    return inversion % 2 === 0 ? true: false; 
+}
+/** Check if cells are properly arranged == Check if array is sorted */
+function isWin(a) {
+    let isWin = true;
+    for(let i = 0; i < a.length-2 && isWin; i++) {
+        if(a[i] > a[i+1]) isWin = false;
+    }
+    return isWin;
+} 
+/** Move a numeric cell to empty space */
+function move(e) {
+    
+    // Check whether Next door to Cell e is Empty Cell
+    let i = e.target.getAttribute('array-index');
+    if(isAdjacent(num, i, emptycellIndex)) {
+        console.log(`Check (${i}, ${emptycellIndex}); move ${e.target.textContent}`);
+        // swap(num, i, emptycellIndex)
+        let temp = num[i];
+        num[i] = num[emptycellIndex];
+        num[emptycellIndex] = temp;
+        emptycellIndex = i;
+        renderGameBoard();
+        if (isWin(num)) {
+            congratulate();
+        }
+    } else {
+        console.log(`Check (${i}, ${emptycellIndex}); Cannot move ${e.target.textContent}`);
+    }
+}
+/** Check if board[i] and [j] are adjcent
+ * [i] is adjacent to [j] when: abs(i - j) == n, n is sqrt(board.length)
+*/
+ function isAdjacent(board, i,j) {
+    const n = Math.floor(Math.sqrt(board.length));
+    return ((Math.abs(i-j) === n) || Math.abs(i-j) === 1) ? true : false;
+}
+/**
+ * Show congratulation pane the winner
+ */
+function congratulate() {
+      result.textContent = "YOU WIN!";
+      result.classList.toggle("d-none");
+    }
+/** Swap 2 items at index i and j in an array */ 
+function swap(array, i, j) {
+    let temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+
+}
+/**
+ * Prepare game board cells and display them on screen
+ */
+function renderGameBoard() {
+    const grid = document.createElement('div');
+    grid.className = 'row row-cols-3 g-2';
+    num.forEach((val, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'col cell shadow-sm';
+    cell.className = 'cell shadow-sm';
+    cell.setAttribute('aria-label', val === 0 ? 'Empty Cell' : `Cell ${val}`);
+    cell.setAttribute('array-index', i);
+    if (val === 0) {
+        emptycellIndex = i;
+        cell.classList.add('cell-empty');
+        cell.innerHTML = '&nbsp;'; // keep height
+    } else {
+        cell.textContent = val;
+    }
+    cell.addEventListener('click', move);
+    grid.appendChild(cell);
+    });
+    // Optional heading + mount
+    board.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-2">
+                        <h1 class="h5 m-0">Puzzle Board (3×3)</h1> </div>`;
+    board.appendChild(grid);
+}
+document.addEventListener("DOMContentLoaded", renderGameBoard);
+
+
+
+    </script>         
+</body>
+</html>
