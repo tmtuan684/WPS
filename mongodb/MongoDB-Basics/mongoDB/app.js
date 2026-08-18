@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const db = "userDB";
+const db = "DB1";
 const connstr = `mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`;
 
 // Step 1. Connect to DB

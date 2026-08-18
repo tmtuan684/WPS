@@ -1,8 +1,9 @@
-const {dbconnect} = require('./schema-model-01/dbconnect');
-require('dotenv').config();
+const {dbconnect} = require('./dbconnect');
+require('dotenv').config({ path: '../.env' });
 
 async function main() {
-    await dbconnect(process.env.MONGODB_URI);
+    // Step 1. Connect to database
+    const mongoose = await dbconnect(process.env.MONGODB_URI);
     console.log("App can start now");
 }
 
