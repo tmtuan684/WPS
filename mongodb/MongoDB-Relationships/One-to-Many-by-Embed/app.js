@@ -1,21 +1,33 @@
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-const connstr = 'mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/contactDB3?appName=cluster0'
 
-mongoose.connect(connstr)
-        .then(() => console.log('Connected to MongoDB Atlas'))
-        .catch((error) => console.log(error.message))
+async function main() {
+  await mongoose.connect(process.env.MONGODB_URI_OME);
 
-const userSchema = new mongoose.Schema({
-    name: String,
-    address: []
+    if (mongoose.connection.readyState == 1) {
+        console.log('Connected to MongoDB Atlas');
+
+        const userSchema = new mongoose.Schema({
+            name: String,
+            address: []
+        });
+
+        const User = mongoose.model('User', userSchema);
+
+        const newUser = new User({
+            name: 'Mathew',
+            address: ['123 ABC Street', '456 DEF Street', '789 GHI Street']
+        });
+        const savedUser = await newUser.save();
+        console.log('Document saved:', savedUser);
+        await mongoose.connection.close();
+    }
+    else {
+        console.log("Cannot connect to MongoDB");
+    }
+}
+
+main().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
 });
-
-const User = mongoose.model('User', userSchema);
-
-const newUser = new User({
-    name: 'Mathew',
-    address: ['123 ABC Street', '456 DEF Street', '789 GHI Street']
-})
-newUser.save()
-        .then((user) => console.log(`Document saved ${user}`))
-        .catch((error) => console.log(error.message));

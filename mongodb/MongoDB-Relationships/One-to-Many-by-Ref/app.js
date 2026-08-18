@@ -1,57 +1,65 @@
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-const connstr = 'mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/contactDB4?appName=cluster0'
 
 async function main() {
-    mongoose.connect(connstr)
-            .then(() => console.log('Connected to MongoDB Atlas'))
-            .catch((error) => console.log(error.message))
-            
-    const userSchema = new mongoose.Schema({
-        name: String,
-        address: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Address'
-        }]
-    });
+  await mongoose.connect(process.env.MONGODB_URI_OMR);
 
-    const addressSchema = new mongoose.Schema({
-        number: String,
-        street: String,
-        city: String,
-        zipcode: String,
-        country: String    
-    })
+    if (mongoose.connection.readyState == 1) {
+        console.log('Connected to MongoDB Atlas');
 
-    const User = mongoose.model('User', userSchema);
-    const Address = mongoose.model('Address', addressSchema);
+        const userSchema = new mongoose.Schema({
+            name: String,
+            address: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Address'
+            }]
+        });
 
-    const address1 = new Address({
-        number: '123',
-        street: 'Golden street',
-        city: 'ABC',
-        zipcode: '200000',
-        country: 'DEF'
-    })
+        const addressSchema = new mongoose.Schema({
+            number: String,
+            street: String,
+            city: String,
+            zipcode: String,
+            country: String
+        });
 
-    const address2 = new Address({
-        number: '456',
-        street: 'Silver street',
-        city: 'ABC',
-        zipcode: '12345678',
-        country: 'DEF'
-    })
+        const User = mongoose.model('User', userSchema);
+        const Address = mongoose.model('Address', addressSchema);
 
-    await address1.save();
-    await address2.save();
+        const address1 = new Address({
+            number: '123',
+            street: 'Golden street',
+            city: 'ABC',
+            zipcode: '200000',
+            country: 'DEF'
+        });
 
-    const newUser = new User({
-        name: 'Mathew',
-        address: [address1._id, address2._id] 
-    })
+        const address2 = new Address({
+            number: '456',
+            street: 'Silver street',
+            city: 'ABC',
+            zipcode: '12345678',
+            country: 'DEF'
+        });
 
-    newUser.save()
-            .then((user) => console.log(`Document saved ${user}`))
-            .catch((error) => console.log(error.message));
+        await address1.save();
+        await address2.save();
+
+        const newUser = new User({
+            name: 'Mathew',
+            address: [address1._id, address2._id]
+        });
+
+        const savedUser = await newUser.save();
+        console.log('Document saved:', savedUser);
+        await mongoose.connection.close();
+    }
+    else {
+        console.log("Cannot connect to MongoDB");
+    }
 }
 
-main();
+main().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});
