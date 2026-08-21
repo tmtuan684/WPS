@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usability Testing — Forum Project Studio | COSC3060</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rmit-red:#E4002B;
+    --ink:#1B1B1D;
+    --paper:#FAF8F4;
+    --paper-2:#F1ECE3;
+    --line:#E3DCCF;
+    --test:#5B3E8F;        /* user testing — observation, violet */
+    --test-bg:#EFE9F7;
+    --studio:#B4632B;      /* studio project work — building, warm terracotta */
+    --studio-bg:#FBF0E4;
+    --muted:#6B6660;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; font-size:16px;}
+  h1,h2,h3{font-family:'Cinzel', serif; letter-spacing:.01em; color:var(--ink); margin:0;}
+  code, .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:var(--rmit-red);}
+
+  .hero{background:linear-gradient(180deg,#161213 0%, #1E1720 100%); color:#F4EFE7; padding:64px 24px 56px; position:relative; overflow:hidden;}
+  .hero::after{content:""; position:absolute; right:-60px; top:-60px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(228,0,43,.32), transparent 70%);}
+  .hero-inner{max-width:900px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{font-family:'JetBrains Mono', monospace; font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:#C9A8E4; margin-bottom:14px; display:flex; align-items:center; gap:10px;}
+  .eyebrow::before{content:"🔍"; font-size:14px;}
+  .hero h1{font-size:clamp(30px,4.6vw,44px); line-height:1.15; color:#fff;}
+  .hero p.lede{max-width:620px; color:#D8CFC3; font-size:17px; margin-top:16px;}
+
+  .clipboard{margin-top:34px; background:#F4EFE7; color:#2A2422; border-radius:3px; padding:18px 20px; max-width:440px; font-family:'JetBrains Mono', monospace; font-size:13px; box-shadow:0 18px 40px rgba(0,0,0,.35); transform:rotate(-1deg);}
+  .clipboard .ctitle{text-align:center; font-weight:600; letter-spacing:.08em; margin-bottom:8px; font-family:'IBM Plex Sans';}
+  .clipboard .cline{display:flex; justify-content:space-between; border-bottom:1px dashed #C9BFAF; padding:5px 0;}
+  .clipboard .cline:last-child{border-bottom:none;}
+
+  .wrap{max-width:900px; margin:0 auto; padding:0 24px;}
+  nav.toc{background:var(--paper-2); border-bottom:1px solid var(--line); border-top:1px solid var(--line); position:sticky; top:0; z-index:5; backdrop-filter:blur(6px);}
+  nav.toc .wrap{display:flex; gap:20px; overflow-x:auto; padding-top:12px; padding-bottom:12px; max-width:900px;}
+  nav.toc a{white-space:nowrap; font-size:13px; text-decoration:none; color:var(--muted); font-weight:500; padding:4px 2px; border-bottom:2px solid transparent;}
+  nav.toc a:hover{color:var(--ink); border-color:var(--rmit-red);}
+
+  section{padding:52px 0; border-bottom:1px solid var(--line);}
+  section.no-border{border-bottom:none;}
+  .kicker{font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--rmit-red); font-weight:600; margin-bottom:10px;}
+  section h2{font-size:26px; margin-bottom:8px;}
+  section h3{font-size:17px; margin-top:26px; margin-bottom:8px; font-family:'IBM Plex Sans'; font-weight:700;}
+  p{margin:10px 0;}
+  .lead{color:var(--muted); font-size:15.5px; max-width:680px;}
+
+  .badge{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:4px 10px; border-radius:20px; margin-bottom:6px;}
+  .badge-test{background:var(--test-bg); color:var(--test);}
+  .badge-studio{background:var(--studio-bg); color:var(--studio);}
+  .timebadge{font-family:'JetBrains Mono'; font-size:12px; color:var(--muted); margin-left:10px;}
+
+  /* step timeline */
+  .steps{counter-reset:step; margin:22px 0;}
+  .step{display:grid; grid-template-columns:44px 1fr; gap:16px; margin-bottom:4px; position:relative;}
+  .step:not(:last-child)::before{content:""; position:absolute; left:21px; top:44px; bottom:-4px; width:2px; background:var(--line);}
+  .step .num{counter-increment:step; width:44px; height:44px; border-radius:50%; background:var(--test); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Cinzel'; font-weight:700; font-size:15px; flex-shrink:0;}
+  .step .num::before{content: counter(step);}
+  .step .content{background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px 18px 16px; margin-bottom:22px;}
+  .step .content h4{margin:0 0 6px; font-size:15.5px; font-family:'IBM Plex Sans'; font-weight:700; color:var(--ink);}
+  .step .content p{margin:0 0 8px; font-size:14px; color:var(--ink);}
+  .step .content ul{margin:6px 0 0; padding-left:18px; font-size:13.3px; color:var(--muted);}
+  .step .content li{margin-bottom:4px;}
+
+  table{width:100%; border-collapse:collapse; margin:18px 0; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-family:'JetBrains Mono'; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+
+  .callout{border:1px solid var(--line); border-left:3px solid var(--rmit-red); background:#fff; border-radius:0 8px 8px 0; padding:16px 18px; margin:20px 0; font-size:14.5px;}
+  .callout .ct{font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--rmit-red); margin-bottom:6px;}
+
+  .card-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0;}
+  .card{border-radius:10px; padding:20px; border:1px solid var(--line); background:#fff;}
+  .card h4{margin:0 0 10px; font-family:'Cinzel'; font-size:15.5px;}
+  .card ul{margin:0; padding-left:18px; font-size:13.6px;}
+  .card li{margin-bottom:6px;}
+
+  .task{background:var(--ink); color:#F4EFE7; border-radius:10px; padding:22px 24px; margin:22px 0;}
+  .task .tk{font-family:'JetBrains Mono'; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#C9A8E4; margin-bottom:8px;}
+  .task h4{margin:0 0 8px; font-family:'IBM Plex Sans'; font-size:16px;}
+  .task p{color:#D8CFC3; font-size:14.5px; margin:6px 0 0;}
+  .task ul{color:#D8CFC3; font-size:14.5px; padding-left:20px; margin:8px 0 0;}
+  .task li{margin-bottom:6px;}
+
+  .cheat{background:#fff; border:1px solid var(--line); border-radius:10px; padding:4px 20px; margin:16px 0;}
+  .cheat .row{display:grid; grid-template-columns:26px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px; align-items:start;}
+  .cheat .row:last-child{border-bottom:none;}
+  .cheat .row .box{width:16px; height:16px; border:1.5px solid var(--ink); border-radius:3px; margin-top:2px;}
+
+  footer{padding:40px 24px 60px; text-align:center; color:var(--muted); font-size:13px;}
+
+  /* concept-section additions */
+  .defstack{margin:20px 0;}
+  .defbox{border-radius:8px; padding:16px 20px; margin-bottom:10px; font-style:italic; font-size:15px;}
+  .defbox.navy{background:#0B1550; color:#EDEBFA;}
+  .defbox.red{background:var(--rmit-red); color:#fff;}
+  .attr-table td.name{color:var(--rmit-red); font-weight:700; width:130px;}
+  .principle-card{border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:18px 0; background:#fff;}
+  .principle-card .ph{background:var(--rmit-red); color:#fff; padding:12px 18px; font-family:'Cinzel'; font-weight:700; font-size:15.5px;}
+  .principle-card .pb{padding:16px 20px;}
+  .principle-card .pb ul{margin:0 0 12px; padding-left:18px; font-size:13.8px;}
+  .principle-card .pb li{margin-bottom:5px;}
+  .qbox{background:var(--paper-2); border-radius:6px; padding:12px 16px; margin-top:10px;}
+  .qbox .qh{font-family:'JetBrains Mono'; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px;}
+  .qbox ul{margin:0; padding-left:18px; font-size:13.4px;}
+  .qbox li{margin-bottom:4px;}
+  .refcard{display:flex; gap:18px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:18px 0; background:#fff;}
+  .refcard .cover{width:56px; height:72px; background:linear-gradient(160deg,#B4001C,#7A0013); border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Cinzel'; font-weight:700; font-size:10px; text-align:center; padding:4px; line-height:1.2;}
+  .refcard .rt h4{margin:0 0 4px; font-size:14.5px;}
+  .refcard .rt p{margin:0; font-size:13px; color:var(--muted);}
+
+  @media (max-width:640px){
+    .card-grid{grid-template-columns:1fr;}
+    .hero{padding:48px 18px 44px;}
+    .step{grid-template-columns:36px 1fr;}
+    .step .num{width:36px; height:36px; font-size:13px;}
+    .step:not(:last-child)::before{left:17px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">COSC3060 · Web Programming Studio · Week Workshop</div>
+    <h1>Usability Testing<br>Your Forum, Through Someone Else's Hands</h1>
+    <p class="lede">You've built the thread view, the reply box, the filters. Now hand the keyboard to someone who has never seen your forum before, say nothing, and watch what actually happens. That gap — between how you think it works and how someone else experiences it — is what this week is about.</p>
+    <div class="clipboard">
+      <div class="ctitle">SESSION PLAN</div>
+      <div class="cline"><span>Part A</span><span>User Testing Exercise · 60 min</span></div>
+      <div class="cline"><span>Part B</span><span>Studio Project Work · 120 min</span></div>
+      <div class="cline"><span>Output</span><span>Test plan + findings report</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#concepts">What &amp; Why</a>
+    <a href="#attributes">Attributes</a>
+    <a href="#principles">Principles</a>
+    <a href="#intro">Overview</a>
+    <a href="#step1">1 · Objectives</a>
+    <a href="#step2">2 · Scenarios</a>
+    <a href="#step3">3 · Participants</a>
+    <a href="#step4">4 · Run It</a>
+    <a href="#step5">5 · Feedback</a>
+    <a href="#step6">6 · Analyse</a>
+    <a href="#step7">7 · Improve</a>
+    <a href="#step8">8 · Report</a>
+    <a href="#studio">Studio Time</a>
+    <a href="#presentation">Presentation</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="concepts">
+    <div class="kicker">Lecture · Foundations</div>
+    <h2>What is usability testing?</h2>
+    <p class="lead">Usability is about people — their understanding of something and their ability to use it. It is not, first and foremost, about the technology underneath. In the context of web app development, that idea narrows to something testable:</p>
+    <div class="defstack">
+      <div class="defbox navy">Usability is about users' understanding of a web application and their use of its functionality.</div>
+      <div class="defbox red">Usability testing evaluates whether users' understanding of a web application, and their use of its functionality, align with its intended purpose.</div>
+    </div>
+    <p class="lead">That gap between <em>intended</em> purpose and <em>actual</em> understanding is exactly what Part A of this week's exercise is designed to expose in your own forum.</p>
+  </section>
+
+  <section id="attributes">
+    <div class="kicker">Lecture · Foundations</div>
+    <h2>The seven attributes of usability</h2>
+    <p class="lead">When you judge whether a feature is "usable," you're really judging it against seven separate questions. A feature can pass some of these and fail others — a search bar can be effective but not delightful, or memorable but not efficient.</p>
+    <table class="attr-table">
+      <tr><th>Attribute</th><th>Question it answers</th></tr>
+      <tr><td class="name">Useful</td><td>Does the app do something users actually need done?</td></tr>
+      <tr><td class="name">Learnable</td><td>Can users easily figure out how to use a feature?</td></tr>
+      <tr><td class="name">Memorable</td><td>Do users have to relearn how to use a feature every time they return to it?</td></tr>
+      <tr><td class="name">Effective</td><td>Does a feature fulfil a task that users need to complete?</td></tr>
+      <tr><td class="name">Efficient</td><td>Does it fulfil that task within a reasonable amount of time and effort?</td></tr>
+      <tr><td class="name">Desirable</td><td>Do users actually want this specific feature or app?</td></tr>
+      <tr><td class="name">Delightful</td><td>Are users satisfied — not just able to get by — while using it?</td></tr>
+    </table>
+  </section>
+
+  <section id="principles">
+    <div class="kicker">Lecture · Foundations</div>
+    <h2>Three principles of web app usability</h2>
+    <p class="lead">These principles come from Steve Krug's <em>Don't Make Me Think</em> and give you something concrete to test your own forum against, not just abstract qualities to hope for.</p>
+
+    <div class="principle-card">
+      <div class="ph">Principle 1 · "Don't make me think" — Krug's First Law of Usability</div>
+      <div class="pb">
+        <ul>
+          <li>App structure should be self-evident, or at least self-explanatory</li>
+          <li>The app should be usable without a manual</li>
+          <li>Features should be easy to use, and controls should be consistent</li>
+          <li>Ambiguity should be reduced and removed wherever it appears</li>
+        </ul>
+        <div class="qbox">
+          <div class="qh">Apply it to your forum</div>
+          <ul>
+            <li>Can users figure out how to search or filter threads in the current page design?</li>
+            <li>Can the navigation be used without instructions?</li>
+            <li>Does a feature like "reply" or "delete post" behave the way users expect it to?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="ph">Principle 2 · App structure is scanned, not read</div>
+      <div class="pb">
+        <ul>
+          <li>Users glance at a page, scan for text that reaches their goal, and click — they rarely read the whole page</li>
+          <li>People use a web app to achieve a particular purpose; they explore it rather than learn it</li>
+          <li>Content needs to be well-organised, tidy, and concise</li>
+          <li>Main content and actionable items (buttons, links, forms) must stand out and be clearly recognisable</li>
+        </ul>
+        <div class="qbox">
+          <div class="qh">Apply it to your forum</div>
+          <ul>
+            <li>Are key features of the forum identifiable at a glance?</li>
+            <li>Do buttons and links clearly communicate what they do?</li>
+            <li>How would a normal user's eye actually move through a thread page?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="ph">Principle 3 · Help users know where they are</div>
+      <div class="pb">
+        <ul>
+          <li>Web apps often contain what feels like "endless" links and pages</li>
+          <li>Users get confused when they don't know where they are within that structure</li>
+          <li>Confused users leave — so the app must work to keep users oriented</li>
+        </ul>
+        <div class="qbox">
+          <div class="qh">Apply it to your forum</div>
+          <ul>
+            <li>Is a breadcrumb or equivalent orientation cue actually useful to users?</li>
+            <li>Do users use it to navigate, or ignore it?</li>
+            <li>Is the information users need available to them at this exact point in the interface?</li>
+            <li>Where are users likely to want to go next from this page — and is that obvious?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="refcard">
+      <div class="cover">DON'T<br>MAKE ME<br>THINK</div>
+      <div class="rt">
+        <h4>Reference: Don't Make Me Think, Revisited</h4>
+        <p>Steve Krug, 2014 — RMIT Beanland Library, General Collection, 006.7 K942 2014</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="intro">
+    <div class="kicker">Why this matters</div>
+    <h2>Usability testing is how you stop guessing</h2>
+    <p class="lead">By now your team has a concept, has iterated on it, and has a working prototype of your forum. It's tempting to treat that prototype as finished. It isn't — it's a hypothesis about how people will create threads, reply, and find what they're looking for. This week's exercise gives you a lightweight, repeatable process for testing that hypothesis against real users before you lock in version&nbsp;1.0.</p>
+    <p class="lead">Part A below walks your team through eight steps — from defining what to test through to reporting what you found. Part B is protected studio time to act on it: either prepare for testing, or implement changes from a round you've already run.</p>
+    <span class="badge badge-test">Part A · User Testing Exercise</span><span class="timebadge">60 minutes</span>
+  </section>
+
+  <section id="step1">
+    <div class="steps">
+      <div class="step" id="step1-inner">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Define your objectives</h4>
+          <p>Decide what part of the forum you actually want to learn about — don't test everything at once. Good candidates:</p>
+          <ul>
+            <li>Ease of navigating between boards and threads</li>
+            <li>Clarity of the thread-creation and reply flow</li>
+            <li>Whether filtering and search actually surface the right threads</li>
+          </ul>
+          <p style="margin-top:8px;">Keep both the interface (does it look clear?) and the experience (does it feel obvious what to do next?) in view — they fail in different ways.</p>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Write realistic test scenarios</h4>
+          <p>Turn your objectives into concrete tasks a participant can actually attempt — not "explore the site," but specific actions:</p>
+          <ul>
+            <li>Create a new thread with a given subject and opening post</li>
+            <li>Reply to an existing post inside a thread</li>
+            <li>Filter threads by a keyword or date range</li>
+            <li>Delete a post, and see how the thread view responds</li>
+          </ul>
+          <p style="margin-top:8px;">Mix in at least one edge case or less-common action — that's often where the real problems live.</p>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Recruit test participants</h4>
+          <p>Trade with another team in the studio — their unfamiliarity with your forum is the whole point; a teammate who already knows the UI can't give you a first-time reaction.</p>
+          <ul>
+            <li>Aim for a handful of different participants, not just one</li>
+            <li>Brief each participant on their role before you start, not what to click</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Conduct the test</h4>
+          <p>Sit the participant down with your scenarios and get out of the way as much as you can.</p>
+          <ul>
+            <li>Ask them to think aloud as they work — narrating confusion is more useful than silence</li>
+            <li>Take notes on where they hesitate, backtrack, or misclick — not just whether they finish</li>
+            <li>Resist the urge to jump in and explain; if they're stuck, that's data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Collect feedback</h4>
+          <p>Combine what you observed with what participants say directly, using both structured and open questions:</p>
+          <ul>
+            <li>Structured: "How easy was it to create a new thread?" (e.g. 1–5 scale)</li>
+            <li>Open-ended: "What did you find confusing or frustrating?"</li>
+          </ul>
+          <p style="margin-top:8px;">Keep the feedback form short — a form participants abandon halfway through gives you half a dataset.</p>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Analyse the results</h4>
+          <p>Look across all participants for patterns, not just individual complaints.</p>
+          <ul>
+            <li>Group similar issues together — three people struggling with the same button is a signal, one person is a data point</li>
+            <li>Rank issues by how much they actually hurt the experience, not by how easy they are to fix</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Implement changes</h4>
+          <p>Fix what matters most first, and confirm the fix actually worked.</p>
+          <ul>
+            <li>Address the highest-impact issues before minor polish</li>
+            <li>Re-check changed flows against the original scenarios where you can</li>
+            <li>Keep a short record of what you changed and why — you'll want this for your report</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="num"></div>
+        <div class="content">
+          <h4>Report your findings</h4>
+          <p>Write up the process for your own record and, later, your submission.</p>
+          <ul>
+            <li>Objectives, scenarios, who you tested with, and how</li>
+            <li>Key findings and the changes you made in response</li>
+            <li>A short reflection: what surprised you, what would you test differently next time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="ct">Basic advice, restated</div>
+      Clear objectives keep the session focused. Realistic scenarios surface real problems. Diverse participants catch more than a single perspective ever will. Mixed feedback methods (observation + structured + open questions) triangulate better than any one alone. And if you have time, a second short round of testing after your changes is worth more than polishing the first round's write-up.
+    </div>
+  </section>
+
+  <section id="studio">
+    <span class="badge badge-studio">Part B · Studio Project Work</span><span class="timebadge">120 minutes</span>
+    <h2>Protected time to act on it</h2>
+    <p class="lead">By this point your team should have a concept, an innovation process behind you, and a working prototype. The job now is to test and verify that implementation before you lock in v1.0. Use this block in whichever way actually moves your team forward:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>Pre-testing</h4>
+        <ul>
+          <li>Finish the draft your usability test will run against</li>
+          <li>Prepare scenarios, feedback forms, and a testing schedule with your partner team</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Post-testing</h4>
+        <ul>
+          <li>Work through your findings and implement the changes you prioritised</li>
+          <li>Re-verify fixed flows against the original scenarios</li>
+        </ul>
+      </div>
+    </div>
+    <p class="lead">Otherwise, use the time to catch up on any earlier workshop material your team hasn't finished. Staff are circulating for feedback and troubleshooting throughout.</p>
+  </section>
+
+  <section id="presentation">
+    <div class="kicker">Looking ahead</div>
+    <h2>Submission &amp; group presentation</h2>
+
+    <h3>Submission requirements</h3>
+    <table>
+      <tr><th>Item</th><th>Requirement</th></tr>
+      <tr><td>Source code</td><td>Submitted via your group's GitHub repository, with a README.md covering everything needed to access and evaluate the site</td></tr>
+      <tr><td>Hosting</td><td>Live on a host such as Render.com, and kept live until the end of semester</td></tr>
+      <tr><td>Freeze</td><td>No updates after the submission date — the live version must match what's graded</td></tr>
+    </table>
+
+    <h3>Presentation checklist</h3>
+    <div class="cheat">
+      <div class="row"><div class="box"></div><span>Run through the full presentation once as a team to check timing and that it flows as one narrative, not four separate talks.</span></div>
+      <div class="row"><div class="box"></div><span>Every team member can demonstrate their part of the site and explain the reasoning behind it, not just click through it.</span></div>
+      <div class="row"><div class="box"></div><span>Slides are reviewed for clarity — each one earns its place, nothing is there to fill space.</span></div>
+      <div class="row"><div class="box"></div><span>Technical setup is checked in advance: site loads, audio/video works, you're not debugging live in front of the room.</span></div>
+    </div>
+
+    <div class="task">
+      <div class="tk">What the presentation should cover</div>
+      <h4>Tell the story of the project, not just the demo</h4>
+      <ul>
+        <li>A short introduction to your team</li>
+        <li>An overview of the forum and the problem it addresses</li>
+        <li>A walkthrough of key features and the UX decisions behind them</li>
+        <li>What your usability testing found, and what you changed because of it</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  COSC3060 Web Programming Studio — RMIT University Vietnam, SGS · Usability Testing week, revised session plan
+</footer>
+
+</body>
+</html>

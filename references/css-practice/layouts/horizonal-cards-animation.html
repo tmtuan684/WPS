@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal layout</title>
+    <style>
+        #container {
+            width: 90%;
+            display: flex;
+            flex-wrap: nowrap;
+            padding: 10px 10px;
+            gap: 10px;
+            border:2px solid grey;
+            margin: auto;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .card {
+            width: 25%;
+            height: 300px;
+            background-color: rgb(175, 175, 151);
+            box-shadow: 5px 5px 5px grey;
+            border-radius: 6px;
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background-color: rgb(200, 200, 200);
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .dot.active {
+            background-color: rgb(90, 90, 90);
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+    </div>
+    <div class="dots" id="dots"></div>
+    <script>
+        const container = document.getElementById('container');
+        const cards = Array.from(container.querySelectorAll('.card'));
+        const dotsWrap = document.getElementById('dots');
+
+        const dots = cards.map((card, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'dot';
+            dot.type = 'button';
+            dot.setAttribute('aria-label', `Go to card ${i + 1}`);
+            dot.addEventListener('click', () => {
+                card.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            });
+            dotsWrap.appendChild(dot);
+            return dot;
+        });
+
+        function updateDots() {
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            const ratio = maxScroll <= 0 ? 0 : container.scrollLeft / maxScroll;
+            const activeIndex = Math.round(ratio * (dots.length - 1));
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+        }
+
+        container.addEventListener('scroll', updateDots, { passive: true });
+        window.addEventListener('resize', updateDots);
+        updateDots();
+    </script>
+</body>
+</html>

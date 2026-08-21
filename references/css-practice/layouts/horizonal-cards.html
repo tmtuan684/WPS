@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal layout</title>
+    <style>
+        #container {
+            width: 90%;
+            display: flex;
+            flex-wrap: nowrap;
+            padding: 10px 10px;
+            gap: 10px;
+            border:2px solid grey;
+            margin: auto;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .card {
+            width: 25%;
+            height: 300px;
+            background-color: rgb(175, 175, 151);
+            box-shadow: 5px 5px 5px grey;
+            border-radius: 6px;
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookies &amp; Sessions — Saigon Sips Edition | COSC3060</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rmit-red:#E4002B;
+    --ink:#1B1B1D;
+    --paper:#FAF8F4;
+    --paper-2:#F1ECE3;
+    --line:#E3DCCF;
+    --cookie:#B4632B;      /* client-side / wallet, warm terracotta */
+    --cookie-bg:#FBF0E4;
+    --session:#0F6E5C;     /* server-side / back office, deep teal-green */
+    --session-bg:#E7F3EF;
+    --muted:#6B6660;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; line-height:1.6;
+    font-size:16px;
+  }
+  h1,h2,h3{font-family:'Cinzel', serif; letter-spacing:.01em; color:var(--ink); margin:0;}
+  code, pre, .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:var(--rmit-red);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:linear-gradient(180deg,#161213 0%, #221518 100%);
+    color:#F4EFE7; padding:64px 24px 56px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; right:-60px; top:-60px; width:320px; height:320px;
+    border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(228,0,43,.35), transparent 70%);
+  }
+  .hero-inner{max-width:900px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:#E4A98A; margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"☕"; font-size:14px;}
+  .hero h1{font-size:clamp(30px,4.6vw,46px); line-height:1.15; color:#fff;}
+  .hero p.lede{max-width:620px; color:#D8CFC3; font-size:17px; margin-top:16px;}
+  .receipt{
+    margin-top:34px; background:#F4EFE7; color:#2A2422; border-radius:3px;
+    padding:18px 20px; max-width:420px; font-family:'JetBrains Mono', monospace; font-size:13px;
+    box-shadow:0 18px 40px rgba(0,0,0,.35); transform:rotate(-1.2deg);
+  }
+  .receipt .rline{display:flex; justify-content:space-between; border-bottom:1px dashed #C9BFAF; padding:5px 0;}
+  .receipt .rline:last-child{border-bottom:none;}
+  .receipt .rtitle{text-align:center; font-weight:600; letter-spacing:.08em; margin-bottom:8px; font-family:'IBM Plex Sans';}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:900px; margin:0 auto; padding:0 24px;}
+  nav.toc{
+    background:var(--paper-2); border-bottom:1px solid var(--line); border-top:1px solid var(--line);
+    position:sticky; top:0; z-index:5; backdrop-filter:blur(6px);
+  }
+  nav.toc .wrap{display:flex; gap:22px; overflow-x:auto; padding-top:12px; padding-bottom:12px; max-width:900px;}
+  nav.toc a{
+    white-space:nowrap; font-size:13px; text-decoration:none; color:var(--muted);
+    font-weight:500; padding:4px 2px; border-bottom:2px solid transparent;
+  }
+  nav.toc a:hover{color:var(--ink); border-color:var(--rmit-red);}
+
+  section{padding:52px 0; border-bottom:1px solid var(--line);}
+  section.no-border{border-bottom:none;}
+  .kicker{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--rmit-red); font-weight:600; margin-bottom:10px;
+  }
+  section h2{font-size:26px; margin-bottom:8px;}
+  section h3{font-size:17px; margin-top:30px; margin-bottom:8px; font-family:'IBM Plex Sans'; font-weight:700;}
+  p{margin:10px 0;}
+  .lead{color:var(--muted); font-size:15.5px; max-width:680px;}
+
+  /* ---------- Two-track visual language: cookie vs session ---------- */
+  .track-cookie h3, .badge-cookie{color:var(--cookie);}
+  .track-session h3, .badge-session{color:var(--session);}
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace;
+    font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600;
+    padding:4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+  .badge-cookie{background:var(--cookie-bg); color:var(--cookie);}
+  .badge-session{background:var(--session-bg); color:var(--session);}
+
+  .flow{display:flex; flex-wrap:wrap; gap:0; margin:22px 0; counter-reset:step;}
+  .flow-step{
+    flex:1 1 220px; background:#fff; border:1px solid var(--line); border-radius:8px;
+    padding:16px 16px 14px; position:relative; margin:6px;
+  }
+  .flow-step .n{
+    counter-increment:step; font-family:'Cinzel'; font-size:13px; font-weight:700;
+    color:#fff; background:var(--ink); width:24px; height:24px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+  }
+  .flow-step .n::before{content: counter(step);}
+  .track-cookie .flow-step .n{background:var(--cookie);}
+  .track-session .flow-step .n{background:var(--session);}
+  .flow-step h4{margin:0 0 4px; font-size:14.5px; font-family:'IBM Plex Sans'; font-weight:700;}
+  .flow-step p{margin:0; font-size:13.5px; color:var(--muted);}
+
+  table{width:100%; border-collapse:collapse; margin:18px 0; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-family:'JetBrains Mono'; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+
+  pre{
+    background:#1B1713; color:#F4EFE7; padding:16px 18px; border-radius:8px; overflow-x:auto;
+    font-size:13.2px; line-height:1.55; margin:14px 0; border-left:3px solid var(--rmit-red);
+  }
+  pre .cm{color:#8C8378;}
+  code.inline{
+    background:var(--paper-2); border:1px solid var(--line); padding:1px 6px; border-radius:4px; font-size:13px;
+  }
+
+  .tabs{display:flex; gap:6px; margin-top:22px;}
+  .tabbtn{
+    font-family:'JetBrains Mono'; font-size:12.5px; letter-spacing:.04em; background:var(--paper-2);
+    border:1px solid var(--line); padding:7px 14px; border-radius:6px 6px 0 0; cursor:pointer; color:var(--muted);
+  }
+  .tabbtn.active{background:#1B1713; color:#F4EFE7; border-color:#1B1713;}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;}
+
+  .callout{
+    border:1px solid var(--line); border-left:3px solid var(--rmit-red); background:#fff;
+    border-radius:0 8px 8px 0; padding:16px 18px; margin:20px 0; font-size:14.5px;
+  }
+  .callout .ct{font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--rmit-red); margin-bottom:6px;}
+
+  .task{
+    background:var(--ink); color:#F4EFE7; border-radius:10px; padding:22px 24px; margin:22px 0;
+  }
+  .task .tk{font-family:'JetBrains Mono'; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#E4A98A; margin-bottom:8px;}
+  .task h4{margin:0 0 8px; font-family:'IBM Plex Sans'; font-size:16px;}
+  .task p{color:#D8CFC3; font-size:14.5px; margin:6px 0 0;}
+  .task ol{color:#D8CFC3; font-size:14.5px; padding-left:20px;}
+
+  .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0;}
+  .compare-card{border-radius:10px; padding:20px; border:1px solid var(--line);}
+  .compare-card.c1{background:var(--cookie-bg); border-color:#E9CBAA;}
+  .compare-card.c2{background:var(--session-bg); border-color:#B9DDD1;}
+  .compare-card h4{margin:0 0 10px; font-family:'Cinzel'; font-size:16px;}
+  .compare-card.c1 h4{color:var(--cookie);}
+  .compare-card.c2 h4{color:var(--session);}
+  .compare-card ul{margin:0; padding-left:18px; font-size:13.8px;}
+  .compare-card li{margin-bottom:6px;}
+
+  .cheat{
+    background:#fff; border:1px solid var(--line); border-radius:10px; padding:4px 20px; margin:16px 0;
+  }
+  .cheat .row{display:grid; grid-template-columns:130px 1fr; gap:14px; padding:14px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .cheat .row:last-child{border-bottom:none;}
+  .cheat .row .op{font-family:'JetBrains Mono'; font-weight:600; color:var(--ink); font-size:13px;}
+  .cheat .row code{font-size:12.6px;}
+
+  footer{padding:40px 24px 60px; text-align:center; color:var(--muted); font-size:13px;}
+
+  @media (max-width:640px){
+    .compare-grid{grid-template-columns:1fr;}
+    .hero{padding:48px 18px 44px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">COSC3060 · Web Programming Studio · Week Reading</div>
+    <h1>Cookies &amp; Sessions</h1>
+    <p class="lede">How does Saigon Sips remember that you're logged in, that you like oat milk, and that you've got two Vietnamese iced coffees sitting in your cart — across dozens of separate HTTP requests that otherwise know nothing about each other?</p>
+    <div class="receipt">
+      <div class="rtitle">SAIGON SIPS — ORDER TICKET</div>
+      <div class="rline"><span>Client remembers</span><span>Cookie: loyalty card in your wallet</span></div>
+      <div class="rline"><span>Server remembers</span><span>Session: order log behind the counter</span></div>
+      <div class="rline"><span>Link between them</span><span>connect.sid → ticket #</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#intro">Introduction</a>
+    <a href="#cookies-concept">Cookies</a>
+    <a href="#cookies-code">Implementing Cookies</a>
+    <a href="#sessions-concept">Sessions</a>
+    <a href="#sessions-code">Implementing Sessions</a>
+    <a href="#compare">Comparison</a>
+    <a href="#security">Security</a>
+    <a href="#tasks">In-class Tasks</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="intro">
+    <div class="kicker">Why this matters</div>
+    <h2>HTTP forgets everything. Your app can't afford to.</h2>
+    <p class="lead">Every request a browser sends is, by default, a stranger walking up to the counter for the first time — no matter that they ordered two minutes ago. Cookies and sessions are the two mechanisms the web stack gives us to fix that: one keeps a small note in the customer's pocket, the other keeps a ledger behind the counter. This week you'll implement both — first in raw JavaScript, then in Express — and learn when to reach for each.</p>
+    <p class="lead">By the end of this reading you should be able to set, read, and delete cookies from both the browser and an Express server; stand up <code class="inline">express-session</code> to track a logged-in user; and explain, in a sentence, why session IDs live in a cookie but passwords never should.</p>
+  </section>
+
+  <section id="cookies-concept" class="track-cookie">
+    <span class="badge badge-cookie">Client-side · the loyalty card</span>
+    <h2>What is a cookie?</h2>
+    <p class="lead">A cookie is a small text file (≤ ~4&nbsp;KB) that the browser stores on the customer's own device and hands back to your server on every subsequent request to the same domain — like a loyalty card the customer keeps in their wallet and shows at every visit.</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="n"></div><h4>Server sets the cookie</h4><p>Saigon Sips' server sends a <code class="inline">Set-Cookie</code> header after your first order — e.g. a customer ID.</p></div>
+      <div class="flow-step"><div class="n"></div><h4>Browser stores it</h4><p>Chrome files the cookie away and decides, based on its attributes, when and where to resend it.</p></div>
+      <div class="flow-step"><div class="n"></div><h4>Browser resends it</h4><p>On every later request to saigonsips.com, the browser attaches the cookie via the <code class="inline">Cookie</code> header — no extra work from your code.</p></div>
+    </div>
+
+    <h3>Types &amp; attributes worth knowing</h3>
+    <table>
+      <tr><th>Type / Attribute</th><th>What it means</th></tr>
+      <tr><td>Session cookie</td><td>No expiry set — vanishes when the browser closes. Good for "remember my cart while I shop today."</td></tr>
+      <tr><td>Persistent cookie</td><td>Has an expiry date — survives restarts. Good for "remember my name for next month."</td></tr>
+      <tr><td><code class="inline">HttpOnly</code></td><td>Hidden from <code class="inline">document.cookie</code> / JavaScript. Blocks a whole class of XSS cookie-theft attacks.</td></tr>
+      <tr><td><code class="inline">Secure</code></td><td>Only ever sent over HTTPS — never sniffable on plain HTTP.</td></tr>
+      <tr><td><code class="inline">SameSite</code></td><td>Controls whether the cookie rides along with cross-site requests. <code class="inline">Strict</code> or <code class="inline">Lax</code> is your CSRF defence.</td></tr>
+    </table>
+
+    <div class="callout">
+      <div class="ct">Rule of thumb</div>
+      A cookie is visible and editable by whoever holds the browser. Store an identifier in it (a customer ID, a cart token) — never a password, a balance, or anything that would be dangerous if the customer simply edited the text file themselves.
+    </div>
+  </section>
+
+  <section id="cookies-code" class="track-cookie">
+    <span class="badge badge-cookie">Implementation</span>
+    <h2>Working with cookies</h2>
+
+    <div class="tabs">
+      <button class="tabbtn active" data-tab="cookie-js">Vanilla JavaScript</button>
+      <button class="tabbtn" data-tab="cookie-express">Express.js</button>
+    </div>
+
+    <div class="tabpanel active" id="cookie-js">
+      <h3>Create a cookie</h3>
+      <pre><span class="cm">// path "/" means the cookie is valid across the whole site</span>
+document.cookie = "member=Mai Tran; expires=Thu, 18 Dec 2028 12:00:00 UTC; path=/";</pre>
+
+      <h3>Read &amp; parse a cookie</h3>
+      <p><code class="inline">document.cookie</code> returns <em>every</em> cookie as one semicolon-joined string, so reading a single value means parsing it yourself:</p>
+      <pre>function getCookieValue(name) {
+  const nameEQ = name + "=";
+  const parts = document.cookie.split(';');
+  for (let part of parts) {
+    part = part.trim();
+    if (part.indexOf(nameEQ) === 0) {
+      return part.substring(nameEQ.length);
+    }
+  }
+  return null;
+}
+
+console.log(getCookieValue('member')); <span class="cm">// "Mai Tran"</span></pre>
+
+      <h3>Delete a cookie</h3>
+      <p>There's no <code class="inline">document.deleteCookie()</code> — you delete a cookie by re-setting it with a date in the past:</p>
+      <pre>document.cookie = "member=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";</pre>
+
+      <div class="callout">
+        <div class="ct">Inspect it yourself</div>
+        DevTools → Application tab → Storage → Cookies → your site. The <strong>Cookie-Editor</strong> Chrome extension is handy for quickly toggling <code class="inline">HttpOnly</code>, <code class="inline">Secure</code>, and <code class="inline">Session</code> on any cookie while you experiment.
+      </div>
+    </div>
+
+    <div class="tabpanel" id="cookie-express">
+      <h3>Set a cookie from the server</h3>
+      <pre>const express = require('express');
+const app = express();
+
+app.get('/order', (req, res) => {
+  res.cookie('member', 'Mai Tran', { maxAge: 900000, httpOnly: true });
+  res.send('Welcome back — cookie set for 15 minutes.');
+});
+
+app.listen(3000, () => console.log('Saigon Sips running on port 3000'));</pre>
+      <p class="lead"><code class="inline">maxAge</code> is in milliseconds (900000&nbsp;ms = 15&nbsp;min). Set <code class="inline">httpOnly: true</code> by default — only turn it off if client-side JS genuinely needs to read that value.</p>
+
+      <h3>Read a cookie</h3>
+      <p>Express doesn't parse incoming cookies on its own — install the <code class="inline">cookie-parser</code> middleware first:</p>
+      <pre>npm install cookie-parser</pre>
+      <pre>const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+app.get('/whoami', (req, res) => {
+  const member = req.cookies.member;
+  res.send(member ? `Welcome back, ${member}!` : 'New customer — no cookie yet.');
+});</pre>
+
+      <h3>Delete a cookie</h3>
+      <pre>app.get('/logout', (req, res) => {
+  res.clearCookie('member');
+  res.send('You have been logged out.');
+});</pre>
+    </div>
+  </section>
+
+  <section id="sessions-concept" class="track-session">
+    <span class="badge badge-session">Server-side · the back-office ledger</span>
+    <h2>What is a session?</h2>
+    <p class="lead">A session keeps the actual data on the server — in memory, in Redis, in a database — and gives the client only a <strong>ticket number</strong> to prove which ledger entry is theirs. That ticket number is itself delivered and returned using... a cookie. Sessions and cookies aren't rivals; sessions <em>use</em> a cookie as their pointer.</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="n"></div><h4>Session ID created</h4><p>You log in; the server opens a fresh entry in its ledger and mints a unique session ID for it.</p></div>
+      <div class="flow-step"><div class="n"></div><h4>ID sent to client</h4><p>That ID is stored in a cookie — typically named <code class="inline">connect.sid</code> — nothing else about you leaves the server.</p></div>
+      <div class="flow-step"><div class="n"></div><h4>Server looks it up</h4><p>Each later request carries the cookie back; the server uses the ID to fetch <em>your</em> row from its ledger.</p></div>
+    </div>
+
+    <p class="lead">Because the sensitive data (user ID, login status, cart contents) never leaves the server, sessions are the safer home for anything you wouldn't want a customer editing themselves.</p>
+  </section>
+
+  <section id="sessions-code" class="track-session">
+    <span class="badge badge-session">Implementation</span>
+    <h2>Setting up <code class="inline">express-session</code></h2>
+
+    <h3>Install &amp; configure</h3>
+    <pre>npm install express express-session ejs</pre>
+    <pre>const session = require('express-session');
+
+app.use(session({
+  secret: 'yourSecretKey',   <span class="cm">// signs the session-ID cookie — keep this out of source control</span>
+  resave: false,             <span class="cm">// don't re-save a session that wasn't modified</span>
+  saveUninitialized: false,  <span class="cm">// don't set a cookie before the user actually needs one (GDPR-friendly)</span>
+  cookie: { secure: false, maxAge: 60000 } <span class="cm">// secure:true once you're on HTTPS</span>
+}));</pre>
+
+    <h3>Store data on login</h3>
+    <pre>app.post('/login', (req, res) => {
+  <span class="cm">// assume the credentials have already been verified against MongoDB</span>
+  const user = { _id: 1, name: 'Mai Tran' };
+  req.session.userId = user._id;
+  req.session.isLoggedIn = true;
+  res.redirect('/dashboard');
+});</pre>
+
+    <h3>Read it back on a protected route</h3>
+    <pre>app.get('/dashboard', (req, res) => {
+  if (req.session.isLoggedIn) {
+    res.render('dashboard', { userId: req.session.userId });
+  } else {
+    res.redirect('/login');
+  }
+});</pre>
+
+    <h3>Destroy the session on logout</h3>
+    <pre>app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.redirect('/dashboard');
+    res.clearCookie('connect.sid');
+    res.redirect('/login');
+  });
+});</pre>
+
+    <div class="callout">
+      <div class="ct">Try this before class</div>
+      Log in to your local demo, open DevTools → Application → Cookies, and manually delete <code class="inline">connect.sid</code>. Reload <code class="inline">/dashboard</code>. What happens — and why does deleting one small cookie undo an entire login, even though the session data is still sitting on the server?
+    </div>
+
+    <div class="callout">
+      <div class="ct">Note</div>
+      This demo is intentionally minimal — a hardcoded user object, no password check, no database. Assignment 4 asks you to wire this same pattern up to real MongoDB-backed authentication.
+    </div>
+  </section>
+
+  <section id="compare">
+    <div class="kicker">Side by side</div>
+    <h2>Cookies vs. Sessions</h2>
+    <div class="compare-grid">
+      <div class="compare-card c1">
+        <h4>🍪 Cookies</h4>
+        <ul>
+          <li>Live in the browser, on the customer's device</li>
+          <li>Can persist for years if you choose</li>
+          <li>Readable/editable by the client — never trust them blindly</li>
+          <li>Good for: preferences, "remember me" tokens, analytics IDs</li>
+        </ul>
+      </div>
+      <div class="compare-card c2">
+        <h4>🗄️ Sessions</h4>
+        <ul>
+          <li>Live on the server; client only holds a pointer (in a cookie)</li>
+          <li>Usually short-lived — closes with the browser or a timeout</li>
+          <li>Safer, since real data never reaches the client</li>
+          <li>Good for: login state, shopping cart contents, anything sensitive</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr><th>Feature</th><th>Cookies</th><th>Sessions</th></tr>
+      <tr><td>Storage location</td><td>Client's browser</td><td>Server, referenced by a client-side ID</td></tr>
+      <tr><td>Lifespan</td><td>Set by <code class="inline">expires</code>/<code class="inline">maxAge</code>, can be permanent</td><td>Typically ends with the browser session or a server timeout</td></tr>
+      <tr><td>Security</td><td>Vulnerable if not flagged <code class="inline">Secure</code>/<code class="inline">HttpOnly</code></td><td>Safer — only the ID is exposed, not the data</td></tr>
+    </table>
+  </section>
+
+  <section id="security">
+    <div class="kicker">Don't skip this</div>
+    <h2>Security checklist</h2>
+    <div class="cheat">
+      <div class="row"><span class="op">Secure</span><span>Only send cookies over HTTPS — non-negotiable in production.</span></div>
+      <div class="row"><span class="op">HttpOnly</span><span>Block JS access to sensitive cookies, closing off a common XSS path.</span></div>
+      <div class="row"><span class="op">SameSite</span><span>Use <code class="inline">Strict</code> or <code class="inline">Lax</code> to blunt CSRF attacks.</span></div>
+      <div class="row"><span class="op">Regenerate</span><span>Issue a fresh session ID on login to defeat session-fixation attacks.</span></div>
+      <div class="row"><span class="op">Expire</span><span>Short session timeouts limit the damage of a stolen session ID.</span></div>
+      <div class="row"><span class="op">Never store</span><span>Passwords, card numbers, or anything sensitive directly in a cookie.</span></div>
+    </div>
+  </section>
+
+  <section id="tasks" class="no-border">
+    <div class="kicker">In-class</div>
+    <h2>Two quick tasks</h2>
+
+    <div class="task">
+      <div class="tk">Task 1 · Vanilla JS</div>
+      <h4>Two cookies, one function</h4>
+      <p>Create two cookies — one storing a customer's <code class="inline">name</code>, another storing their <code class="inline">age</code> — then use <code class="inline">getCookieValue()</code> from earlier to retrieve each one correctly by name.</p>
+    </div>
+
+    <div class="task">
+      <div class="tk">Task 2 · Discussion</div>
+      <h4>What breaks when the ticket disappears?</h4>
+      <p>Using the Express demo above: manually delete the <code class="inline">connect.sid</code> cookie in DevTools while logged in. Will you stay logged in? Explain what's actually happening to the session data on the server versus the pointer on the client.</p>
+    </div>
+  </section>
+
+  <section id="cheatsheet" class="no-border">
+    <div class="kicker">Reference</div>
+    <h2>Cheat sheet</h2>
+    <div class="cheat">
+      <div class="row"><span class="op">Set (JS)</span><code>document.cookie = "k=v; expires=...; path=/"</code></div>
+      <div class="row"><span class="op">Read (JS)</span><code>document.cookie</code> → parse manually</div>
+      <div class="row"><span class="op">Delete (JS)</span><code>document.cookie = "k=; expires=Thu, 01 Jan 1970 ...; path=/"</code></div>
+      <div class="row"><span class="op">Set (Express)</span><code>res.cookie('k', 'v', { maxAge, httpOnly })</code></div>
+      <div class="row"><span class="op">Read (Express)</span><code>app.use(cookieParser())</code> → <code>req.cookies.k</code></div>
+      <div class="row"><span class="op">Delete (Express)</span><code>res.clearCookie('k')</code></div>
+      <div class="row"><span class="op">Session setup</span><code>app.use(session({ secret, resave, saveUninitialized, cookie }))</code></div>
+      <div class="row"><span class="op">Session write</span><code>req.session.key = value</code></div>
+      <div class="row"><span class="op">Session read</span><code>req.session.key</code></div>
+      <div class="row"><span class="op">Session end</span><code>req.session.destroy(cb)</code> + <code>res.clearCookie('connect.sid')</code></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  COSC3060 Web Programming Studio — RMIT University Vietnam, SGS · Session &amp; Cookie reading, revised edition
+</footer>
+
+<script>
+  document.querySelectorAll('.tabbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.tab;
+      btn.parentElement.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const panels = btn.closest('div').parentElement.querySelectorAll('.tabpanel');
+      panels.forEach(p => p.classList.toggle('active', p.id === targetId));
+    });
+  });
+</script>
+
+</body>
+</html>
