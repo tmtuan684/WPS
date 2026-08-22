@@ -2,7 +2,7 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
 
-const host = 'localhost';
+const host = '0.0.0.0';
 const port = 3000;
 
 // User Middleware
@@ -23,8 +23,13 @@ app.get('/set-persistent-cookie', (req, res) => {
     res.send('Persistent cookie that last 7 days');
 });
 
+app.get('/set-unsecure-cookie', (req, res) => {
+    res.cookie('unsecure', 'unsecure-cookie', {httpOnly: true, secure: false});
+    res.send('Secure cookie is only sent over HTTPs protocol');
+})
+
 app.get('/set-secure-cookie', (req, res) => {
-    res.cookie('secure', 'secure-cookie', {httpOnly: true, secure: false});
+    res.cookie('secure', 'secure-cookie', {httpOnly: true, secure: true});
     res.send('Secure cookie is only sent over HTTPs protocol');
 })
 
