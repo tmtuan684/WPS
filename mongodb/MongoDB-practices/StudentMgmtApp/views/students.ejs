@@ -26,7 +26,7 @@
       <div class="col-12 col-md-6">
         <div class="input-group">
           <span class="input-group-text" id="search-addon">Search</span>
-          <input type="text" id="search" class="form-control" placeholder="Search by name or email..." aria-label="Search" aria-describedby="search-addon">
+          <input type="text" id="search" class="form-control" placeholder="Search by name or email...">
         </div>
       </div>
 
@@ -88,6 +88,21 @@
       countEl.textContent = visible;
     }
 
+    function searchStudents() {
+      const query = searchInput.value.trim().toLowerCase();
+      
+      Array.from(tbody.rows).forEach(row => {
+        const firstName = row.cells[0].textContent.toLowerCase();
+        const lastName = row.cells[1].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+
+        const matches = firstName.includes(query) || lastName.includes(query) || email.includes(query);
+        row.style.display = matches ? "":"none";
+      })
+      updateCount();
+    }
+
+    searchInput.addEventListener('input', searchStudents);
     // Initialize count on page load
     updateCount();
   </script>
