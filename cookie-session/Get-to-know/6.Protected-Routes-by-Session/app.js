@@ -17,7 +17,7 @@ function requireLogin(req, res, next) {
     if (req.session.loggedIn) {
         next(); // User is logged in, proceed
     } else {
-        res.send('Please log in first. <a href="login/testaccount">Login</a>');
+        res.send('Please log in first. <a href="/login/testaccount">Login</a>');
     }
 }
 

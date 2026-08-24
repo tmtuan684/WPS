@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 const path = require('path');
+require('dotenv').config();
 
-const db = 'stuMgmt';
-const connstr = `mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`;
-
- //Step 1. Connect to DB
- mongoose.connect(connstr)
+//Step 1. Connect to DB
+ mongoose.connect(process.env.MONGODB_URI)
         .then(() => console.log(`Connected to MongoDB Atlas, database ${db}`))
         .catch((error) => console.error(error.message));
 

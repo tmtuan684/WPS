@@ -25,7 +25,7 @@ app.get('/set-persistent-cookie', (req, res) => {
 
 app.get('/set-unsecure-cookie', (req, res) => {
     res.cookie('unsecure', 'unsecure-cookie', {httpOnly: true, secure: false});
-    res.send('Secure cookie is only sent over HTTPs protocol');
+    res.send('Unsecure cookie can be sent over HTTP protocol');
 })
 
 app.get('/set-secure-cookie', (req, res) => {

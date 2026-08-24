@@ -1,4 +1,4 @@
-const { mongoose } = require('./dbconnect');
+const { mongoose } = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
         firstName: String,

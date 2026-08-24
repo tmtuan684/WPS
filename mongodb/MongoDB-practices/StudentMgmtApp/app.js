@@ -1,15 +1,14 @@
 const express = require('express');
-require('dotenv').config();
 const { dbconnect } = require('./model/dbconnect');
 const { Student } = require('./model/studentModel');
-
+require('dotenv').config();
 const app = express();
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
 
-(async () => {
-    await dbconnect(process.env.CONNECTION_STRING);
+async function main() {
+    await dbconnect(process.env.MONGODB_URI);
     console.log("Connected to DB and models loaded.");
 
     // 2. Define routes AFTER connection
@@ -101,4 +100,5 @@ app.use(express.urlencoded({extended: true}));
     app.listen(port, host, () => {
         console.log(`Server is listening at http://${host}:${port}`);
     });
-});
+};
+main();

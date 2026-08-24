@@ -6,4 +6,4 @@ const dbconnect = async (connectString) => {
                 .catch((error) => console.log(error.message));
 }
 
-module.exports =  { mongoose, dbconnect }
+module.exports =  { dbconnect }

@@ -12,6 +12,6 @@
   "type": "commonjs",
   "dependencies": {
     "fs": "^0.0.1-security",
-    "mongoose": "^9.0.1"
+    "mongoose": "^9.9.3"
   }
 }

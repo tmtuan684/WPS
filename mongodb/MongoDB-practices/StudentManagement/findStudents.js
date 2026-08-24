@@ -11,7 +11,7 @@ function indexOf(flag) {
 const { dbconnect } = require('./dbconnect');
 
 const db = 'studentDB';
-const connstr = `mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`;
+const connstr = `mongodb+srv://tuantran24:Blessed@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`;
 
 async function main() {
     //Step 1. Connect to DB
