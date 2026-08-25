@@ -61,7 +61,7 @@ app.post('/cart/add/:itemId', (req, res) => {
 app.post('/cart/remove/:itemId', (req, res) => {
     const cart = getCart(req).filter(id => id!== req.params.itemId);
     res.cookie('cart', JSON.stringify(cart));
-    res.redirect('/')
+    res.redirect('/');
 })
 
 app.get('/cart', (req, res) => {
