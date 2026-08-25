@@ -1,5 +1,5 @@
 function getConnString(db) {
-    return `mongodb+srv://tmtuan:mypassword@cosc3060.rqcqojz.mongodb.net/${db}?retryWrites=true&w=majority&appName=cosc3060`;
+    return `mongodb+srv://tuantran24:Blessed@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`;
 }
 
 module.exports = { getConnString };

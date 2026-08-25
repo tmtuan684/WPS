@@ -7,6 +7,7 @@ const { User, Post } = require("./models");
 const app = express();
 
 /* Define server */
+const host='0.0.0.0';
 const port = 8000;
 
 // Add view engine
@@ -163,5 +164,32 @@ app.post("/posts/:id/delete", (req, res) => {
         });
 });
 
+// CREATE - Form to add a new author
+app.get("/authors/new", (req, res) => {
+    res.render("create-author", { title: "Add New Author" });
+});
+
+// CREATE - Add new author
+app.post("/authors/new", (req, res) => {
+    const { name, email } = req.body;
+
+    // Validate data
+    if (!name || !email) {
+        res.send("Name and email are required to create an author.");
+        return;
+    }
+
+    const user = new User({ name, email });
+    user.save()
+        .then(savedUser => {
+            console.log(`Author ${savedUser.name} added to DB`);
+            res.redirect("/posts/new");
+        })
+        .catch(error => {
+            res.send(error.message);
+            console.error(`Error adding author: ${error.message}`);
+        });
+});
+
 /* Start server */
-app.listen(port, () => console.log(`Server is listening on port ${port}`));
+app.listen(port, host, () => console.log(`Server is listening on port ${port}`));

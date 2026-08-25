@@ -3,7 +3,7 @@
  * @requires ../dbsupport.js to get DB connection string
  */
 const mongoose = require("mongoose");
-const { getConnString } = require("../../dbsupport");
+const { getConnString } = require("../dbsupport");
 
 const db = "SimpleBlogDB";
 mongoose.connect(getConnString(db))
