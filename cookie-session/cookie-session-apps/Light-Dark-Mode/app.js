@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
     const bg = (theme === 'dark') ? '#1B1B1D' : '#FAF8F4';
     const fg = (theme === 'dark') ? '#FAF8F4' : '#1B1B1D';
     res.send(`<body style="background: ${bg}; color: ${fg};">
-                <h1>This application can present in either light mode or dark mode.</h1>
+                <h1>This application can present its contents in either light mode or dark mode.</h1>
                 <p>Current theme: ${theme}</p>
                 <p>Switch theme: <a href="/theme/light" style="background: ${bg}; color: ${fg};">Light</a> | <a href="/theme/dark" style="background: ${bg}; color: ${fg};">Dark</a></p> 
         </body>`);
