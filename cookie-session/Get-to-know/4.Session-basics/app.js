@@ -20,11 +20,13 @@ app.get('/', (req, res) => {
 app.get('/login/:username', (req, res) => {
     req.session.username = req.params.username;
     req.session.loggedIn = true;
-    res.send(`A new session is created for user "${req.session.username}`);
+    
+    res.send(`A new session is created for user "${req.session.username}"`);
 })
 
 //Read (get) session data
 app.get('/profile', (req, res) => {
+    
     if(req.session.loggedIn) {
         res.send(`Welcome, ${req.session.username}`);
     } else {
