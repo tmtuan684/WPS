@@ -12,7 +12,7 @@ app.use(express.urlencoded({extended: true}));
 
 // Connect MongoDB Atlas
 const db = 'imageDB'
-const connstr = `mongodb+srv://tuantran24:mypassword@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`
+const connstr = `mongodb+srv://tuantran24:Blessed@cluster0.lberqlg.mongodb.net/${db}?appName=cluster0`
 mongoose.connect(connstr)
         .then(() => { console.log('Successfully connected to MongoDB Atlas')})
         .catch((error) => console.log(error.message));
