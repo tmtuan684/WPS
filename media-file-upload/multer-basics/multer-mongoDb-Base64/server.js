@@ -18,9 +18,9 @@ mongoose.connect(connstr)
         .catch((error) => console.log(error.message));
 
 const imageSchema = new mongoose.Schema({
-      name: String,
-      image: Buffer,
-      contentType: String,
+    name: String,
+    image: Buffer,
+    contentType: String,
 });
 
 const Image = mongoose.model('Image', imageSchema);
@@ -68,5 +68,5 @@ app.get('/image/data/:id', async (req, res) => {
 
 // Start the server
 app.listen(3000, () => {
-  console.log('Server started on http://localhost:3000');
+    console.log('Server started on http://localhost:3000');
 });     
