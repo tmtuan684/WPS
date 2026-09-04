@@ -1,0 +1,14 @@
+{
+  "name": "onedrive-cdn-demo",
+  "version": "1.0.0",
+  "description": "Multer upload demo + OneDrive-as-CDN link demo (Option A: manual link, auto-converted to a direct link)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "multer": "^2.0.2"
+  }
+}
