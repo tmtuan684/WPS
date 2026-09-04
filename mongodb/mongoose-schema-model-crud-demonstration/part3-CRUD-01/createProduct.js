@@ -12,7 +12,7 @@ async function createProduct(productdata) {
     const mongoose = await dbconnect(process.env.MONGODB_URI);
 
     // Step 2 & 3.  Declare to use pre-defined schema and produce collection models
-    const { Product } = require('../create-data-03/model');
+    const { Product } = require('./model');
 
     // Step 4. Made instances and add them to database
     const newProduct = new Product(productdata);

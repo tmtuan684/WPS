@@ -1,4 +1,7 @@
 /**
+ * Enforce a numeric range with min and max
+ * Add a rule to the Customer schema so age must be at least 13 and no more than 120.
+ * Handle the validation error using a try-catch block during the save operation.
  * The below example will result in a validation error: "Drink validation failed: name: Path name (A, length 1) is shorter than the minimum allowed length (2)." — which means the drink object is not valid to insert as a document in the database because its name is too short.
  */
 const {dbconnect} = require('./dbconnect');

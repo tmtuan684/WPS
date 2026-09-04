@@ -3,8 +3,7 @@ require('dotenv').config({ path: '../.env' });
 
 async function main() {
     // Step 1. Connect to database
-    const mongoose = await dbconnect(process.env.MONGODB_URI);
-    console.log("App can start now");
+    const mongoose = await dbconnect(process.env.MONGODB_URI_UserProduct);
 
     // Step 2 & 3.  Declare to use pre-defined schema and produce collection models
     const { User, Product } = require('./model');
